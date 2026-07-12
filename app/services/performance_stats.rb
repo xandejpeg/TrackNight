@@ -2,10 +2,12 @@
 # opcionalmente filtradas por perfil (ACF / AC / todos), período (dia/noite),
 # temperatura e condição do clima.
 class PerformanceStats
-  attr_reader :profile, :period, :temp, :weather
+  attr_reader :profiles, :period, :temp, :weather
 
-  def initialize(profile_code: "todos", period: nil, temp: nil, weather: nil)
-    @profile = DriverProfile.find_by(code: profile_code) if profile_code.present? && profile_code != "todos"
+  def initialize(profile_code: "todos", profile_codes: nil, period: nil, temp: nil, weather: nil)
+    codes = Array(profile_codes).map(&:to_s).reject(&:blank?)
+    codes = [ profile_code ] if codes.empty? && profile_code.present? && profile_code != "todos"
+    @profiles = codes.empty? ? nil : DriverProfile.where(code: codes).to_a
     @period = period.presence
     @temp = temp.presence
     @weather = weather.presence
@@ -14,7 +16,7 @@ class PerformanceStats
   def sessions
     @sessions ||= begin
       scope = RaceSession.confirmed.chronological.includes(:driver_profile, result_entries: :kart)
-      scope = scope.where(driver_profile: profile) if profile
+      scope = scope.where(driver_profile: profiles) if profiles
       scope = scope.where(track_temp: temp) if temp
       scope = scope.where(weather_condition: weather) if weather
       list = scope.to_a

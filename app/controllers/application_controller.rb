@@ -5,7 +5,7 @@ class ApplicationController < ActionController::Base
   before_action :require_login
   before_action :enforce_password_change
 
-  helper_method :current_user, :current_profile_code, :profile_filter_options,
+  helper_method :current_user, :current_profiles, :profiles_filtered?,
                 :current_period, :current_temp, :current_weather, :active_filters_count
 
   PROFILE_CODES = %w[ACF AC].freeze
@@ -26,10 +26,22 @@ class ApplicationController < ActionController::Base
     redirect_to edit_password_path unless controller_name.in?(%w[passwords sessions])
   end
 
-  # Filtro de perfil compartilhado (default: "Todos os perfis")
-  def current_profile_code
-    code = params[:profile].to_s.upcase
-    PROFILE_CODES.include?(code) ? code : "todos"
+  # Filtro de perfil compartilhado: toggles multi-seleção (?profiles=ACF,AC).
+  # Nenhum ou todos selecionados = todas as corridas.
+  def current_profiles
+    @current_profiles ||= begin
+      codes = params[:profiles].to_s.split(",").map { |c| c.strip.upcase }.uniq & PROFILE_CODES
+      # Compatibilidade com links antigos ?profile=ACF
+      if codes.empty?
+        legacy = params[:profile].to_s.upcase
+        codes = [ legacy ] if PROFILE_CODES.include?(legacy)
+      end
+      codes.empty? || codes.sort == PROFILE_CODES.sort ? PROFILE_CODES.dup : codes
+    end
+  end
+
+  def profiles_filtered?
+    current_profiles.sort != PROFILE_CODES.sort
   end
 
   def current_period
@@ -45,16 +57,12 @@ class ApplicationController < ActionController::Base
   end
 
   def active_filters_count
-    [ current_profile_code != "todos", current_period, current_temp, current_weather ].count(&:present?)
-  end
-
-  def profile_filter_options
-    [ [ "Todos os perfis", "todos" ] ] + DriverProfile.order(:kind).map { |p| [ p.display_name, p.code ] }
+    [ profiles_filtered?, current_period, current_temp, current_weather ].count(&:present?)
   end
 
   def stats_for_current_profile
     PerformanceStats.new(
-      profile_code: current_profile_code,
+      profile_codes: profiles_filtered? ? current_profiles : nil,
       period: current_period,
       temp: current_temp,
       weather: current_weather

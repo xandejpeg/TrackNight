@@ -2,13 +2,27 @@
 <div class="glass px-4 py-3 flex flex-wrap items-center gap-x-5 gap-y-3">
   <div class="flex items-center gap-2">
     <span class="filter-label">Perfil</span>
-    <div class="filter-group">
-      <% profile_filter_options.each do |label, code| %>
-        <% active = current_profile_code == code %>
-        <%= link_to label, url_for(request.query_parameters.merge(profile: code == "todos" ? nil : code)),
-            class: "filter-pill #{'filter-pill-active' if active}" %>
-      <% end %>
-    </div>
+    <details class="filter-dropdown">
+      <summary>
+        👤 <%= profiles_filtered? ? current_profiles.join(" + ") : "Todos" %>
+        <span class="text-[9px] opacity-70">▾</span>
+      </summary>
+      <div class="filter-dropdown-panel">
+        <% DriverProfile.order(:kind).each do |p| %>
+          <% on = current_profiles.include?(p.code) %>
+          <% new_codes = on ? current_profiles - [ p.code ] : (current_profiles | [ p.code ]) %>
+          <% value = (new_codes.empty? || new_codes.sort == ApplicationController::PROFILE_CODES.sort) ? nil : new_codes.join(",") %>
+          <%= link_to url_for(request.query_parameters.except("profile").merge(profiles: value)), class: "filter-toggle-row" do %>
+            <span class="toggle-track <%= 'toggle-on' if on %>"><span class="toggle-thumb"></span></span>
+            <span class="profile-chip" style="--chip-color: <%= p.color || '#8b8b96' %>"><%= p.code %></span>
+            <% if p.display_name != p.code %>
+              <span class="text-mute"><%= p.display_name %></span>
+            <% end %>
+          <% end %>
+        <% end %>
+        <p class="text-[10px] text-mute px-2 pt-2 border-t border-line mt-1.5">Os 2 ligados = todas as corridas juntas.</p>
+      </div>
+    </details>
   </div>
 
   <div class="flex items-center gap-2">
