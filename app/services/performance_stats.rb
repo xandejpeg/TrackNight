@@ -74,7 +74,7 @@ class PerformanceStats
       next unless e
       {
         session_id: s.id,
-        label: s.started_at ? s.started_at.strftime("%d/%m %H:%M") : s.title,
+        label: s.started_at ? s.started_at.strftime("%d/%m/%y %H:%M") : s.title,
         date: s.started_at&.iso8601,
         session_title: s.title,
         profile: s.driver_profile&.code,
