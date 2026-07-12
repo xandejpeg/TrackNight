@@ -13,30 +13,82 @@
 <% if @kart_stats.empty? %>
   <div class="glass p-12 text-center text-sm text-mute">Nenhum kart registrado neste filtro.</div>
 <% else %>
-  <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+  <% best = @kart_stats.first %>
+  <% most_used = @kart_stats.max_by { |k| k[:uses] } %>
+  <% fastest_trap = @kart_stats.select { |k| k[:max_speed] }.max_by { |k| k[:max_speed] } %>
+
+  <!-- Resumo da frota -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="glass glass-hover p-5">
+      <p class="kicker text-gold">🥇 Melhor kart</p>
+      <p class="stat-value text-4xl mt-2">#<%= best[:number] %></p>
+      <p class="text-[11px] text-mute mt-2">melhor volta <span class="chrono font-bold text-white"><%= lap(best[:best_ms]) %></span></p>
+    </div>
+    <div class="glass glass-hover p-5">
+      <p class="kicker">Karts diferentes</p>
+      <p class="stat-value text-4xl mt-2"><%= @kart_stats.size %></p>
+      <p class="text-[11px] text-mute mt-2"><%= @kart_stats.sum { |k| k[:uses] } %> corridas no total</p>
+    </div>
+    <div class="glass glass-hover p-5">
+      <p class="kicker text-smurf">Mais usado</p>
+      <p class="stat-value text-4xl mt-2">#<%= most_used[:number] %></p>
+      <p class="text-[11px] text-mute mt-2"><%= most_used[:uses] %> corrida(s)</p>
+    </div>
+    <div class="glass glass-hover p-5">
+      <p class="kicker text-mint">Maior velocidade</p>
+      <p class="stat-value text-4xl mt-2"><%= fastest_trap ? "#{fastest_trap[:max_speed]}" : "—" %><span class="text-lg text-mute"> km/h</span></p>
+      <p class="text-[11px] text-mute mt-2"><%= fastest_trap ? "kart ##{fastest_trap[:number]}" : "sem speed trap" %></p>
+    </div>
+  </div>
+
+  <!-- Um card por kart, com cada corrida detalhada -->
+  <div class="grid lg:grid-cols-2 gap-4">
     <% @kart_stats.each_with_index do |k, i| %>
-      <div class="glass glass-hover p-6">
-        <div class="flex items-start justify-between">
+      <div class="glass glass-hover p-6 <%= "border-gold/40" if i.zero? %>">
+        <div class="flex items-start justify-between mb-4">
           <div>
-            <p class="kicker"><%= i.zero? ? "o mais rápido" : "kart" %></p>
+            <p class="kicker"><%= i.zero? ? "🥇 o mais rápido até agora" : "kart" %></p>
             <p class="stat-value text-5xl font-black mt-1">#<%= k[:number] %></p>
           </div>
-          <% if i.zero? %><span class="text-2xl">🥇</span><% end %>
+          <div class="text-right">
+            <p class="text-[10px] uppercase tracking-widest text-mute">Corridas</p>
+            <p class="stat-value text-3xl"><%= k[:uses] %></p>
+          </div>
         </div>
-        <dl class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm mt-5">
-          <dt class="text-mute text-[11px] uppercase tracking-widest">Melhor volta</dt>
-          <dd class="chrono font-bold text-right"><%= lap(k[:best_ms]) %></dd>
-          <dt class="text-mute text-[11px] uppercase tracking-widest">Média</dt>
-          <dd class="chrono text-right"><%= lap(k[:avg_ms]) %></dd>
-          <dt class="text-mute text-[11px] uppercase tracking-widest">Usos</dt>
-          <dd class="chrono text-right"><%= k[:uses] %></dd>
-          <dt class="text-mute text-[11px] uppercase tracking-widest">Melhor posição</dt>
-          <dd class="chrono text-right">P<%= k[:best_position] || "—" %></dd>
-        </dl>
-        <div class="border-t border-line mt-4 pt-3 flex flex-wrap gap-2">
-          <% k[:sessions].each do |s| %>
-            <%= link_to s.started_at ? s.started_at.strftime("%d/%m/%y") : s.title, race_session_path(s),
-                class: "chrono text-[11px] px-2 py-0.5 rounded-full bg-white/[0.05] border border-line hover:border-race/50 transition-colors" %>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+          <div class="rounded-lg bg-white/[0.03] border border-white/5 px-3 py-2">
+            <p class="text-[9px] uppercase tracking-widest text-mute">Melhor volta</p>
+            <p class="chrono font-bold"><%= lap(k[:best_ms]) %></p>
+          </div>
+          <div class="rounded-lg bg-white/[0.03] border border-white/5 px-3 py-2">
+            <p class="text-[9px] uppercase tracking-widest text-mute">Média</p>
+            <p class="chrono"><%= lap(k[:avg_ms]) %></p>
+          </div>
+          <div class="rounded-lg bg-white/[0.03] border border-white/5 px-3 py-2">
+            <p class="text-[9px] uppercase tracking-widest text-mute">Vel. máx</p>
+            <p class="chrono"><%= k[:max_speed] ? "#{k[:max_speed]} km/h" : "—" %></p>
+          </div>
+          <div class="rounded-lg bg-white/[0.03] border border-white/5 px-3 py-2">
+            <p class="text-[9px] uppercase tracking-widest text-mute">Melhor pos</p>
+            <p class="chrono">P<%= k[:best_position] || "—" %></p>
+          </div>
+        </div>
+
+        <p class="text-[10px] uppercase tracking-widest text-mute mb-2">Corridas com esse kart</p>
+        <div class="flex flex-col gap-2">
+          <% k[:runs].each do |run| %>
+            <% s = run[:session] %>
+            <%= link_to race_session_path(s), class: "flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg bg-white/[0.02] border border-white/5 px-3 py-2 hover:border-race/40 transition-colors" do %>
+              <span class="chrono text-[11px] text-mute"><%= s.started_at ? s.started_at.strftime("%d/%m/%y %H:%M") : "Data pendente" %></span>
+              <span class="text-[12px] font-semibold"><%= s.title %></span>
+              <%= weather_chips(s) %>
+              <span class="ml-auto flex items-center gap-3">
+                <span class="chrono text-[12px] font-bold"><%= lap(run[:best_ms]) %></span>
+                <span class="chrono text-[11px] text-mute"><%= run[:speed] ? "#{run[:speed]} km/h" : "—" %></span>
+                <span class="chrono text-[11px] <%= run[:position] && run[:position] <= 3 ? 'text-gold' : 'text-mute' %>">P<%= run[:position] || "—" %></span>
+              </span>
+            <% end %>
           <% end %>
         </div>
       </div>

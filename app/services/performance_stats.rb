@@ -109,13 +109,25 @@ class PerformanceStats
     groups = entries.select(&:kart_number).group_by { |e| e.kart_number.to_s.sub(/\A0+(?=\d)/, "") }
     groups.map do |number, list|
       bests = list.filter_map(&:best_lap_ms)
+      speeds = list.filter_map(&:speed)
       {
         number: number,
         uses: list.size,
         best_ms: bests.min,
         avg_ms: bests.empty? ? nil : bests.sum / bests.size,
         best_position: list.filter_map(&:position).min,
-        sessions: list.map { |e| e.race_session }
+        max_speed: speeds.max,
+        total_laps: list.filter_map(&:laps).sum,
+        sessions: list.map { |e| e.race_session },
+        runs: list.map { |e|
+          {
+            session: e.race_session,
+            best_ms: e.best_lap_ms,
+            speed: e.speed,
+            position: e.position,
+            laps: e.laps
+          }
+        }
       }
     end.sort_by { |k| k[:best_ms] || 10**9 }
   end
