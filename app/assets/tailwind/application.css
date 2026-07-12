@@ -15,7 +15,19 @@
 }
 
 @layer base {
-  html { scroll-behavior: smooth; }
+  html {
+    overflow-y: scroll;
+  }
+  html, body {
+    scroll-behavior: auto;
+    overscroll-behavior: auto;
+    touch-action: auto;
+  }
+  /* barra de rolagem visível no tema escuro */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: #0a0a0d; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.18); border-radius: 6px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(225,6,0,0.55); }
   body {
     background:
       radial-gradient(1200px 500px at 85% -10%, rgba(225, 6, 0, 0.14), transparent 60%),
