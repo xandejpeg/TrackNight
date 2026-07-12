@@ -1,12 +1,20 @@
 # Dados estruturais do TrackNight (sem resultados — estes vêm do pipeline de importação).
 
-# --- Usuário único -----------------------------------------------------------
+# --- Usuários ----------------------------------------------------------------
 xande = User.find_or_initialize_by(username: "Xande")
 if xande.new_record?
   password = ENV.fetch("XANDE_INITIAL_PASSWORD") { Rails.env.production? ? raise("Defina XANDE_INITIAL_PASSWORD") : "123321" }
   xande.password = password
   xande.must_change_password = Rails.env.production?
   xande.save!
+end
+
+helo = User.find_or_initialize_by(username: "Helo")
+if helo.new_record?
+  password = ENV.fetch("HELO_INITIAL_PASSWORD") { Rails.env.production? ? raise("Defina HELO_INITIAL_PASSWORD") : "123321" }
+  helo.password = password
+  helo.must_change_password = Rails.env.production?
+  helo.save!
 end
 
 # --- Piloto e perfis ---------------------------------------------------------
@@ -135,4 +143,4 @@ VehicleCategory.find_or_create_by!(slug: "kart-rental") do |c|
   c.vehicle_kind = :kart
 end
 
-puts "Seeds ok: usuário Xande, piloto Alessandro Chiarelli (ACF + AC), KGV Circuito 101, Kart Rental."
+puts "Seeds ok: usuários Xande e Helo, piloto Alessandro Chiarelli (ACF + AC), KGV Circuito 101, Kart Rental."
