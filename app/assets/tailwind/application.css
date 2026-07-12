@@ -169,6 +169,20 @@
     transition: border-color .2s, box-shadow .2s;
   }
   .field:focus { border-color: rgba(225,6,0,0.6); box-shadow: 0 0 0 3px rgba(225,6,0,0.15); }
+  select.field, select.filter-select {
+    color-scheme: dark;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' stroke='%238b8b96' stroke-width='1.6' fill='none' stroke-linecap='round'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 0.7rem center;
+    padding-right: 2rem;
+    cursor: pointer;
+  }
+  select.field option, select.filter-select option {
+    background: #131318;
+    color: #e8e8ee;
+  }
 
   .table-race th {
     font-size: 0.62rem;
@@ -250,7 +264,8 @@
     border-radius: 0.55rem;
     color: #d5d5dd;
     padding: 0.32rem 0.55rem;
-    max-width: 11rem;
+    max-width: 13rem;
+    color-scheme: dark;
   }
   .filter-select:focus { border-color: rgba(225,6,0,0.6); outline: none; }
   .filter-select option { background: #131318; color: #d5d5dd; }

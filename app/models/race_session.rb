@@ -31,13 +31,11 @@ class RaceSession < ApplicationRecord
   WEATHER_LABELS = {
     "clima_estavel" => "Clima estável", "ventania_forte" => "Ventania forte",
     "chuva_fraca" => "Chuva fraca", "chuva_moderada" => "Chuva moderada",
-    "chuva_forte" => "Chuva forte", "tempestade" => "Tempestade",
-    "pista_inundada" => "Pista inundada"
+    "tempestade" => "Tempestade (pista inundada)"
   }.freeze
   WEATHER_ICONS = {
     "clima_estavel" => "🌤", "ventania_forte" => "💨", "chuva_fraca" => "🌦",
-    "chuva_moderada" => "🌧", "chuva_forte" => "⛈", "tempestade" => "🌩",
-    "pista_inundada" => "🌊"
+    "chuva_moderada" => "🌧", "tempestade" => "🌩"
   }.freeze
 
   scope :confirmed, -> { review_confirmada }
