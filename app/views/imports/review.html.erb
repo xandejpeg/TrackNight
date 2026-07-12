@@ -1,0 +1,76 @@
+<% content_for :title, "Revisar — TrackNight" %>
+
+<div class="mb-6">
+  <%= link_to "← Importações", imports_path, class: "text-[12px] text-mute hover:text-white" %>
+  <h1 class="text-2xl font-black tracking-tight mt-2">Revisar <span class="chrono text-race-glow"><%= @document.filename %></span></h1>
+  <p class="text-sm text-mute mt-1">
+    Confiança <%= @document.confidence %>% · <%= @rows.size %> linhas ·
+    <%= @parsed[:session_type]&.capitalize %> <%= @parsed[:session_number] %> ·
+    largada <%= @parsed[:start_time_text] || "—" %> · layout <%= @parsed[:column_layout]&.upcase %>
+  </p>
+</div>
+
+<%= form_with url: confirm_import_path(@document), method: :patch, local: true do %>
+  <div class="grid lg:grid-cols-3 gap-4 mb-6">
+    <div class="glass p-5">
+      <label class="kicker block mb-2">Perfil da sessão</label>
+      <%= select_tag :profile_code,
+            options_for_select(DriverProfile.order(:kind).map { |p| [ p.display_name, p.code ] }, @suggested_profile),
+            class: "field" %>
+      <p class="text-[11px] text-mute mt-2">Sugerido: <%= @suggested_profile %></p>
+    </div>
+    <div class="glass p-5">
+      <label class="kicker block mb-2">Data e hora da sessão</label>
+      <%= datetime_local_field_tag :started_at, @document.suggested_session_date&.strftime("%Y-%m-%dT%H:%M"), class: "field" %>
+      <p class="text-[11px] text-mute mt-2">Detectada do nome do arquivo.</p>
+    </div>
+    <div class="glass p-5 flex flex-col justify-center">
+      <label class="flex items-center gap-3 cursor-pointer">
+        <%= check_box_tag :date_pending, "1", false, class: "w-4 h-4 accent-[#e10600]" %>
+        <span class="text-sm">Data pendente (confirmar depois)</span>
+      </label>
+    </div>
+  </div>
+
+  <div class="glass p-6 overflow-x-auto mb-6">
+    <h2 class="font-bold text-sm uppercase tracking-widest text-mute mb-4">Linhas extraídas — edite o que o OCR errou</h2>
+    <table class="w-full table-race">
+      <thead>
+        <tr><th>ALE?</th><th>Pos</th><th>Kart</th><th>Nome</th><th>Voltas</th><th>Melhor</th><th>Total</th><th>S1</th><th>S2</th><th>S3</th><th>Vel.</th></tr>
+      </thead>
+      <tbody>
+        <% @rows.each_with_index do |row, idx| %>
+          <% ale = row[:matched_driver_id].present? %>
+          <tr class="<%= "row-ale" if ale %>">
+            <td><%= check_box_tag "rows[#{idx}][alessandro]", "1", ale, class: "w-4 h-4 accent-[#e10600]" %></td>
+            <td><%= text_field_tag "rows[#{idx}][position]", row[:position], class: "field !py-1 !px-2 w-12 chrono text-center" %></td>
+            <td><%= text_field_tag "rows[#{idx}][kart_number]", row[:kart_number], class: "field !py-1 !px-2 w-16 chrono text-center" %></td>
+            <td><%= text_field_tag "rows[#{idx}][name]", row[:name], class: "field !py-1 !px-2 min-w-44 #{'!border-race/50' if ale}" %></td>
+            <td><%= text_field_tag "rows[#{idx}][laps]", row[:laps], class: "field !py-1 !px-2 w-14 chrono text-center" %></td>
+            <td><%= text_field_tag "rows[#{idx}][best_lap_text]", row[:best_lap_text], class: "field !py-1 !px-2 w-24 chrono" %></td>
+            <td><%= text_field_tag "rows[#{idx}][total_time_text]", row[:total_time_text], class: "field !py-1 !px-2 w-24 chrono" %></td>
+            <td><%= text_field_tag "rows[#{idx}][s1_text]", row[:s1_text], class: "field !py-1 !px-2 w-20 chrono" %></td>
+            <td><%= text_field_tag "rows[#{idx}][s2_text]", row[:s2_text], class: "field !py-1 !px-2 w-20 chrono" %></td>
+            <td><%= text_field_tag "rows[#{idx}][s3_text]", row[:s3_text], class: "field !py-1 !px-2 w-20 chrono" %></td>
+            <td><%= text_field_tag "rows[#{idx}][speed_text]", row[:speed_text], class: "field !py-1 !px-2 w-16 chrono" %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    <p class="text-[10px] text-mute mt-3">A linha vermelha é o Alessandro reconhecido automaticamente. Marque/desmarque "ALE?" se o OCR errou o piloto.</p>
+  </div>
+
+  <% if @document.file.attached? && @document.image? %>
+    <details class="glass p-5 mb-6">
+      <summary class="cursor-pointer text-sm font-bold text-mute hover:text-white">Ver imagem original</summary>
+      <div class="mt-4 rounded-xl overflow-hidden border border-line">
+        <%= image_tag url_for(@document.file), class: "w-full" %>
+      </div>
+    </details>
+  <% end %>
+
+  <div class="flex gap-3">
+    <%= submit_tag "Confirmar e importar sessão", class: "btn-race cursor-pointer" %>
+    <%= link_to "Cancelar", imports_path, class: "btn-ghost" %>
+  </div>
+<% end %>

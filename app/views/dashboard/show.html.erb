@@ -1,0 +1,124 @@
+<% content_for :title, "Dashboard — TrackNight" %>
+
+<div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
+  <div>
+    <p class="kicker mb-1">Pit wall</p>
+    <h1 class="text-3xl font-black tracking-tight">Alessandro Chiarelli</h1>
+    <p class="text-sm text-mute mt-1">Kart rental · KGV — Circuito 101</p>
+  </div>
+  <%= render "shared/profile_filter" %>
+</div>
+
+<% if @pending_reviews.positive? %>
+  <%= link_to imports_path, class: "glass glass-hover flex items-center gap-3 px-5 py-3 mb-8 border-gold/40" do %>
+    <span class="text-gold text-lg">⚑</span>
+    <span class="text-sm"><strong class="text-gold"><%= @pending_reviews %></strong> sessão(ões) aguardando revisão — clique para revisar e confirmar.</span>
+  <% end %>
+<% end %>
+
+<% if @stats.sessions_count.zero? %>
+  <div class="glass p-12 text-center">
+    <p class="text-4xl mb-3">🏁</p>
+    <h2 class="text-lg font-bold mb-2">Nenhuma sessão confirmada ainda</h2>
+    <p class="text-sm text-mute mb-6">Importe as folhas de tempos e confirme na revisão para acender o painel.</p>
+    <%= link_to "Importar resultados", new_import_path, class: "btn-race" %>
+  </div>
+<% else %>
+
+  <!-- Recordes -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+    <div class="glass glass-hover p-5">
+      <p class="kicker">Melhor volta</p>
+      <p class="stat-value text-4xl mt-2"><%= lap(@stats.best_lap_entry&.best_lap_ms) %></p>
+      <% if (r = @stats.records[:best_lap]) %>
+        <p class="text-[11px] text-mute mt-2 flex items-center gap-2">
+          <%= profile_badge(r[:session].driver_profile) %>
+          <%= session_date_label(r[:session]) %>
+        </p>
+      <% end %>
+    </div>
+    <div class="glass glass-hover p-5">
+      <p class="kicker text-smurf">Volta ideal</p>
+      <p class="stat-value text-4xl mt-2"><%= lap(@stats.ideal_lap_ms) %></p>
+      <p class="text-[11px] text-mute mt-2">S1 + S2 + S3 dos melhores setores</p>
+    </div>
+    <div class="glass glass-hover p-5">
+      <p class="kicker text-gold">Margem p/ ideal</p>
+      <p class="stat-value text-4xl mt-2"><%= @stats.gap_to_ideal_ms ? lap_delta(@stats.gap_to_ideal_ms) : "—" %></p>
+      <p class="text-[11px] text-mute mt-2">Quanto ainda dá pra ganhar</p>
+    </div>
+    <div class="glass glass-hover p-5">
+      <p class="kicker text-mint">Vel. máxima</p>
+      <p class="stat-value text-4xl mt-2"><%= @stats.best_speed_entry&.speed ? "#{@stats.best_speed_entry.speed} km/h" : "—" %></p>
+      <p class="text-[11px] text-mute mt-2">Speed trap na reta</p>
+    </div>
+  </div>
+
+  <!-- Setores -->
+  <div class="grid grid-cols-3 gap-4 mb-4">
+    <% { "S1" => @stats.best_s1_entry&.s1_ms, "S2" => @stats.best_s2_entry&.s2_ms, "S3" => @stats.best_s3_entry&.s3_ms }.each do |label, ms| %>
+      <div class="glass glass-hover p-4 text-center">
+        <p class="kicker text-[#c084fc]">Melhor <%= label %></p>
+        <p class="stat-value text-2xl mt-1"><%= lap(ms) %></p>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Evolução + resumo -->
+  <div class="grid lg:grid-cols-3 gap-4 mb-4">
+    <div class="glass p-6 lg:col-span-2">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="font-bold text-sm uppercase tracking-widest text-mute">Evolução da melhor volta</h2>
+        <span class="text-[10px] text-mute chrono">sessões confirmadas</span>
+      </div>
+      <div class="h-64" data-controller="lap-chart" data-lap-chart-points-value="<%= @evolution.to_json %>">
+        <canvas data-lap-chart-target="canvas"></canvas>
+      </div>
+    </div>
+    <div class="glass p-6 flex flex-col gap-5">
+      <h2 class="font-bold text-sm uppercase tracking-widest text-mute">Carreira</h2>
+      <div class="grid grid-cols-2 gap-4">
+        <div><p class="stat-value text-3xl"><%= @stats.sessions_count %></p><p class="text-[11px] text-mute">sessões</p></div>
+        <div><p class="stat-value text-3xl"><%= @stats.total_laps %></p><p class="text-[11px] text-mute">voltas</p></div>
+        <div><p class="stat-value text-3xl"><%= duration_human(@stats.total_track_time_ms) %></p><p class="text-[11px] text-mute">em pista</p></div>
+        <div><p class="stat-value text-3xl">P<%= @stats.best_position_entry&.position || "—" %></p><p class="text-[11px] text-mute">melhor posição</p></div>
+      </div>
+      <div class="border-t border-line pt-4 mt-auto">
+        <p class="text-[11px] text-mute mb-1">Média das melhores voltas</p>
+        <p class="stat-value text-2xl"><%= lap(@stats.average_best_lap_ms) %></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Últimas sessões -->
+  <div class="glass p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="font-bold text-sm uppercase tracking-widest text-mute">Últimas sessões</h2>
+      <%= link_to "Ver timeline →", timeline_path(profile: params[:profile]), class: "text-[12px] text-race-glow font-semibold" %>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full table-race">
+        <thead>
+          <tr><th>Data</th><th>Sessão</th><th>Perfil</th><th>Pos</th><th>Kart</th><th>Melhor volta</th><th>S1</th><th>S2</th><th>S3</th><th></th></tr>
+        </thead>
+        <tbody>
+          <% @recent_sessions.each do |s| %>
+            <% e = s.alessandro_entry %>
+            <tr class="hover:bg-white/[0.03] transition-colors">
+              <td class="chrono text-mute"><%= session_date_label(s) %></td>
+              <td class="font-semibold"><%= s.title %></td>
+              <td><%= profile_badge(s.driver_profile) %></td>
+              <td class="chrono">P<%= e&.position || "—" %></td>
+              <td class="chrono">#<%= e&.kart_number || "—" %></td>
+              <td class="chrono font-bold"><%= lap(e&.best_lap_ms) %></td>
+              <td class="chrono text-mute"><%= lap(e&.s1_ms) %></td>
+              <td class="chrono text-mute"><%= lap(e&.s2_ms) %></td>
+              <td class="chrono text-mute"><%= lap(e&.s3_ms) %></td>
+              <td><%= link_to "abrir", race_session_path(s), class: "text-race-glow text-[12px] font-semibold" %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% end %>

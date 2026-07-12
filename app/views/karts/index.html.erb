@@ -1,0 +1,44 @@
+<% content_for :title, "Karts — TrackNight" %>
+
+<div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
+  <div>
+    <p class="kicker mb-1">Máquinas</p>
+    <h1 class="text-3xl font-black tracking-tight">Karts pilotados</h1>
+    <p class="text-sm text-mute mt-1">Cada kart rental é uma loteria — estes foram os números que caíram pro Xande.</p>
+  </div>
+  <%= render "shared/profile_filter" %>
+</div>
+
+<% if @kart_stats.empty? %>
+  <div class="glass p-12 text-center text-sm text-mute">Nenhum kart registrado neste filtro.</div>
+<% else %>
+  <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <% @kart_stats.each_with_index do |k, i| %>
+      <div class="glass glass-hover p-6">
+        <div class="flex items-start justify-between">
+          <div>
+            <p class="kicker"><%= i.zero? ? "o mais rápido" : "kart" %></p>
+            <p class="stat-value text-5xl font-black mt-1">#<%= k[:number] %></p>
+          </div>
+          <% if i.zero? %><span class="text-2xl">🥇</span><% end %>
+        </div>
+        <dl class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm mt-5">
+          <dt class="text-mute text-[11px] uppercase tracking-widest">Melhor volta</dt>
+          <dd class="chrono font-bold text-right"><%= lap(k[:best_ms]) %></dd>
+          <dt class="text-mute text-[11px] uppercase tracking-widest">Média</dt>
+          <dd class="chrono text-right"><%= lap(k[:avg_ms]) %></dd>
+          <dt class="text-mute text-[11px] uppercase tracking-widest">Usos</dt>
+          <dd class="chrono text-right"><%= k[:uses] %></dd>
+          <dt class="text-mute text-[11px] uppercase tracking-widest">Melhor posição</dt>
+          <dd class="chrono text-right">P<%= k[:best_position] || "—" %></dd>
+        </dl>
+        <div class="border-t border-line mt-4 pt-3 flex flex-wrap gap-2">
+          <% k[:sessions].each do |s| %>
+            <%= link_to s.started_at ? s.started_at.strftime("%d/%m/%y") : s.title, race_session_path(s),
+                class: "chrono text-[11px] px-2 py-0.5 rounded-full bg-white/[0.05] border border-line hover:border-race/50 transition-colors" %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>

@@ -1,0 +1,16 @@
+<div class="max-w-md mx-auto">
+  <h1 class="text-xl font-black mb-6">Trocar senha</h1>
+  <div class="glass p-7">
+    <%= form_with url: password_path, method: :patch, local: true, class: "space-y-4" do %>
+      <div>
+        <label class="kicker block mb-1.5">Senha atual</label>
+        <%= password_field_tag :current_password, nil, class: "field" %>
+      </div>
+      <div>
+        <label class="kicker block mb-1.5">Nova senha</label>
+        <%= password_field_tag :password, nil, class: "field" %>
+      </div>
+      <%= submit_tag "Atualizar", class: "btn-race w-full cursor-pointer" %>
+    <% end %>
+  </div>
+</div>

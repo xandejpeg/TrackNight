@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+  <head>
+    <title><%= content_for(:title) || "TrackNight — Xande Racing Performance" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="TrackNight">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#060608">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="speed-lines">
+    <header class="fixed top-0 inset-x-0 z-50">
+      <div class="glass !rounded-none border-x-0 border-t-0 backdrop-blur-2xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 flex items-center gap-3 h-16">
+          <%= link_to root_path, class: "flex items-center gap-2 shrink-0 group" do %>
+            <span class="w-8 h-8 rounded-lg bg-gradient-to-br from-race to-[#7a0a06] grid place-items-center font-black italic text-white shadow-[0_0_18px_rgba(225,6,0,0.5)] group-hover:shadow-[0_0_26px_rgba(225,6,0,0.8)] transition-shadow">X</span>
+            <span class="hidden sm:block leading-none">
+              <span class="block font-black tracking-tight text-[15px]">TRACK<span class="text-race">NIGHT</span></span>
+              <span class="block text-[9px] tracking-[0.28em] text-mute uppercase">Xande Racing</span>
+            </span>
+          <% end %>
+
+          <nav class="flex items-center gap-1 overflow-x-auto ml-2 flex-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <%= nav_link "Dashboard", root_path, active: controller_name == "dashboard" %>
+            <%= nav_link "Timeline", timeline_path, active: controller_name == "timeline" %>
+            <%= nav_link "Sessões", race_sessions_path, active: controller_name == "race_sessions" %>
+            <%= nav_link "Pista", track_path, active: controller_name == "track" %>
+            <%= nav_link "Karts", karts_path, active: controller_name == "karts" %>
+            <%= nav_link "ACF × AC", comparison_path, active: controller_name == "comparison" %>
+            <%= nav_link "Importar", imports_path, active: controller_name == "imports" %>
+          </nav>
+
+          <%= button_to "Sair", logout_path, method: :delete, class: "btn-ghost !py-1.5 !px-3 !text-[11px] shrink-0" %>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 pt-24 pb-16">
+      <% if notice %>
+        <div class="glass mb-6 px-5 py-3 text-sm text-mint border-mint/30"><%= notice %></div>
+      <% end %>
+      <% if alert %>
+        <div class="glass mb-6 px-5 py-3 text-sm text-race-glow border-race/40"><%= alert %></div>
+      <% end %>
+      <%= yield %>
+    </main>
+  </body>
+</html>

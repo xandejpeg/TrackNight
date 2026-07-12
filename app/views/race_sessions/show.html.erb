@@ -1,0 +1,99 @@
+<% content_for :title, "#{@session.title} — TrackNight" %>
+
+<div class="mb-8">
+  <%= link_to "← Sessões", race_sessions_path, class: "text-[12px] text-mute hover:text-white" %>
+  <div class="flex flex-wrap items-center gap-3 mt-2">
+    <h1 class="text-3xl font-black tracking-tight"><%= @session.title %></h1>
+    <%= profile_badge(@session.driver_profile) %>
+    <span class="chrono text-sm text-mute"><%= session_date_label(@session) %></span>
+    <% if @session.start_time_text %>
+      <span class="chrono text-sm text-mute">· largada <%= @session.start_time_text %></span>
+    <% end %>
+  </div>
+  <p class="text-sm text-mute mt-1">KGV — Circuito 101 · kart rental</p>
+</div>
+
+<% if @entry %>
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+    <div class="glass p-5">
+      <p class="kicker">Posição final</p>
+      <p class="stat-value text-5xl mt-1">P<%= @entry.position %></p>
+      <p class="text-[11px] text-mute mt-1">kart #<%= @entry.kart_number %> · <%= @entry.laps %> voltas</p>
+    </div>
+    <div class="glass p-5">
+      <p class="kicker">Melhor volta</p>
+      <p class="stat-value text-4xl mt-2 <%= "session-best" if @entry.best_lap_ms == @session_bests[:best_lap_ms] %>"><%= lap(@entry.best_lap_ms) %></p>
+      <% if @entry.best_lap_ms == @session_bests[:best_lap_ms] %>
+        <p class="text-[11px] session-best mt-1">Melhor volta da sessão inteira</p>
+      <% end %>
+    </div>
+    <div class="glass p-5">
+      <p class="kicker">Tempo total</p>
+      <p class="stat-value text-4xl mt-2"><%= lap(@entry.total_time_ms) %></p>
+      <p class="text-[11px] text-mute mt-1"><%= @entry.diff_text.present? ? "diff #{@entry.diff_text}" : "" %> <%= @entry.gap_text.present? ? "· gap #{@entry.gap_text}" : "" %></p>
+    </div>
+    <div class="glass p-5">
+      <p class="kicker">Volta ideal</p>
+      <p class="stat-value text-4xl mt-2"><%= lap(@entry.ideal_lap_ms) %></p>
+      <% if @entry.ideal_lap_ms && @entry.best_lap_ms %>
+        <p class="text-[11px] text-mute mt-1">margem <%= lap_delta(@entry.best_lap_ms - @entry.ideal_lap_ms) %></p>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+    <% { "S1" => [ @entry.s1_ms, @session_bests[:s1_ms] ], "S2" => [ @entry.s2_ms, @session_bests[:s2_ms] ], "S3" => [ @entry.s3_ms, @session_bests[:s3_ms] ] }.each do |label, (mine, best)| %>
+      <div class="glass p-4 text-center">
+        <p class="kicker text-[#c084fc]"><%= label %></p>
+        <p class="stat-value text-2xl mt-1 <%= "session-best" if mine && mine == best %>"><%= lap(mine) %></p>
+        <p class="text-[10px] text-mute mt-1"><%= mine && mine == best ? "melhor da sessão" : "sessão: #{lap(best)}" %></p>
+      </div>
+    <% end %>
+    <div class="glass p-4 text-center">
+      <p class="kicker text-mint">Velocidade</p>
+      <p class="stat-value text-2xl mt-1 <%= "session-best" if @entry.speed && @entry.speed == @session_bests[:speed] %>"><%= @entry.speed ? "#{@entry.speed} km/h" : "—" %></p>
+      <p class="text-[10px] text-mute mt-1"><%= @entry.speed && @entry.speed == @session_bests[:speed] ? "maior da sessão" : "sessão: #{@session_bests[:speed]} km/h" %></p>
+    </div>
+  </div>
+
+  <% if @record_fields.any? %>
+    <div class="glass p-5 mb-4 flex flex-wrap items-center gap-3 border-gold/30">
+      <span class="text-lg">🏆</span>
+      <% @record_fields.each do |field| %>
+        <%= record_badge(field_record_label(field)) %>
+      <% end %>
+      <span class="text-[11px] text-mute">recorde pessoal cravado nesta sessão (perfil <%= @session.driver_profile&.code || "geral" %>)</span>
+    </div>
+  <% end %>
+<% end %>
+
+<div class="glass p-6 overflow-x-auto">
+  <h2 class="font-bold text-sm uppercase tracking-widest text-mute mb-4">Classificação completa</h2>
+  <table class="w-full table-race">
+    <thead>
+      <tr><th>Pos</th><th>Kart</th><th>Piloto</th><th>Voltas</th><th>Melhor</th><th>Total</th><th>Diff</th><th>Gap</th><th>S1</th><th>S2</th><th>S3</th><th>Vel.</th></tr>
+    </thead>
+    <tbody>
+      <% @session.result_entries.each do |e| %>
+        <tr class="<%= "row-ale" if e.alessandro? %> hover:bg-white/[0.03] transition-colors">
+          <td class="chrono font-bold"><%= e.position %></td>
+          <td class="chrono">#<%= e.kart_number %></td>
+          <td class="font-semibold <%= "text-race-glow" if e.alessandro? %>">
+            <%= e.alessandro? ? "Alessandro Chiarelli" : e.display_name %>
+            <% if e.alessandro? %><span class="text-[10px] text-mute ml-1">(<%= e.display_name %>)</span><% end %>
+          </td>
+          <td class="chrono"><%= e.laps %></td>
+          <td class="chrono font-bold <%= "session-best" if e.best_lap_ms && e.best_lap_ms == @session_bests[:best_lap_ms] %>"><%= lap(e.best_lap_ms) %></td>
+          <td class="chrono text-mute"><%= e.total_time_text || "—" %></td>
+          <td class="chrono text-mute"><%= e.diff_text || "—" %></td>
+          <td class="chrono text-mute"><%= e.gap_text || "—" %></td>
+          <td class="chrono <%= "session-best" if e.s1_ms && e.s1_ms == @session_bests[:s1_ms] %>"><%= lap(e.s1_ms) %></td>
+          <td class="chrono <%= "session-best" if e.s2_ms && e.s2_ms == @session_bests[:s2_ms] %>"><%= lap(e.s2_ms) %></td>
+          <td class="chrono <%= "session-best" if e.s3_ms && e.s3_ms == @session_bests[:s3_ms] %>"><%= lap(e.s3_ms) %></td>
+          <td class="chrono <%= "session-best" if e.speed && e.speed == @session_bests[:speed] %>"><%= e.speed || "—" %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <p class="text-[10px] text-mute mt-3">Valores em <span class="session-best">roxo</span> = melhor da sessão inteira. Fonte: <%= @session.source_document&.filename %> (confiança <%= @session.source_document&.confidence %>%).</p>
+</div>

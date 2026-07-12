@@ -1,0 +1,104 @@
+<% content_for :title, "Pista — TrackNight" %>
+
+<% geo = @layout.geometry.deep_symbolize_keys %>
+
+<div class="mb-8">
+  <p class="kicker mb-1">Casa das batalhas</p>
+  <h1 class="text-3xl font-black tracking-tight"><%= @venue.name %></h1>
+  <p class="text-sm text-mute mt-1"><%= @venue.address %> — <%= @venue.city %>/<%= @venue.state %> · desde <%= @venue.opened_on&.year %></p>
+</div>
+
+<div class="grid lg:grid-cols-5 gap-4 mb-4">
+  <!-- Mapa 2D -->
+  <div class="glass p-6 lg:col-span-3">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="font-bold text-sm uppercase tracking-widest text-mute"><%= @layout.name %> — mapa</h2>
+      <span class="chrono text-[11px] text-mute"><%= @layout.length_meters %> m</span>
+    </div>
+    <svg viewBox="<%= geo[:viewbox] %>" class="w-full h-auto" role="img" aria-label="Traçado do Circuito 101">
+      <defs>
+        <linearGradient id="trackGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#3a3a44"/>
+          <stop offset="100%" stop-color="#26262e"/>
+        </linearGradient>
+      </defs>
+      <path d="<%= geo[:svg_path] %>" fill="none" stroke="url(#trackGrad)" stroke-width="26" stroke-linejoin="round" stroke-linecap="round"/>
+      <path d="<%= geo[:svg_path] %>" fill="none" stroke="#0c0c10" stroke-width="20" stroke-linejoin="round" stroke-linecap="round"/>
+      <path d="<%= geo[:svg_path] %>" fill="none" stroke="#e10600" stroke-width="2.5" stroke-dasharray="10 8" stroke-linejoin="round" opacity="0.85">
+        <animate attributeName="stroke-dashoffset" from="0" to="-180" dur="6s" repeatCount="indefinite"/>
+      </path>
+      <% if geo[:start] %>
+        <g transform="translate(<%= geo.dig(:start, :x) %>, <%= geo.dig(:start, :y) %>)">
+          <rect x="-3" y="-14" width="6" height="28" fill="#fff"/>
+          <rect x="-3" y="-14" width="3" height="7" fill="#000"/><rect x="0" y="-7" width="3" height="7" fill="#000"/>
+          <rect x="-3" y="0" width="3" height="7" fill="#000"/><rect x="0" y="7" width="3" height="7" fill="#000"/>
+        </g>
+      <% end %>
+    </svg>
+    <p class="text-[10px] text-mute mt-2"><%= geo[:traced_from] %></p>
+  </div>
+
+  <!-- Ficha técnica -->
+  <div class="glass p-6 lg:col-span-2 flex flex-col gap-4">
+    <h2 class="font-bold text-sm uppercase tracking-widest text-mute">Ficha técnica</h2>
+    <dl class="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
+      <dt class="text-mute">Extensão</dt><dd class="chrono font-bold"><%= @layout.length_meters %> m</dd>
+      <dt class="text-mute">Piso</dt><dd><%= @layout.surface %></dd>
+      <dt class="text-mute">Sentido</dt><dd><%= @layout.direction || "não confirmado" %></dd>
+      <dt class="text-mute">Área do complexo</dt><dd class="chrono"><%= number_with_delimiter(@venue.area_m2, delimiter: ".") %> m²</dd>
+      <dt class="text-mute">Coordenadas</dt><dd class="chrono text-[12px]"><%= @venue.latitude %>, <%= @venue.longitude %></dd>
+      <dt class="text-mute">Site</dt><dd><%= link_to "kgvracetracks.com", @venue.website, target: "_blank", rel: "noopener", class: "text-smurf" %></dd>
+    </dl>
+    <p class="text-[12px] text-mute leading-relaxed"><%= @layout.description %></p>
+    <p class="text-[12px] text-mute leading-relaxed border-t border-line pt-3"><%= @venue.description %></p>
+  </div>
+</div>
+
+<!-- Setores + recordes na pista -->
+<div class="grid lg:grid-cols-2 gap-4 mb-4">
+  <div class="glass p-6">
+    <h2 class="font-bold text-sm uppercase tracking-widest text-mute mb-4">Setores da telemetria</h2>
+    <div class="space-y-3">
+      <% best = { 1 => @stats.best_s1_entry&.s1_ms, 2 => @stats.best_s2_entry&.s2_ms, 3 => @stats.best_s3_entry&.s3_ms } %>
+      <% @sectors.each do |sector| %>
+        <div class="flex items-center gap-4 p-3 rounded-xl bg-white/[0.03] border border-line">
+          <span class="chrono font-black text-xl text-[#c084fc] w-10">S<%= sector.number %></span>
+          <div class="flex-1">
+            <p class="text-[11px] text-mute"><%= sector.description %></p>
+          </div>
+          <div class="text-right">
+            <p class="text-[10px] uppercase tracking-widest text-mute">recorde pessoal</p>
+            <p class="chrono font-bold"><%= lap(best[sector.number]) %></p>
+          </div>
+        </div>
+      <% end %>
+    </div>
+    <p class="text-[10px] text-mute mt-3">⚠ Limites físicos dos setores não confirmados por fonte oficial.</p>
+  </div>
+
+  <!-- Mapa 3D -->
+  <div class="glass p-6">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="font-bold text-sm uppercase tracking-widest text-mute">Circuito em 3D</h2>
+      <span class="text-[10px] text-mute">arraste para orbitar</span>
+    </div>
+    <div class="h-80 rounded-xl overflow-hidden bg-carbon border border-line"
+         data-controller="track3d"
+         data-track3d-path-value="<%= geo[:svg_path] %>"
+         data-track3d-target="stage"></div>
+  </div>
+</div>
+
+<!-- Fontes -->
+<div class="glass p-6">
+  <h2 class="font-bold text-sm uppercase tracking-widest text-mute mb-4">Fontes das informações</h2>
+  <div class="grid sm:grid-cols-3 gap-4">
+    <% @sources.each do |src| %>
+      <a href="<%= src.url %>" target="_blank" rel="noopener" class="block p-4 rounded-xl bg-white/[0.03] border border-line hover:border-smurf/40 transition-colors">
+        <p class="text-sm font-semibold leading-snug"><%= src.title %></p>
+        <p class="text-[11px] text-mute mt-1"><%= src.publisher %> · confiabilidade <%= src.reliability %></p>
+        <p class="text-[11px] text-mute mt-2 leading-relaxed"><%= src.notes %></p>
+      </a>
+    <% end %>
+  </div>
+</div>

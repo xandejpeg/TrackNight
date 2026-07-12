@@ -1,0 +1,41 @@
+<% content_for :title, "Sessões — TrackNight" %>
+
+<div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
+  <div>
+    <p class="kicker mb-1">Histórico</p>
+    <h1 class="text-3xl font-black tracking-tight">Sessões</h1>
+  </div>
+  <%= render "shared/profile_filter" %>
+</div>
+
+<% if @sessions.empty? %>
+  <div class="glass p-12 text-center text-sm text-mute">Nenhuma sessão confirmada neste filtro.</div>
+<% else %>
+  <div class="glass p-6 overflow-x-auto">
+    <table class="w-full table-race">
+      <thead>
+        <tr><th>Data</th><th>Sessão</th><th>Perfil</th><th>Pos</th><th>Kart</th><th>Voltas</th><th>Melhor</th><th>Total</th><th>S1</th><th>S2</th><th>S3</th><th>Vel.</th><th></th></tr>
+      </thead>
+      <tbody>
+        <% @sessions.each do |s| %>
+          <% e = s.alessandro_entry %>
+          <tr class="hover:bg-white/[0.03] transition-colors">
+            <td class="chrono text-mute"><%= session_date_label(s) %></td>
+            <td class="font-semibold"><%= s.title %></td>
+            <td><%= profile_badge(s.driver_profile) %></td>
+            <td class="chrono font-bold">P<%= e&.position || "—" %></td>
+            <td class="chrono">#<%= e&.kart_number || "—" %></td>
+            <td class="chrono"><%= e&.laps || "—" %></td>
+            <td class="chrono font-bold"><%= lap(e&.best_lap_ms) %></td>
+            <td class="chrono text-mute"><%= lap(e&.total_time_ms) %></td>
+            <td class="chrono text-mute"><%= lap(e&.s1_ms) %></td>
+            <td class="chrono text-mute"><%= lap(e&.s2_ms) %></td>
+            <td class="chrono text-mute"><%= lap(e&.s3_ms) %></td>
+            <td class="chrono text-mute"><%= e&.speed || "—" %></td>
+            <td><%= link_to "abrir", race_session_path(s), class: "text-race-glow text-[12px] font-semibold" %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% end %>

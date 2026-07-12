@@ -1,0 +1,25 @@
+<% content_for :title, "Nova importação — TrackNight" %>
+
+<div class="max-w-xl mx-auto">
+  <p class="kicker mb-1">Upload</p>
+  <h1 class="text-2xl font-black tracking-tight mb-6">Nova importação</h1>
+
+  <div class="glass p-7">
+    <%= form_with url: imports_path, local: true, multipart: true, class: "space-y-5" do %>
+      <div>
+        <label class="kicker block mb-2">Folhas de tempos (JPEG, PNG ou PDF)</label>
+        <%= file_field_tag :files, multiple: true, accept: "image/jpeg,image/png,application/pdf",
+              class: "field file:mr-3 file:btn-ghost file:!py-1.5 file:!px-3 file:border-0 file:cursor-pointer cursor-pointer" %>
+        <p class="text-[11px] text-mute mt-2">Nomeie como <span class="chrono">DDMMAAAA HHMM.jpeg</span> para detecção automática de data. Duplicados (mesmo SHA-256) são ignorados.</p>
+      </div>
+      <%= submit_tag "Processar arquivos", class: "btn-race w-full cursor-pointer" %>
+    <% end %>
+  </div>
+
+  <div class="glass p-5 mt-4 text-[12px] text-mute leading-relaxed">
+    <p class="font-bold text-white mb-1">Como funciona</p>
+    <p>1. O OCR lê a folha e localiza a linha destacada do Alessandro.<br>
+       2. Múltiplas leituras são fundidas por votação para máxima precisão.<br>
+       3. Você revisa cada campo e confirma o perfil (ACF / AC) antes de importar.</p>
+  </div>
+</div>

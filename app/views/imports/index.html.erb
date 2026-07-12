@@ -1,0 +1,66 @@
+<% content_for :title, "Importar — TrackNight" %>
+
+<div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
+  <div>
+    <p class="kicker mb-1">Pipeline de dados</p>
+    <h1 class="text-3xl font-black tracking-tight">Importações</h1>
+    <p class="text-sm text-mute mt-1">Upload → OCR → revisão → confirmação. Nada entra no histórico sem a sua aprovação.</p>
+  </div>
+  <%= link_to "+ Nova importação", new_import_path, class: "btn-race" %>
+</div>
+
+<% if @pending.any? %>
+  <h2 class="kicker text-gold mb-3">Aguardando revisão (<%= @pending.size %>)</h2>
+  <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
+    <% @pending.each do |doc| %>
+      <%= link_to review_import_path(doc), class: "glass glass-hover p-5 block" do %>
+        <div class="flex items-start justify-between gap-2">
+          <div>
+            <p class="font-bold text-sm break-all"><%= doc.filename %></p>
+            <p class="text-[11px] text-mute mt-1">
+              <%= doc.suggested_session_date ? doc.suggested_session_date.strftime("%d/%m/%Y %H:%M") : "data não detectada" %>
+            </p>
+          </div>
+          <span class="chrono text-[11px] px-2 py-0.5 rounded-full bg-gold/15 text-gold border border-gold/30 shrink-0"><%= doc.confidence %>%</span>
+        </div>
+        <p class="text-[11px] text-mute mt-3"><%= (doc.parsed_data["rows"] || []).size %> linhas · <%= doc.parsed_data.dig("session_type")&.capitalize %> · sugerido: <%= doc.parsed_data["suggested_profile"] || "—" %></p>
+        <p class="text-[12px] text-race-glow font-semibold mt-3">Revisar →</p>
+      <% end %>
+    <% end %>
+  </div>
+<% end %>
+
+<h2 class="kicker mb-3">Importadas (<%= @imported.size %>)</h2>
+<% if @imported.any? %>
+  <div class="glass p-6 overflow-x-auto mb-10">
+    <table class="w-full table-race">
+      <thead><tr><th>Arquivo</th><th>Confiança</th><th>Parser</th><th>Importado em</th><th>Sessão</th></tr></thead>
+      <tbody>
+        <% @imported.each do |doc| %>
+          <tr class="hover:bg-white/[0.03]">
+            <td class="font-semibold"><%= doc.filename %></td>
+            <td class="chrono"><%= doc.confidence %>%</td>
+            <td class="chrono text-mute"><%= doc.parser_name %> v<%= doc.parser_version %></td>
+            <td class="chrono text-mute"><%= doc.imported_at&.strftime("%d/%m/%Y %H:%M") %></td>
+            <td>
+              <% if doc.race_session %>
+                <%= link_to doc.race_session.title, race_session_path(doc.race_session), class: "text-race-glow font-semibold text-[12px]" %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <div class="glass p-8 text-center text-sm text-mute mb-10">Nenhuma sessão importada ainda.</div>
+<% end %>
+
+<% if @failed.any? %>
+  <h2 class="kicker text-race-glow mb-3">Falhas (<%= @failed.size %>)</h2>
+  <div class="glass p-6">
+    <% @failed.each do |doc| %>
+      <p class="text-sm"><strong><%= doc.filename %></strong> — <span class="text-mute"><%= doc.error_message %></span></p>
+    <% end %>
+  </div>
+<% end %>

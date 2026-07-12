@@ -1,0 +1,7 @@
+<div class="flex items-center gap-1.5 flex-wrap">
+  <% profile_filter_options.each do |label, code| %>
+    <% active = current_profile_code == code %>
+    <%= link_to label, url_for(request.query_parameters.merge(profile: code == "todos" ? nil : code)),
+        class: "nav-link #{'nav-link-active' if active} !text-[11px] border border-white/10" %>
+  <% end %>
+</div>
