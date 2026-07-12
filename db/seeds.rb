@@ -63,16 +63,58 @@ kgv = Venue.find_or_create_by!(slug: "kgv") do |v|
 end
 
 # --- Traçado: Circuito 101 ---------------------------------------------------
-# Geometria aproximada, traçada manualmente sobre o mapa oficial (KGV Race Tracks).
+# Geometria traçada ponto a ponto sobre a foto aérea oficial do traçado 101
+# (KGV Race Tracks — linha azul). Sentido horário conforme a seta do mapa.
 # As divisões de setores NÃO possuem fonte oficial — permanecem pendentes de
 # confirmação e podem ser ajustadas manualmente.
-circuito_101_path = "M 150 430 C 120 470 140 505 185 495 C 230 485 250 455 275 460 " \
-  "C 320 468 420 472 520 470 C 575 468 620 462 648 435 C 668 415 660 392 630 388 " \
-  "C 600 385 585 400 560 405 C 535 410 520 398 525 375 C 532 352 560 350 580 338 " \
-  "C 604 322 606 296 585 282 C 560 267 530 277 515 298 C 500 318 480 330 458 322 " \
-  "C 436 314 432 292 448 275 C 464 259 490 258 512 250 C 540 240 560 220 555 200 " \
-  "C 548 178 520 172 490 176 C 420 184 320 190 240 196 C 200 200 175 210 168 240 " \
-  "C 162 268 175 290 172 320 C 170 355 158 395 150 430 Z"
+# Linha central extraída automaticamente da linha azul da foto oficial
+# (máscara de cor + esqueletização Zhang-Suen + ordenação do loop).
+# 93 pontos, sentido horário conforme a seta do mapa (→ no retão superior).
+circuito_101_points = [
+  [ 743, 30 ], [ 787, 30 ], [ 831, 30 ], [ 875, 30 ], [ 908, 48 ], [ 915, 89 ],
+  [ 904, 129 ], [ 904, 173 ], [ 922, 204 ], [ 950, 246 ], [ 970, 283 ], [ 968, 325 ],
+  [ 930, 365 ], [ 893, 382 ], [ 851, 393 ], [ 807, 398 ], [ 765, 402 ], [ 721, 404 ],
+  [ 677, 406 ], [ 633, 409 ], [ 589, 411 ], [ 547, 413 ], [ 506, 406 ], [ 464, 378 ],
+  [ 433, 340 ], [ 406, 301 ], [ 378, 261 ], [ 365, 222 ], [ 384, 186 ], [ 426, 175 ],
+  [ 466, 202 ], [ 479, 237 ], [ 503, 272 ], [ 545, 257 ], [ 585, 222 ], [ 627, 180 ],
+  [ 664, 162 ], [ 701, 173 ], [ 732, 208 ], [ 741, 252 ], [ 752, 294 ], [ 785, 325 ],
+  [ 827, 321 ], [ 851, 285 ], [ 847, 241 ], [ 838, 197 ], [ 831, 153 ], [ 816, 111 ],
+  [ 750, 98 ], [ 706, 98 ], [ 662, 98 ], [ 618, 98 ], [ 574, 98 ], [ 530, 98 ],
+  [ 486, 98 ], [ 442, 98 ], [ 398, 98 ], [ 354, 109 ], [ 321, 127 ], [ 283, 169 ],
+  [ 272, 211 ], [ 274, 255 ], [ 288, 296 ], [ 301, 329 ], [ 303, 371 ], [ 272, 402 ],
+  [ 235, 415 ], [ 191, 422 ], [ 147, 424 ], [ 103, 424 ], [ 59, 415 ], [ 30, 384 ],
+  [ 56, 345 ], [ 96, 323 ], [ 136, 294 ], [ 160, 257 ], [ 169, 215 ], [ 166, 171 ],
+  [ 166, 127 ], [ 173, 85 ], [ 197, 54 ], [ 237, 43 ], [ 281, 39 ], [ 325, 37 ],
+  [ 369, 37 ], [ 413, 34 ], [ 457, 34 ], [ 501, 34 ], [ 545, 34 ], [ 589, 34 ],
+  [ 633, 32 ], [ 677, 32 ], [ 721, 32 ]
+].freeze
+
+# Converte a poligonal em um caminho SVG suave (Catmull-Rom -> Bézier cúbica).
+circuito_101_path = begin
+  pts = circuito_101_points
+  n = pts.size
+  d = +"M #{pts[0][0]} #{pts[0][1]} "
+  n.times do |i|
+    p0 = pts[(i - 1) % n]
+    p1 = pts[i]
+    p2 = pts[(i + 1) % n]
+    p3 = pts[(i + 2) % n]
+    c1x = (p1[0] + (p2[0] - p0[0]) / 6.0).round(1)
+    c1y = (p1[1] + (p2[1] - p0[1]) / 6.0).round(1)
+    c2x = (p2[0] - (p3[0] - p1[0]) / 6.0).round(1)
+    c2y = (p2[1] - (p3[1] - p1[1]) / 6.0).round(1)
+    d << "C #{c1x} #{c1y}, #{c2x} #{c2y}, #{p2[0]} #{p2[1]} "
+  end
+  d << "Z"
+end
+
+circuito_101_geometry = {
+  viewbox: "0 0 1000 560",
+  svg_path: circuito_101_path,
+  start: { x: 545, y: 34 },
+  traced_from: "Linha azul da foto aérea oficial do traçado 101 (KGV Race Tracks) — extração automática da linha central",
+  sectors_confirmed: false
+}
 
 layout101 = TrackLayout.find_or_create_by!(venue: kgv, slug: "circuito-101") do |l|
   l.name = "Circuito 101"
@@ -80,14 +122,9 @@ layout101 = TrackLayout.find_or_create_by!(venue: kgv, slug: "circuito-101") do 
   l.direction = nil # sentido não confirmado por fonte oficial — pendente
   l.surface = "Asfalto"
   l.description = "Configuração 101 da pista adulta do KGV — 1.015 m, grau de dificuldade Iniciante segundo o mapa oficial de traçados. Utilizada em baterias de kart rental (troca rápida)."
-  l.geometry = {
-    viewbox: "80 140 620 400",
-    svg_path: circuito_101_path,
-    start: { x: 400, y: 471 },
-    traced_from: "Mapa oficial de traçados KGV Race Tracks (Julho) — aproximação manual",
-    sectors_confirmed: false
-  }
+  l.geometry = circuito_101_geometry
 end
+layout101.update!(geometry: circuito_101_geometry)
 
 (1..3).each do |n|
   TrackSector.find_or_create_by!(track_layout: layout101, number: n) do |s|
