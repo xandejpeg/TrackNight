@@ -6,8 +6,17 @@
   <p class="text-sm text-mute mt-1">Cada kart rental é uma loteria — estes foram os números que caíram pro Xande.</p>
 </div>
 
-<div class="mb-8">
+<div class="mb-8 flex flex-col gap-3">
   <%= render "shared/filters" %>
+  <div class="flex items-center gap-2">
+    <span class="filter-label">Visualização</span>
+    <div class="filter-group">
+      <%= link_to "▦ Grade", url_for(request.query_parameters.merge(view: nil)),
+          class: "filter-pill #{'filter-pill-active' unless params[:view] == 'lista'}" %>
+      <%= link_to "≡ Lista", url_for(request.query_parameters.merge(view: "lista")),
+          class: "filter-pill #{'filter-pill-active' if params[:view] == 'lista'}" %>
+    </div>
+  </div>
 </div>
 
 <% if @kart_stats.empty? %>
@@ -41,6 +50,38 @@
     </div>
   </div>
 
+  <% if params[:view] == "lista" %>
+    <!-- Modo lista: todos os karts de uma vez, direto ao ponto -->
+    <div class="glass p-6 overflow-x-auto">
+      <table class="w-full table-race">
+        <thead>
+          <tr><th></th><th>Kart</th><th>Corridas</th><th>Melhor volta</th><th>Média</th><th>Vel. máx</th><th>Melhor pos</th><th>Voltas</th><th>Última corrida</th></tr>
+        </thead>
+        <tbody>
+          <% @kart_stats.each_with_index do |k, i| %>
+            <% last_run = k[:runs].max_by { |r| r[:session].started_at || Time.at(0) } %>
+            <tr class="hover:bg-white/[0.03] transition-colors">
+              <td class="w-16"><%= image_tag "rental_kart_4_strokes.png", alt: "Kart rental 4 tempos", class: "w-14 h-auto opacity-90 #{'drop-shadow-[0_0_8px_rgba(255,209,102,0.5)]' if i.zero?}" %></td>
+              <td class="chrono font-black text-lg"><%= i.zero? ? "🥇" : "" %> #<%= k[:number] %></td>
+              <td class="chrono"><%= k[:uses] %></td>
+              <td class="chrono font-bold"><%= lap(k[:best_ms]) %></td>
+              <td class="chrono text-mute"><%= lap(k[:avg_ms]) %></td>
+              <td class="chrono"><%= k[:max_speed] ? "#{k[:max_speed]} km/h" : "—" %></td>
+              <td class="chrono">P<%= k[:best_position] || "—" %></td>
+              <td class="chrono text-mute"><%= k[:total_laps].positive? ? k[:total_laps] : "—" %></td>
+              <td>
+                <% if last_run %>
+                  <%= link_to race_session_path(last_run[:session]), class: "chrono text-[11px] text-race-glow hover:underline" do %>
+                    <%= last_run[:session].started_at ? last_run[:session].started_at.strftime("%d/%m/%y") : last_run[:session].title %>
+                  <% end %>
+                <% else %>—<% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
   <!-- Um card por kart, com cada corrida detalhada -->
   <div class="grid lg:grid-cols-2 gap-4">
     <% @kart_stats.each_with_index do |k, i| %>
@@ -50,6 +91,7 @@
             <p class="kicker"><%= i.zero? ? "🥇 o mais rápido até agora" : "kart" %></p>
             <p class="stat-value text-5xl font-black mt-1">#<%= k[:number] %></p>
           </div>
+          <%= image_tag "rental_kart_4_strokes.png", alt: "Kart rental 4 tempos", class: "w-36 h-auto -mt-1 opacity-95 drop-shadow-[0_10px_18px_rgba(0,0,0,0.6)] #{'drop-shadow-[0_0_16px_rgba(255,209,102,0.35)]' if i.zero?}" %>
           <div class="text-right">
             <p class="text-[10px] uppercase tracking-widest text-mute">Corridas</p>
             <p class="stat-value text-3xl"><%= k[:uses] %></p>
@@ -94,4 +136,5 @@
       </div>
     <% end %>
   </div>
+  <% end %>
 <% end %>
