@@ -122,3 +122,24 @@
   </table>
   <p class="text-[10px] text-mute mt-3">Valores em <span class="session-best">roxo</span> = melhor da sessão inteira. Fonte: <%= @session.source_document&.filename %> (confiança <%= @session.source_document&.confidence %>%).</p>
 </div>
+
+<% doc = @session.source_document %>
+<% if doc&.file&.attached? %>
+  <div class="glass p-6 mt-4">
+    <div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
+      <h2 class="font-bold text-sm uppercase tracking-widest text-mute">📷 Folha de tempos original</h2>
+      <div class="flex items-center gap-3">
+        <span class="chrono text-[11px] text-mute"><%= doc.filename %></span>
+        <%= link_to "Abrir em tamanho real ↗", rails_blob_path(doc.file, disposition: "inline"),
+            target: "_blank", rel: "noopener", class: "filter-pill filter-pill-active" %>
+      </div>
+    </div>
+    <%= link_to rails_blob_path(doc.file, disposition: "inline"), target: "_blank", rel: "noopener",
+        class: "block rounded-xl overflow-hidden border border-white/10 hover:border-race/40 transition-colors" do %>
+      <%= image_tag rails_blob_path(doc.file, disposition: "inline"),
+          alt: "Folha de tempos original — #{doc.filename}",
+          class: "w-full h-auto", loading: "lazy" %>
+    <% end %>
+    <p class="text-[10px] text-mute mt-3">Imagem exata que foi importada e lida pelo OCR — clique para ampliar.</p>
+  </div>
+<% end %>
