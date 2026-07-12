@@ -34,6 +34,7 @@
 
           <nav class="flex items-center gap-1 overflow-x-auto ml-2 flex-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <%= nav_link "Dashboard", root_path, active: controller_name == "dashboard" %>
+            <%= nav_link "Gráfico", chart_path, active: controller_name == "chart" %>
             <%= nav_link "Timeline", timeline_path, active: controller_name == "timeline" %>
             <%= nav_link "Sessões", race_sessions_path, active: controller_name == "race_sessions" %>
             <%= nav_link "Pista", track_path, active: controller_name == "track" %>

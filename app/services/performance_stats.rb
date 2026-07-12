@@ -82,6 +82,7 @@ class PerformanceStats
         day_night: s.day_night,
         temp: s.track_temp_label,
         weather: s.weather_label,
+        weather_key: s.weather_condition,
         weather_icon: [ s.day? ? "🌞" : (s.night? ? "🌙" : nil), s.track_temp_icon, s.weather_icon ].compact.join(" "),
         best_ms: e.best_lap_ms,
         s1_ms: e.s1_ms, s2_ms: e.s2_ms, s3_ms: e.s3_ms,

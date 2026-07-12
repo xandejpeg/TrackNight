@@ -1,0 +1,97 @@
+<% content_for :title, "Gráfico — TrackNight" %>
+
+<div class="mb-5">
+  <p class="kicker mb-1">Telemetria</p>
+  <h1 class="text-3xl font-black tracking-tight">Evolução gráfica</h1>
+  <p class="text-sm text-mute mt-1">Todas as corridas em um só lugar — voltas, setores, karts e condições de pista.</p>
+</div>
+
+<div class="mb-6">
+  <%= render "shared/filters" %>
+</div>
+
+<% if @evolution.empty? %>
+  <div class="glass p-12 text-center">
+    <p class="text-4xl mb-3">📈</p>
+    <p class="text-sm text-mute">Nenhuma sessão confirmada neste filtro.</p>
+  </div>
+<% else %>
+  <div class="glass p-6 mb-4" data-controller="lap-chart" data-lap-chart-points-value="<%= @evolution.to_json %>">
+    <div class="flex items-center justify-between gap-3 mb-5 flex-wrap">
+      <h2 class="font-bold text-sm uppercase tracking-widest text-mute">Melhor volta por corrida</h2>
+      <div class="flex items-center gap-2 flex-wrap">
+        <div class="filter-group">
+          <button type="button" data-lap-chart-target="mergeBtn" data-action="lap-chart#merge" class="filter-pill filter-pill-active">Linha única</button>
+          <button type="button" data-lap-chart-target="splitBtn" data-action="lap-chart#split" class="filter-pill">ACF × AC</button>
+        </div>
+        <div class="filter-group">
+          <button type="button" data-lap-chart-target="idealBtn" data-action="lap-chart#toggleIdeal" class="filter-pill filter-pill-active">Volta ideal</button>
+          <button type="button" data-lap-chart-target="sectorsBtn" data-action="lap-chart#toggleSectors" class="filter-pill">Setores S1·S2·S3</button>
+        </div>
+      </div>
+    </div>
+    <div class="h-[28rem]">
+      <canvas data-lap-chart-target="canvas"></canvas>
+    </div>
+    <div class="flex flex-wrap items-center gap-x-5 gap-y-2 mt-5 pt-4 border-t border-line">
+      <span class="filter-label">Condições de pista</span>
+      <span class="weather-chip"><span class="w-2.5 h-2.5 rounded-full inline-block" style="background:#2dd4a7"></span> Pista seca</span>
+      <span class="weather-chip"><span class="w-2.5 h-2.5 rounded-full inline-block" style="background:#38bdf8"></span> 🌦 Chuva fraca</span>
+      <span class="weather-chip"><span class="w-2.5 h-2.5 rounded-full inline-block" style="background:#ffd166"></span> 🌧 Chuva moderada</span>
+      <span class="weather-chip"><span class="w-2.5 h-2.5 rounded-full inline-block" style="background:#a855f7"></span> 🌩 Tempestade (pista inundada)</span>
+      <span class="text-[11px] text-mute ml-auto">Na pista molhada da KGV o tempo médio sobe até 20–25s — as faixas coloridas marcam essas corridas.</span>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+    <div class="glass p-5">
+      <p class="kicker">Sessões no gráfico</p>
+      <p class="stat-value text-4xl mt-2"><%= @evolution.size %></p>
+    </div>
+    <div class="glass p-5">
+      <p class="kicker text-smurf">Melhor volta geral</p>
+      <p class="stat-value text-4xl mt-2"><%= lap(@evolution.map { |p| p[:best_ms] }.compact.min) %></p>
+    </div>
+    <div class="glass p-5">
+      <p class="kicker text-gold">Karts diferentes</p>
+      <p class="stat-value text-4xl mt-2"><%= @evolution.map { |p| p[:kart] }.compact.uniq.size %></p>
+    </div>
+    <div class="glass p-5">
+      <p class="kicker text-mint">Corridas na chuva</p>
+      <p class="stat-value text-4xl mt-2"><%= @evolution.count { |p| p[:weather_key].in?(%w[chuva_fraca chuva_moderada tempestade]) } %></p>
+    </div>
+  </div>
+
+  <div class="glass p-6">
+    <h2 class="font-bold text-sm uppercase tracking-widest text-mute mb-4">Corrida a corrida</h2>
+    <div class="overflow-x-auto">
+      <table class="w-full table-race">
+        <thead>
+          <tr><th>#</th><th>Data</th><th>Sessão</th><th>Perfil</th><th>Pista</th><th>Kart</th><th>Pos</th><th>Melhor volta</th><th>Ideal</th><th>Δ p/ anterior</th></tr>
+        </thead>
+        <tbody>
+          <% prev_best = nil %>
+          <% @evolution.each_with_index do |p, i| %>
+            <tr class="hover:bg-white/[0.03] transition-colors">
+              <td class="chrono text-mute"><%= i + 1 %></td>
+              <td class="chrono text-mute"><%= p[:label] %></td>
+              <td class="font-semibold">
+                <%= link_to p[:session_title], race_session_path(p[:session_id]), class: "hover:text-race-glow" %>
+              </td>
+              <td><span class="profile-chip" style="--chip-color: <%= p[:profile_color] || '#8b8b96' %>"><%= p[:profile] %></span></td>
+              <td class="text-[12px]"><%= p[:weather_icon].presence || "—" %></td>
+              <td class="chrono">#<%= p[:kart] || "—" %></td>
+              <td class="chrono">P<%= p[:position] || "—" %></td>
+              <td class="chrono font-bold"><%= lap(p[:best_ms]) %></td>
+              <td class="chrono text-mute"><%= lap(p[:ideal_ms]) %></td>
+              <td class="chrono <%= prev_best && p[:best_ms] ? (p[:best_ms] <= prev_best ? 'text-mint' : 'text-race-glow') : 'text-mute' %>">
+                <%= prev_best && p[:best_ms] ? lap_delta(p[:best_ms] - prev_best) : "—" %>
+              </td>
+            </tr>
+            <% prev_best = p[:best_ms] || prev_best %>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% end %>

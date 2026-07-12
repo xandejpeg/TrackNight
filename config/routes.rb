@@ -9,6 +9,7 @@ Rails.application.routes.draw do
   resource :password, only: [ :edit, :update ]
 
   get "timeline" => "timeline#show", as: :timeline
+  get "grafico"  => "chart#show",    as: :chart
 
   resources :race_sessions, only: [ :index, :show, :update ], path: "sessoes"
 

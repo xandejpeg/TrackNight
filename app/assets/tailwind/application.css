@@ -283,6 +283,49 @@
     white-space: nowrap;
   }
 
+  /* timeline horizontal */
+  .timeline-h-wrap { position: relative; }
+  .timeline-h-wrap::before {
+    content: "";
+    position: absolute;
+    top: 0.55rem;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, rgba(225,6,0,0.55), rgba(255,255,255,0.12) 40%, rgba(255,255,255,0.05));
+    pointer-events: none;
+  }
+  .timeline-h {
+    display: flex;
+    gap: 1.25rem;
+    overflow-x: auto;
+    padding: 0 0.25rem 1.25rem;
+    scroll-snap-type: x proximity;
+  }
+  .timeline-h-item {
+    scroll-snap-align: start;
+    width: 21rem;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .timeline-h-marker {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.9rem;
+    padding-left: 0.1rem;
+  }
+  .timeline-h-dot {
+    width: 0.85rem;
+    height: 0.85rem;
+    border-radius: 999px;
+    border: 3px solid var(--color-race);
+    background: #0a0a0d;
+    box-shadow: 0 0 14px rgba(225,6,0,0.55);
+    flex-shrink: 0;
+  }
+
   .timeline-rail {
     position: absolute;
     left: 1.05rem;

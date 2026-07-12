@@ -2,11 +2,11 @@
 
 <div class="mb-5">
   <p class="kicker mb-1">Linha do tempo</p>
-  <h1 class="text-3xl font-black tracking-tight">A jornada, volta a volta</h1>
-  <p class="text-sm text-mute mt-1">Toda sessão confirmada, do grid mais recente ao primeiro dia de kart.</p>
+  <h1 class="text-3xl font-black tracking-tight">A jornada, corrida a corrida</h1>
+  <p class="text-sm text-mute mt-1">Deslize para o lado → da corrida mais recente até o primeiro dia de kart.</p>
 </div>
 
-<div class="mb-10">
+<div class="mb-8">
   <%= render "shared/filters" %>
 </div>
 
@@ -16,79 +16,68 @@
     <p class="text-sm text-mute">Nenhuma sessão confirmada neste filtro.</p>
   </div>
 <% else %>
-  <div class="relative pl-12">
-    <div class="timeline-rail"></div>
-
-    <% previous_date = nil %>
-    <% @sessions.each do |s| %>
-      <% e = s.alessandro_entry %>
-      <% records = @record_fields[s.id] || [] %>
-      <% month_label = s.started_at ? s.started_at.strftime("%m/%Y") : "Data pendente" %>
-
-      <% if month_label != previous_date %>
-        <p class="kicker !text-mute mb-4 mt-2"><%= month_label %></p>
-        <% previous_date = month_label %>
-      <% end %>
-
-      <article class="relative mb-8">
-        <span class="timeline-dot" style="<%= "border-color: #{s.driver_profile.color}; box-shadow: 0 0 14px #{s.driver_profile.color}88;" if s.driver_profile %>"></span>
-
-        <%= link_to race_session_path(s), class: "block glass glass-hover p-6" do %>
-          <div class="flex flex-wrap items-center gap-3 mb-4">
-            <span class="chrono text-sm text-mute"><%= session_date_label(s) %></span>
-            <span class="font-black text-lg"><%= s.title %></span>
-            <%= profile_badge(s.driver_profile) %>
-            <%= weather_chips(s) %>
-            <% if e&.position %>
-              <span class="ml-auto stat-value text-2xl font-black">P<%= e.position %></span>
-            <% end %>
+  <div class="timeline-h-wrap">
+    <div class="timeline-h">
+      <% @sessions.each_with_index do |s, i| %>
+        <% e = s.alessandro_entry %>
+        <% records = @record_fields[s.id] || [] %>
+        <article class="timeline-h-item">
+          <div class="timeline-h-marker">
+            <span class="timeline-h-dot" style="<%= "border-color: #{s.driver_profile.color}; box-shadow: 0 0 14px #{s.driver_profile.color}88;" if s.driver_profile %>"></span>
+            <span class="chrono text-[11px] text-mute whitespace-nowrap"><%= session_date_label(s) %></span>
           </div>
 
-          <% if e %>
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-              <div>
-                <p class="text-[10px] uppercase tracking-widest text-mute">Melhor volta</p>
-                <p class="chrono text-xl font-bold <%= "session-best" if records.include?(:best_lap_ms) %>"><%= lap(e.best_lap_ms) %></p>
-              </div>
-              <div>
-                <p class="text-[10px] uppercase tracking-widest text-mute">S1</p>
-                <p class="chrono text-lg <%= "session-best" if records.include?(:s1_ms) %>"><%= lap(e.s1_ms) %></p>
-              </div>
-              <div>
-                <p class="text-[10px] uppercase tracking-widest text-mute">S2</p>
-                <p class="chrono text-lg <%= "session-best" if records.include?(:s2_ms) %>"><%= lap(e.s2_ms) %></p>
-              </div>
-              <div>
-                <p class="text-[10px] uppercase tracking-widest text-mute">S3</p>
-                <p class="chrono text-lg <%= "session-best" if records.include?(:s3_ms) %>"><%= lap(e.s3_ms) %></p>
-              </div>
-              <div>
-                <p class="text-[10px] uppercase tracking-widest text-mute">Kart</p>
-                <p class="chrono text-lg">#<%= e.kart_number || "—" %></p>
-              </div>
-              <div>
-                <p class="text-[10px] uppercase tracking-widest text-mute">Voltas</p>
-                <p class="chrono text-lg"><%= e.laps || "—" %></p>
-              </div>
+          <%= link_to race_session_path(s), class: "block glass glass-hover p-5 h-full" do %>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="font-black text-xl"><%= s.title %></span>
+              <% if e&.position %>
+                <span class="ml-auto stat-value text-3xl font-black <%= e.position <= 3 ? 'text-gold' : '' %>">P<%= e.position %></span>
+              <% end %>
+            </div>
+            <div class="flex flex-wrap items-center gap-1.5 mb-4">
+              <%= profile_badge(s.driver_profile) %>
+              <%= weather_chips(s) %>
             </div>
 
-            <% if records.any? %>
-              <div class="flex flex-wrap gap-2 mt-4">
-                <% records.each do |field| %>
-                  <%= record_badge(field_record_label(field)) %>
+            <% if e %>
+              <p class="text-[10px] uppercase tracking-widest text-mute">Melhor volta</p>
+              <p class="chrono text-3xl font-black mb-3 <%= "session-best" if records.include?(:best_lap_ms) %>"><%= lap(e.best_lap_ms) %></p>
+
+              <div class="grid grid-cols-3 gap-2 mb-3">
+                <% { "S1" => [ e.s1_ms, :s1_ms ], "S2" => [ e.s2_ms, :s2_ms ], "S3" => [ e.s3_ms, :s3_ms ] }.each do |label, (ms, field)| %>
+                  <div class="rounded-lg bg-white/[0.03] border border-white/5 px-2 py-1.5 text-center">
+                    <p class="text-[9px] uppercase tracking-widest text-mute"><%= label %></p>
+                    <p class="chrono text-sm <%= "session-best" if records.include?(field) %>"><%= lap(ms) %></p>
+                  </div>
                 <% end %>
               </div>
-            <% end %>
-          <% else %>
-            <p class="text-sm text-mute">Sem linha do Alessandro nesta sessão.</p>
-          <% end %>
-        <% end %>
-      </article>
-    <% end %>
 
-    <div class="relative pb-2">
-      <span class="timeline-dot !border-mute !shadow-none" style="top: 0.2rem;"></span>
-      <p class="text-[11px] text-mute pt-1 pl-2">Início da jornada 🏁</p>
+              <div class="flex items-center justify-between text-[11px] text-mute">
+                <span class="chrono">kart #<%= e.kart_number || "—" %></span>
+                <span class="chrono"><%= e.laps || "—" %> voltas</span>
+                <span class="chrono"><%= e.speed ? "#{e.speed} km/h" : "—" %></span>
+              </div>
+
+              <% if records.any? %>
+                <div class="flex flex-wrap gap-1.5 mt-3">
+                  <% records.each do |field| %>
+                    <%= record_badge(field_record_label(field)) %>
+                  <% end %>
+                </div>
+              <% end %>
+            <% else %>
+              <p class="text-sm text-mute">Sem linha do Alessandro nesta sessão.</p>
+            <% end %>
+          <% end %>
+        </article>
+      <% end %>
+
+      <article class="timeline-h-item !w-52 grid place-items-center">
+        <div class="text-center">
+          <p class="text-4xl mb-2">🏁</p>
+          <p class="text-[11px] text-mute">Início da jornada</p>
+        </div>
+      </article>
     </div>
   </div>
 <% end %>
