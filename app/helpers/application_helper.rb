@@ -33,6 +33,18 @@ module ApplicationHelper
     end
   end
 
+  # Chips de condições: dia/noite (automático) + temperatura + clima (informados)
+  def weather_chips(session)
+    chips = []
+    if session.day_night
+      chips << tag.span(session.day? ? "🌞 Dia" : "🌙 Noite", class: "weather-chip")
+    end
+    chips << tag.span("#{session.track_temp_icon} #{session.track_temp_label}", class: "weather-chip") if session.track_temp
+    chips << tag.span("#{session.weather_icon} #{session.weather_label}", class: "weather-chip") if session.weather_condition
+    return tag.span("—", class: "text-mute text-[11px]") if chips.empty?
+    tag.span(safe_join(chips), class: "inline-flex flex-wrap gap-1")
+  end
+
   def field_record_label(field)
     { best_lap_ms: "VOLTA", s1_ms: "S1", s2_ms: "S2", s3_ms: "S3" }[field]
   end

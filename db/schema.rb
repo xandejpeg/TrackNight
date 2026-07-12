@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_11_225006) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_12_180000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -108,9 +108,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_11_225006) do
     t.string "start_time_text"
     t.datetime "started_at"
     t.bigint "track_layout_id", null: false
+    t.integer "track_temp"
     t.datetime "updated_at", null: false
     t.bigint "vehicle_category_id", null: false
     t.bigint "venue_id", null: false
+    t.integer "weather_condition"
     t.index ["driver_profile_id"], name: "index_race_sessions_on_driver_profile_id"
     t.index ["source_document_id"], name: "index_race_sessions_on_source_document_id"
     t.index ["track_layout_id"], name: "index_race_sessions_on_track_layout_id"

@@ -5,9 +5,11 @@ class ApplicationController < ActionController::Base
   before_action :require_login
   before_action :enforce_password_change
 
-  helper_method :current_user, :current_profile_code, :profile_filter_options
+  helper_method :current_user, :current_profile_code, :profile_filter_options,
+                :current_period, :current_temp, :current_weather, :active_filters_count
 
   PROFILE_CODES = %w[ACF AC].freeze
+  PERIODS = %w[dia noite].freeze
 
   private
 
@@ -30,11 +32,32 @@ class ApplicationController < ActionController::Base
     PROFILE_CODES.include?(code) ? code : "todos"
   end
 
+  def current_period
+    PERIODS.include?(params[:period]) ? params[:period] : nil
+  end
+
+  def current_temp
+    RaceSession.track_temps.key?(params[:temp]) ? params[:temp] : nil
+  end
+
+  def current_weather
+    RaceSession.weather_conditions.key?(params[:weather]) ? params[:weather] : nil
+  end
+
+  def active_filters_count
+    [ current_profile_code != "todos", current_period, current_temp, current_weather ].count(&:present?)
+  end
+
   def profile_filter_options
     [ [ "Todos os perfis", "todos" ] ] + DriverProfile.order(:kind).map { |p| [ p.display_name, p.code ] }
   end
 
   def stats_for_current_profile
-    PerformanceStats.new(profile_code: current_profile_code)
+    PerformanceStats.new(
+      profile_code: current_profile_code,
+      period: current_period,
+      temp: current_temp,
+      weather: current_weather
+    )
   end
 end

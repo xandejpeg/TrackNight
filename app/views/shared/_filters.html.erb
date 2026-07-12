@@ -1,0 +1,59 @@
+<%# Barra de filtros compartilhada: perfil, período (dia/noite), temperatura e clima. %>
+<div class="glass px-4 py-3 flex flex-wrap items-center gap-x-5 gap-y-3">
+  <div class="flex items-center gap-2">
+    <span class="filter-label">Perfil</span>
+    <div class="filter-group">
+      <% profile_filter_options.each do |label, code| %>
+        <% active = current_profile_code == code %>
+        <%= link_to label, url_for(request.query_parameters.merge(profile: code == "todos" ? nil : code)),
+            class: "filter-pill #{'filter-pill-active' if active}" %>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="flex items-center gap-2">
+    <span class="filter-label">Período</span>
+    <div class="filter-group">
+      <% [ [ "Todos", nil ], [ "🌞 Dia", "dia" ], [ "🌙 Noite", "noite" ] ].each do |label, value| %>
+        <% active = current_period == value %>
+        <%= link_to label, url_for(request.query_parameters.merge(period: value)),
+            class: "filter-pill #{'filter-pill-active' if active}" %>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="flex items-center gap-2">
+    <span class="filter-label">Temperatura</span>
+    <%= form_with url: url_for, method: :get, local: true, class: "contents" do %>
+      <% request.query_parameters.except("temp").each do |k, v| %>
+        <%= hidden_field_tag k, v %>
+      <% end %>
+      <%= select_tag :temp,
+            options_for_select(
+              [ [ "Todas", "" ] ] + RaceSession::TRACK_TEMP_LABELS.map { |k, v| [ "#{RaceSession::TRACK_TEMP_ICONS[k]} #{v}", k ] },
+              current_temp
+            ),
+            class: "filter-select", onchange: "this.form.requestSubmit()" %>
+    <% end %>
+  </div>
+
+  <div class="flex items-center gap-2">
+    <span class="filter-label">Clima</span>
+    <%= form_with url: url_for, method: :get, local: true, class: "contents" do %>
+      <% request.query_parameters.except("weather").each do |k, v| %>
+        <%= hidden_field_tag k, v %>
+      <% end %>
+      <%= select_tag :weather,
+            options_for_select(
+              [ [ "Todos", "" ] ] + RaceSession::WEATHER_LABELS.map { |k, v| [ "#{RaceSession::WEATHER_ICONS[k]} #{v}", k ] },
+              current_weather
+            ),
+            class: "filter-select", onchange: "this.form.requestSubmit()" %>
+    <% end %>
+  </div>
+
+  <% if active_filters_count.positive? %>
+    <%= link_to "✕ Limpar filtros (#{active_filters_count})", url_for({}),
+        class: "text-[11px] text-race-glow font-semibold ml-auto" %>
+  <% end %>
+</div>

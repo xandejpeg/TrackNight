@@ -1,11 +1,12 @@
 <% content_for :title, "Sessões — TrackNight" %>
 
-<div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
-  <div>
-    <p class="kicker mb-1">Histórico</p>
-    <h1 class="text-3xl font-black tracking-tight">Sessões</h1>
-  </div>
-  <%= render "shared/profile_filter" %>
+<div class="mb-5">
+  <p class="kicker mb-1">Histórico</p>
+  <h1 class="text-3xl font-black tracking-tight">Sessões</h1>
+</div>
+
+<div class="mb-8">
+  <%= render "shared/filters" %>
 </div>
 
 <% if @sessions.empty? %>
@@ -14,7 +15,7 @@
   <div class="glass p-6 overflow-x-auto">
     <table class="w-full table-race">
       <thead>
-        <tr><th>Data</th><th>Sessão</th><th>Perfil</th><th>Pos</th><th>Kart</th><th>Voltas</th><th>Melhor</th><th>Total</th><th>S1</th><th>S2</th><th>S3</th><th>Vel.</th><th></th></tr>
+        <tr><th>Data</th><th>Sessão</th><th>Perfil</th><th>Condições</th><th>Pos</th><th>Kart</th><th>Voltas</th><th>Melhor</th><th>Total</th><th>S1</th><th>S2</th><th>S3</th><th>Vel.</th><th></th></tr>
       </thead>
       <tbody>
         <% @sessions.each do |s| %>
@@ -23,6 +24,7 @@
             <td class="chrono text-mute"><%= session_date_label(s) %></td>
             <td class="font-semibold"><%= s.title %></td>
             <td><%= profile_badge(s.driver_profile) %></td>
+            <td><%= weather_chips(s) %></td>
             <td class="chrono font-bold">P<%= e&.position || "—" %></td>
             <td class="chrono">#<%= e&.kart_number || "—" %></td>
             <td class="chrono"><%= e&.laps || "—" %></td>

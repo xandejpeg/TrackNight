@@ -213,6 +213,61 @@
     100% { background: transparent; }
   }
 
+  .filter-label {
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--color-mute);
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .filter-group {
+    display: inline-flex;
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 999px;
+    padding: 2px;
+    background: rgba(255,255,255,0.03);
+  }
+  .filter-pill {
+    font-size: 0.68rem;
+    font-weight: 600;
+    padding: 0.28rem 0.7rem;
+    border-radius: 999px;
+    color: var(--color-mute);
+    white-space: nowrap;
+    transition: color 0.15s, background 0.15s;
+  }
+  .filter-pill:hover { color: #fff; }
+  .filter-pill-active {
+    background: var(--color-race);
+    color: #fff;
+    box-shadow: 0 0 14px rgba(225,6,0,0.45);
+  }
+  .filter-select {
+    font-size: 0.72rem;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 0.55rem;
+    color: #d5d5dd;
+    padding: 0.32rem 0.55rem;
+    max-width: 11rem;
+  }
+  .filter-select:focus { border-color: rgba(225,6,0,0.6); outline: none; }
+  .filter-select option { background: #131318; color: #d5d5dd; }
+
+  .weather-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.66rem;
+    padding: 0.16rem 0.5rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.04);
+    color: var(--color-mute);
+    white-space: nowrap;
+  }
+
   .timeline-rail {
     position: absolute;
     left: 1.05rem;

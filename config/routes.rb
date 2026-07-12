@@ -10,7 +10,7 @@ Rails.application.routes.draw do
 
   get "timeline" => "timeline#show", as: :timeline
 
-  resources :race_sessions, only: [ :index, :show ], path: "sessoes"
+  resources :race_sessions, only: [ :index, :show, :update ], path: "sessoes"
 
   resources :imports, only: [ :index, :new, :create ] do
     member do

@@ -1,17 +1,25 @@
 # Estatísticas de desempenho do Alessandro em sessões confirmadas,
-# opcionalmente filtradas por perfil (ACF / AC / todos).
+# opcionalmente filtradas por perfil (ACF / AC / todos), período (dia/noite),
+# temperatura e condição do clima.
 class PerformanceStats
-  attr_reader :profile
+  attr_reader :profile, :period, :temp, :weather
 
-  def initialize(profile_code: "todos")
+  def initialize(profile_code: "todos", period: nil, temp: nil, weather: nil)
     @profile = DriverProfile.find_by(code: profile_code) if profile_code.present? && profile_code != "todos"
+    @period = period.presence
+    @temp = temp.presence
+    @weather = weather.presence
   end
 
   def sessions
     @sessions ||= begin
       scope = RaceSession.confirmed.chronological.includes(:driver_profile, result_entries: :kart)
       scope = scope.where(driver_profile: profile) if profile
-      scope.to_a
+      scope = scope.where(track_temp: temp) if temp
+      scope = scope.where(weather_condition: weather) if weather
+      list = scope.to_a
+      list = list.select { |s| s.day_night == period } if period
+      list
     end
   end
 
@@ -71,6 +79,10 @@ class PerformanceStats
         session_title: s.title,
         profile: s.driver_profile&.code,
         profile_color: s.driver_profile&.color,
+        day_night: s.day_night,
+        temp: s.track_temp_label,
+        weather: s.weather_label,
+        weather_icon: [ s.day? ? "🌞" : (s.night? ? "🌙" : nil), s.track_temp_icon, s.weather_icon ].compact.join(" "),
         best_ms: e.best_lap_ms,
         s1_ms: e.s1_ms, s2_ms: e.s2_ms, s3_ms: e.s3_ms,
         ideal_ms: e.ideal_lap_ms,

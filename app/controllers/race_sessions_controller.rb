@@ -17,4 +17,14 @@ class RaceSessionsController < ApplicationController
       speed: @session.session_best_speed
     }
   end
+
+  # Atualiza as condições (temperatura/clima) informadas pelo piloto.
+  def update
+    session = RaceSession.find(params[:id])
+    session.update!(
+      track_temp: RaceSession.track_temps.key?(params[:track_temp]) ? params[:track_temp] : nil,
+      weather_condition: RaceSession.weather_conditions.key?(params[:weather_condition]) ? params[:weather_condition] : nil
+    )
+    redirect_to race_session_path(session), notice: "Condições da sessão atualizadas."
+  end
 end

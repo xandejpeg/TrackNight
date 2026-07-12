@@ -1,12 +1,13 @@
 <% content_for :title, "Timeline — TrackNight" %>
 
-<div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
-  <div>
-    <p class="kicker mb-1">Linha do tempo</p>
-    <h1 class="text-3xl font-black tracking-tight">A jornada, volta a volta</h1>
-    <p class="text-sm text-mute mt-1">Toda sessão confirmada, do grid mais recente ao primeiro dia de kart.</p>
-  </div>
-  <%= render "shared/profile_filter" %>
+<div class="mb-5">
+  <p class="kicker mb-1">Linha do tempo</p>
+  <h1 class="text-3xl font-black tracking-tight">A jornada, volta a volta</h1>
+  <p class="text-sm text-mute mt-1">Toda sessão confirmada, do grid mais recente ao primeiro dia de kart.</p>
+</div>
+
+<div class="mb-10">
+  <%= render "shared/filters" %>
 </div>
 
 <% if @sessions.empty? %>
@@ -37,6 +38,7 @@
             <span class="chrono text-sm text-mute"><%= session_date_label(s) %></span>
             <span class="font-black text-lg"><%= s.title %></span>
             <%= profile_badge(s.driver_profile) %>
+            <%= weather_chips(s) %>
             <% if e&.position %>
               <span class="ml-auto stat-value text-2xl font-black">P<%= e.position %></span>
             <% end %>

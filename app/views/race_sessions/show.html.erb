@@ -13,6 +13,31 @@
   <p class="text-sm text-mute mt-1">KGV — Circuito 101 · kart rental</p>
 </div>
 
+<!-- Condições da sessão -->
+<div class="glass p-5 mb-4">
+  <div class="flex flex-wrap items-center gap-x-6 gap-y-3">
+    <div class="flex items-center gap-2">
+      <span class="filter-label">Condições</span>
+      <%= weather_chips(@session) %>
+    </div>
+    <%= form_with url: race_session_path(@session), method: :patch, local: true, class: "flex flex-wrap items-center gap-3 ml-auto" do %>
+      <%= select_tag :track_temp,
+            options_for_select(
+              [ [ "Temperatura…", "" ] ] + RaceSession::TRACK_TEMP_LABELS.map { |k, v| [ "#{RaceSession::TRACK_TEMP_ICONS[k]} #{v}", k ] },
+              @session.track_temp
+            ),
+            class: "filter-select" %>
+      <%= select_tag :weather_condition,
+            options_for_select(
+              [ [ "Clima…", "" ] ] + RaceSession::WEATHER_LABELS.map { |k, v| [ "#{RaceSession::WEATHER_ICONS[k]} #{v}", k ] },
+              @session.weather_condition
+            ),
+            class: "filter-select" %>
+      <button type="submit" class="filter-pill filter-pill-active">Salvar condições</button>
+    <% end %>
+  </div>
+</div>
+
 <% if @entry %>
   <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
     <div class="glass p-5">

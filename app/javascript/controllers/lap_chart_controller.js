@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 
 // Gráfico de evolução das voltas (Chart.js UMD carregado sob demanda).
 export default class extends Controller {
-  static targets = ["canvas"]
+  static targets = ["canvas", "mergeBtn", "splitBtn"]
   static values = { points: Array, split: Boolean }
 
   async connect() {
@@ -13,6 +13,25 @@ export default class extends Controller {
 
   disconnect() {
     this.chart?.destroy()
+  }
+
+  merge() {
+    this.splitValue = false
+    this.rerender()
+  }
+
+  split() {
+    this.splitValue = true
+    this.rerender()
+  }
+
+  rerender() {
+    this.chart?.destroy()
+    this.render()
+    if (this.hasMergeBtnTarget && this.hasSplitBtnTarget) {
+      this.mergeBtnTarget.classList.toggle("filter-pill-active", !this.splitValue)
+      this.splitBtnTarget.classList.toggle("filter-pill-active", this.splitValue)
+    }
   }
 
   render() {
@@ -48,7 +67,13 @@ export default class extends Controller {
             bodyColor: "#d5d5dd",
             padding: 12,
             callbacks: {
-              label: (ctx) => ` ${ctx.dataset.label}: ${fmt(ctx.parsed.y)}`
+              label: (ctx) => ` ${ctx.dataset.label}: ${fmt(ctx.parsed.y)}`,
+              afterTitle: (items) => {
+                const p = this.pointsValue[items[0]?.dataIndex]
+                if (!p) return ""
+                const parts = [p.session_title, p.profile, p.weather_icon].filter(Boolean)
+                return parts.join(" · ")
+              }
             }
           }
         },

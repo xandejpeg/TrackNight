@@ -59,6 +59,10 @@ class ImportsController < ApplicationController
       date_pending: date_pending || started_at.nil?,
       rows_override: rows_override
     )
+    session.update!(
+      track_temp: RaceSession.track_temps.key?(params[:track_temp]) ? params[:track_temp] : nil,
+      weather_condition: RaceSession.weather_conditions.key?(params[:weather_condition]) ? params[:weather_condition] : nil
+    )
     redirect_to race_session_path(session), notice: "Sessão confirmada e importada."
   rescue => e
     redirect_to review_import_path(document), alert: "Erro ao confirmar: #{e.message}"

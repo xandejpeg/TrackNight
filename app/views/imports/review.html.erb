@@ -29,6 +29,25 @@
         <%= check_box_tag :date_pending, "1", false, class: "w-4 h-4 accent-[#e10600]" %>
         <span class="text-sm">Data pendente (confirmar depois)</span>
       </label>
+      <p class="text-[11px] text-mute mt-3">🌞/🌙 Dia ou noite é automático: largada até as 17h conta como dia.</p>
+    </div>
+    <div class="glass p-5">
+      <label class="kicker block mb-2">Temperatura</label>
+      <%= select_tag :track_temp,
+            options_for_select(
+              [ [ "Não informar", "" ] ] + RaceSession::TRACK_TEMP_LABELS.map { |k, v| [ "#{RaceSession::TRACK_TEMP_ICONS[k]} #{v}", k ] }
+            ),
+            class: "field" %>
+      <p class="text-[11px] text-mute mt-2">Como estava a temperatura na pista.</p>
+    </div>
+    <div class="glass p-5">
+      <label class="kicker block mb-2">Condição do clima</label>
+      <%= select_tag :weather_condition,
+            options_for_select(
+              [ [ "Não informar", "" ] ] + RaceSession::WEATHER_LABELS.map { |k, v| [ "#{RaceSession::WEATHER_ICONS[k]} #{v}", k ] }
+            ),
+            class: "field" %>
+      <p class="text-[11px] text-mute mt-2">Clima estável, chuva, ventania…</p>
     </div>
   </div>
 
