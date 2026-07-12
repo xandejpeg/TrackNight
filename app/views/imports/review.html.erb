@@ -32,11 +32,23 @@
     </div>
   </div>
 
-  <div class="glass p-6 overflow-x-auto mb-6">
+  <div class="glass p-6 overflow-x-auto mb-6" data-controller="column-swap">
     <h2 class="font-bold text-sm uppercase tracking-widest text-mute mb-4">Linhas extraídas — edite o que o OCR errou</h2>
+    <p class="text-[11px] text-mute mb-3">↔ As colunas são móveis: clique em um cabeçalho e depois em outro (ou arraste e solte) para trocar os valores de lugar. Os cabeçalhos ficam — só os dados trocam de coluna.</p>
     <table class="w-full table-race">
       <thead>
-        <tr><th>ALE?</th><th>Pos</th><th>Kart</th><th>Nome</th><th>Voltas</th><th>Melhor</th><th>Total</th><th>S1</th><th>S2</th><th>S3</th><th>Vel.</th></tr>
+        <tr>
+          <th>ALE?</th>
+          <% {
+            "position" => "Pos", "kart_number" => "Kart", "name" => "Nome",
+            "laps" => "Voltas", "best_lap_text" => "Melhor", "total_time_text" => "Total",
+            "s1_text" => "S1", "s2_text" => "S2", "s3_text" => "S3", "speed_text" => "Vel."
+          }.each do |field, label| %>
+            <th data-column-swap-target="header" data-field="<%= field %>"
+                data-action="click->column-swap#select dragstart->column-swap#dragStart dragend->column-swap#dragEnd dragover->column-swap#dragOver dragleave->column-swap#dragLeave drop->column-swap#drop"
+                title="Clique ou arraste para trocar esta coluna de lugar"><%= label %> <span class="col-swap-grip">⇄</span></th>
+          <% end %>
+        </tr>
       </thead>
       <tbody>
         <% @rows.each_with_index do |row, idx| %>

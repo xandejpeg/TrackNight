@@ -192,6 +192,27 @@
     box-shadow: inset 3px 0 0 var(--color-race);
   }
 
+  .col-swap-header { cursor: grab; user-select: none; transition: background 0.15s, color 0.15s; }
+  .col-swap-header:hover { color: #fff; background: rgba(255,255,255,0.05); }
+  .col-swap-grip { opacity: 0.35; font-size: 0.7rem; }
+  .col-swap-header:hover .col-swap-grip { opacity: 0.9; }
+  .col-swap-selected {
+    color: #fff !important;
+    background: rgba(225,6,0,0.22) !important;
+    box-shadow: inset 0 -2px 0 var(--color-race);
+  }
+  .col-swap-dragging { opacity: 0.4; cursor: grabbing; }
+  .col-swap-over {
+    background: rgba(225,6,0,0.3) !important;
+    color: #fff !important;
+    box-shadow: inset 0 -2px 0 var(--color-race);
+  }
+  .col-swap-flash { animation: colSwapFlash 0.7s ease-out; }
+  @keyframes colSwapFlash {
+    0% { background: rgba(225,6,0,0.5); color: #fff; }
+    100% { background: transparent; }
+  }
+
   .timeline-rail {
     position: absolute;
     left: 1.05rem;
