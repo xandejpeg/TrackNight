@@ -1,0 +1,34 @@
+<% content_for :title, "Nova conta — TrackNight" %>
+
+<div class="mb-6">
+  <p class="kicker mb-1">Piloto</p>
+  <h1 class="text-3xl font-black tracking-tight">Adicionar conta</h1>
+  <p class="text-sm text-mute mt-1">Cadastre uma nova conta do KGV — o código precisa bater com o nome que aparece na folha de tempos.</p>
+</div>
+
+<div class="glass p-6 max-w-xl">
+  <%= form_with model: @profile, url: profiles_path, local: true, class: "space-y-5" do |f| %>
+    <div>
+      <label class="filter-label block mb-1.5">Código (como aparece no resultado)</label>
+      <%= f.text_field :code, class: "field w-full", placeholder: "ex.: ACF", required: true %>
+    </div>
+    <div>
+      <label class="filter-label block mb-1.5">Nome de exibição</label>
+      <%= f.text_field :display_name, class: "field w-full", placeholder: "ex.: AC (smurf)", required: true %>
+    </div>
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label class="filter-label block mb-1.5">Cor da conta</label>
+        <%= f.color_field :color, class: "field w-full h-11 cursor-pointer" %>
+      </div>
+      <div>
+        <label class="filter-label block mb-1.5">Tipo</label>
+        <%= f.select :kind, [ [ "Conta principal", "main" ], [ "Conta smurf", "smurf" ] ], {}, class: "field w-full" %>
+      </div>
+    </div>
+    <div class="flex items-center gap-3 pt-2">
+      <%= f.submit "Adicionar conta", class: "btn-race cursor-pointer" %>
+      <%= link_to "Cancelar", profiles_path, class: "btn-ghost !text-[12px]" %>
+    </div>
+  <% end %>
+</div>

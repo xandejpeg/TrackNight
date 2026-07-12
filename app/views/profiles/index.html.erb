@@ -1,0 +1,46 @@
+<% content_for :title, "Contas — TrackNight" %>
+
+<div class="mb-6 flex items-end justify-between flex-wrap gap-4">
+  <div>
+    <p class="kicker mb-1">Piloto</p>
+    <h1 class="text-3xl font-black tracking-tight">Contas</h1>
+    <p class="text-sm text-mute mt-1">Todas as contas do piloto no KGV — clique para ver o perfil completo de cada uma.</p>
+  </div>
+  <div class="flex items-center gap-2">
+    <%= link_to "⚔ Comparativo de contas", comparison_path, class: "btn-ghost !text-[12px]" %>
+    <%= link_to "➕ Adicionar conta", new_profile_path, class: "btn-race !text-[12px]" %>
+  </div>
+</div>
+
+<div class="grid md:grid-cols-2 gap-4">
+  <% @profiles.each do |p| %>
+    <% st = @stats_by_code[p] %>
+    <%= link_to profile_path(p.code), class: "glass glass-hover p-6 block" do %>
+      <div class="flex items-center gap-4 mb-5">
+        <span class="w-12 h-12 rounded-full grid place-items-center font-black text-sm text-white shrink-0"
+              style="background: <%= p.color || '#8b8b96' %>; box-shadow: 0 0 18px <%= p.color || '#8b8b96' %>66">
+          <%= p.code.first(3) %>
+        </span>
+        <div class="min-w-0">
+          <p class="font-black text-lg leading-tight"><%= p.display_name %></p>
+          <p class="text-[11px] text-mute uppercase tracking-widest"><%= p.main? ? "Conta principal" : "Conta smurf" %> · <%= p.code %></p>
+        </div>
+        <span class="ml-auto text-mute text-xl">→</span>
+      </div>
+      <div class="grid grid-cols-3 gap-3">
+        <div>
+          <p class="kicker">Corridas</p>
+          <p class="stat-value text-2xl mt-1"><%= st.sessions_count %></p>
+        </div>
+        <div>
+          <p class="kicker text-smurf">Melhor volta</p>
+          <p class="stat-value text-2xl mt-1"><%= lap(st.best_lap_entry&.best_lap_ms) %></p>
+        </div>
+        <div>
+          <p class="kicker text-gold">Melhor pos.</p>
+          <p class="stat-value text-2xl mt-1"><%= st.best_position_entry ? "P#{st.best_position_entry.position}" : "—" %></p>
+        </div>
+      </div>
+    <% end %>
+  <% end %>
+</div>

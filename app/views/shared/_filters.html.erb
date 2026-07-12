@@ -11,7 +11,7 @@
         <% DriverProfile.order(:kind).each do |p| %>
           <% on = current_profiles.include?(p.code) %>
           <% new_codes = on ? current_profiles - [ p.code ] : (current_profiles | [ p.code ]) %>
-          <% value = (new_codes.empty? || new_codes.sort == ApplicationController::PROFILE_CODES.sort) ? nil : new_codes.join(",") %>
+          <% value = (new_codes.empty? || new_codes.sort == all_profile_codes.sort) ? nil : new_codes.join(",") %>
           <%= link_to url_for(request.query_parameters.except("profile").merge(profiles: value)), class: "filter-toggle-row" do %>
             <span class="toggle-track <%= 'toggle-on' if on %>"><span class="toggle-thumb"></span></span>
             <span class="profile-chip" style="--chip-color: <%= p.color || '#8b8b96' %>"><%= p.code %></span>
@@ -20,7 +20,7 @@
             <% end %>
           <% end %>
         <% end %>
-        <p class="text-[10px] text-mute px-2 pt-2 border-t border-line mt-1.5">Os 2 ligados = todas as corridas juntas.</p>
+        <p class="text-[10px] text-mute px-2 pt-2 border-t border-line mt-1.5">Todos ligados = todas as corridas juntas.</p>
       </div>
     </details>
   </div>

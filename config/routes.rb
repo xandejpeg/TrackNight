@@ -23,4 +23,6 @@ Rails.application.routes.draw do
   get "pista"       => "track#show",      as: :track
   get "karts"       => "karts#index",     as: :karts
   get "comparativo" => "comparison#show", as: :comparison
+
+  resources :profiles, param: :code, path: "contas", only: [ :index, :show, :new, :create ]
 end

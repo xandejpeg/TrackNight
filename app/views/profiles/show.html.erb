@@ -1,0 +1,86 @@
+<% content_for :title, "#{@profile.display_name} — TrackNight" %>
+
+<div class="mb-6 flex items-center gap-4 flex-wrap">
+  <span class="w-14 h-14 rounded-full grid place-items-center font-black text-base text-white shrink-0"
+        style="background: <%= @profile.color || '#8b8b96' %>; box-shadow: 0 0 22px <%= @profile.color || '#8b8b96' %>66">
+    <%= @profile.code.first(3) %>
+  </span>
+  <div>
+    <p class="kicker mb-0.5"><%= @profile.main? ? "Conta principal" : "Conta smurf" %></p>
+    <h1 class="text-3xl font-black tracking-tight" style="color: <%= @profile.color %>"><%= @profile.display_name %></h1>
+  </div>
+  <div class="ml-auto flex items-center gap-2">
+    <%= link_to "⚔ Comparar", comparison_path(a: @profile.code), class: "btn-ghost !text-[12px]" %>
+    <%= link_to "← Contas", profiles_path, class: "btn-ghost !text-[12px]" %>
+  </div>
+</div>
+
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+  <div class="glass p-5">
+    <p class="kicker">Corridas</p>
+    <p class="stat-value text-4xl mt-2"><%= @stats.sessions_count %></p>
+    <p class="text-[11px] text-mute mt-1"><%= @stats.total_laps %> voltas · <%= duration_human(@stats.total_track_time_ms) %> em pista</p>
+  </div>
+  <div class="glass p-5">
+    <p class="kicker text-smurf">Melhor volta</p>
+    <p class="stat-value text-4xl mt-2"><%= lap(@stats.best_lap_entry&.best_lap_ms) %></p>
+    <p class="text-[11px] text-mute mt-1">média das melhores: <%= lap(@stats.average_best_lap_ms) %></p>
+  </div>
+  <div class="glass p-5">
+    <p class="kicker text-mint">Volta ideal</p>
+    <p class="stat-value text-4xl mt-2"><%= lap(@stats.ideal_lap_ms) %></p>
+    <p class="text-[11px] text-mute mt-1">gap p/ ideal: <%= @stats.gap_to_ideal_ms ? lap_delta(@stats.gap_to_ideal_ms) : "—" %></p>
+  </div>
+  <div class="glass p-5">
+    <p class="kicker text-gold">Melhor posição</p>
+    <p class="stat-value text-4xl mt-2"><%= @stats.best_position_entry ? "P#{@stats.best_position_entry.position}" : "—" %></p>
+    <p class="text-[11px] text-mute mt-1">vel. máx: <%= @stats.best_speed_entry&.speed || "—" %> km/h</p>
+  </div>
+</div>
+
+<div class="grid grid-cols-3 gap-4 mb-4">
+  <% { "Melhor S1" => @stats.best_s1_entry&.s1_ms, "Melhor S2" => @stats.best_s2_entry&.s2_ms, "Melhor S3" => @stats.best_s3_entry&.s3_ms }.each do |label, ms| %>
+    <div class="glass p-4">
+      <p class="kicker"><%= label %></p>
+      <p class="stat-value text-2xl mt-1"><%= lap(ms) %></p>
+    </div>
+  <% end %>
+</div>
+
+<% unless @evolution.empty? %>
+  <div class="glass p-6 mb-4">
+    <h2 class="font-bold text-sm uppercase tracking-widest text-mute mb-4">Evolução da conta</h2>
+    <div class="h-72" data-controller="lap-chart" data-lap-chart-points-value="<%= @evolution.to_json %>">
+      <canvas data-lap-chart-target="canvas"></canvas>
+    </div>
+  </div>
+<% end %>
+
+<div class="glass p-6">
+  <h2 class="font-bold text-sm uppercase tracking-widest text-mute mb-4">Corridas desta conta</h2>
+  <% if @stats.sessions.empty? %>
+    <p class="text-sm text-mute">Nenhuma corrida importada ainda para esta conta.</p>
+  <% else %>
+    <div class="overflow-x-auto">
+      <table class="w-full table-race">
+        <thead>
+          <tr><th>Data</th><th>Sessão</th><th>Condições</th><th>Kart</th><th>Pos</th><th>Melhor volta</th><th>Vel.</th></tr>
+        </thead>
+        <tbody>
+          <% @stats.sessions.reverse.each do |s| %>
+            <% e = s.alessandro_entry %>
+            <tr class="hover:bg-white/[0.03] transition-colors">
+              <td class="chrono text-mute"><%= session_date_label(s) %></td>
+              <td class="font-semibold"><%= link_to s.title, race_session_path(s), class: "hover:text-race-glow" %></td>
+              <td><%= weather_chips(s) %></td>
+              <td class="chrono">#<%= e&.kart_number || "—" %></td>
+              <td class="chrono"><%= e&.position ? "P#{e.position}" : "—" %></td>
+              <td class="chrono font-bold"><%= lap(e&.best_lap_ms) %></td>
+              <td class="chrono text-mute"><%= e&.speed || "—" %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+</div>

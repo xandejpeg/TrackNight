@@ -5,13 +5,16 @@ class ApplicationController < ActionController::Base
   before_action :require_login
   before_action :enforce_password_change
 
-  helper_method :current_user, :current_profiles, :profiles_filtered?,
+  helper_method :current_user, :current_profiles, :profiles_filtered?, :all_profile_codes,
                 :current_period, :current_temp, :current_weather, :active_filters_count
 
-  PROFILE_CODES = %w[ACF AC].freeze
   PERIODS = %w[dia noite].freeze
 
   private
+
+  def all_profile_codes
+    @all_profile_codes ||= DriverProfile.order(:kind, :id).pluck(:code)
+  end
 
   def current_user
     @current_user ||= User.find_by(id: session[:user_id]) if session[:user_id]
@@ -30,18 +33,18 @@ class ApplicationController < ActionController::Base
   # Nenhum ou todos selecionados = todas as corridas.
   def current_profiles
     @current_profiles ||= begin
-      codes = params[:profiles].to_s.split(",").map { |c| c.strip.upcase }.uniq & PROFILE_CODES
+      codes = params[:profiles].to_s.split(",").map { |c| c.strip.upcase }.uniq & all_profile_codes
       # Compatibilidade com links antigos ?profile=ACF
       if codes.empty?
         legacy = params[:profile].to_s.upcase
-        codes = [ legacy ] if PROFILE_CODES.include?(legacy)
+        codes = [ legacy ] if all_profile_codes.include?(legacy)
       end
-      codes.empty? || codes.sort == PROFILE_CODES.sort ? PROFILE_CODES.dup : codes
+      codes.empty? || codes.sort == all_profile_codes.sort ? all_profile_codes.dup : codes
     end
   end
 
   def profiles_filtered?
-    current_profiles.sort != PROFILE_CODES.sort
+    current_profiles.sort != all_profile_codes.sort
   end
 
   def current_period

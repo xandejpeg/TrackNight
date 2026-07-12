@@ -1,50 +1,86 @@
-<% content_for :title, "ACF × AC — TrackNight" %>
+<% content_for :title, "Comparativo de contas — TrackNight" %>
 
-<div class="mb-8">
-  <p class="kicker mb-1">Duelo interno</p>
-  <h1 class="text-3xl font-black tracking-tight">
-    <span style="color:#e10600">ACF</span> <span class="text-mute">×</span> <span style="color:#00a8e8">AC (smurf)</span>
-  </h1>
-  <p class="text-sm text-mute mt-1">Conta principal contra conta smurf — mesmo piloto, dois personagens.</p>
-</div>
+<% if @profile_a.nil? || @profile_b.nil? %>
+  <div class="glass p-12 text-center">
+    <p class="text-4xl mb-3">⚔</p>
+    <p class="text-sm text-mute">Você precisa de pelo menos 2 contas para comparar.</p>
+    <%= link_to "➕ Adicionar conta", new_profile_path, class: "btn-race !text-[12px] inline-block mt-4" %>
+  </div>
+<% else %>
+  <div class="mb-6 flex items-end justify-between flex-wrap gap-4">
+    <div>
+      <p class="kicker mb-1">Duelo interno</p>
+      <h1 class="text-3xl font-black tracking-tight">
+        <span style="color:<%= @profile_a.color %>"><%= @profile_a.display_name %></span>
+        <span class="text-mute">×</span>
+        <span style="color:<%= @profile_b.color %>"><%= @profile_b.display_name %></span>
+      </h1>
+      <p class="text-sm text-mute mt-1">Mesmo piloto, duas contas — escolha quem entra no duelo.</p>
+    </div>
+    <%= link_to "← Contas", profiles_path, class: "btn-ghost !text-[12px]" %>
+  </div>
 
-<% rows = [
-  [ "Sessões", @acf.sessions_count, @ac.sessions_count, ->(v) { v }, :max ],
-  [ "Voltas completadas", @acf.total_laps, @ac.total_laps, ->(v) { v }, :max ],
-  [ "Melhor volta", @acf.best_lap_entry&.best_lap_ms, @ac.best_lap_entry&.best_lap_ms, ->(v) { lap(v) }, :min ],
-  [ "Média das melhores", @acf.average_best_lap_ms, @ac.average_best_lap_ms, ->(v) { lap(v) }, :min ],
-  [ "Melhor S1", @acf.best_s1_entry&.s1_ms, @ac.best_s1_entry&.s1_ms, ->(v) { lap(v) }, :min ],
-  [ "Melhor S2", @acf.best_s2_entry&.s2_ms, @ac.best_s2_entry&.s2_ms, ->(v) { lap(v) }, :min ],
-  [ "Melhor S3", @acf.best_s3_entry&.s3_ms, @ac.best_s3_entry&.s3_ms, ->(v) { lap(v) }, :min ],
-  [ "Volta ideal", @acf.ideal_lap_ms, @ac.ideal_lap_ms, ->(v) { lap(v) }, :min ],
-  [ "Vel. máxima (km/h)", @acf.best_speed_entry&.speed&.to_f, @ac.best_speed_entry&.speed&.to_f, ->(v) { v }, :max ],
-  [ "Melhor posição", @acf.best_position_entry&.position, @ac.best_position_entry&.position, ->(v) { "P#{v}" }, :min ]
-] %>
-
-<div class="glass p-6 mb-4">
-  <div class="space-y-1">
-    <% rows.each do |label, a, b, fmt, dir| %>
-      <% a_wins = a && (b.nil? || (dir == :min ? a < b : a > b)) %>
-      <% b_wins = b && (a.nil? || (dir == :min ? b < a : b > a)) %>
-      <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-4 py-2.5 border-b border-white/[0.04] last:border-0">
-        <p class="chrono text-right text-lg <%= a_wins ? "font-black text-white" : "text-mute" %>">
-          <%= a ? fmt.call(a) : "—" %> <%= "◀" if a_wins %>
-        </p>
-        <p class="text-[10px] uppercase tracking-[0.18em] text-mute text-center w-40"><%= label %></p>
-        <p class="chrono text-lg <%= b_wins ? "font-black text-white" : "text-mute" %>">
-          <%= "▶" if b_wins %> <%= b ? fmt.call(b) : "—" %>
-        </p>
+  <div class="glass px-4 py-3 mb-4 flex flex-wrap items-center gap-x-5 gap-y-3">
+    <%= form_with url: comparison_path, method: :get, local: true, class: "contents" do %>
+      <div class="flex items-center gap-2">
+        <span class="filter-label">Conta A</span>
+        <%= select_tag :a,
+              options_for_select(@profiles.map { |p| [ p.display_name, p.code ] }, @profile_a.code),
+              class: "filter-select", onchange: "this.form.requestSubmit()" %>
+      </div>
+      <span class="text-mute font-black">×</span>
+      <div class="flex items-center gap-2">
+        <span class="filter-label">Conta B</span>
+        <%= select_tag :b,
+              options_for_select(@profiles.map { |p| [ p.display_name, p.code ] }, @profile_b.code),
+              class: "filter-select", onchange: "this.form.requestSubmit()" %>
       </div>
     <% end %>
   </div>
-</div>
 
-<div class="glass p-6">
-  <h2 class="font-bold text-sm uppercase tracking-widest text-mute mb-4">Evolução comparada</h2>
-  <div class="h-72"
-       data-controller="lap-chart"
-       data-lap-chart-points-value="<%= (@acf.evolution + @ac.evolution).sort_by { |p| p[:date] || "" }.to_json %>"
-       data-lap-chart-split-value="true">
-    <canvas data-lap-chart-target="canvas"></canvas>
+  <% rows = [
+    [ "Sessões", @stats_a.sessions_count, @stats_b.sessions_count, ->(v) { v }, :max ],
+    [ "Voltas completadas", @stats_a.total_laps, @stats_b.total_laps, ->(v) { v }, :max ],
+    [ "Melhor volta", @stats_a.best_lap_entry&.best_lap_ms, @stats_b.best_lap_entry&.best_lap_ms, ->(v) { lap(v) }, :min ],
+    [ "Média das melhores", @stats_a.average_best_lap_ms, @stats_b.average_best_lap_ms, ->(v) { lap(v) }, :min ],
+    [ "Melhor S1", @stats_a.best_s1_entry&.s1_ms, @stats_b.best_s1_entry&.s1_ms, ->(v) { lap(v) }, :min ],
+    [ "Melhor S2", @stats_a.best_s2_entry&.s2_ms, @stats_b.best_s2_entry&.s2_ms, ->(v) { lap(v) }, :min ],
+    [ "Melhor S3", @stats_a.best_s3_entry&.s3_ms, @stats_b.best_s3_entry&.s3_ms, ->(v) { lap(v) }, :min ],
+    [ "Volta ideal", @stats_a.ideal_lap_ms, @stats_b.ideal_lap_ms, ->(v) { lap(v) }, :min ],
+    [ "Vel. máxima (km/h)", @stats_a.best_speed_entry&.speed&.to_f, @stats_b.best_speed_entry&.speed&.to_f, ->(v) { v }, :max ],
+    [ "Melhor posição", @stats_a.best_position_entry&.position, @stats_b.best_position_entry&.position, ->(v) { "P#{v}" }, :min ]
+  ] %>
+
+  <div class="glass p-6 mb-4">
+    <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-4 pb-3 mb-1 border-b border-line">
+      <p class="text-right font-black" style="color:<%= @profile_a.color %>"><%= @profile_a.code %></p>
+      <span class="w-40"></span>
+      <p class="font-black" style="color:<%= @profile_b.color %>"><%= @profile_b.code %></p>
+    </div>
+    <div class="space-y-1">
+      <% rows.each do |label, a, b, fmt, dir| %>
+        <% a_wins = a && (b.nil? || (dir == :min ? a < b : a > b)) %>
+        <% b_wins = b && (a.nil? || (dir == :min ? b < a : b > a)) %>
+        <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-4 py-2.5 border-b border-white/[0.04] last:border-0">
+          <p class="chrono text-right text-lg <%= a_wins ? "font-black text-white" : "text-mute" %>">
+            <%= a ? fmt.call(a) : "—" %> <%= "◀" if a_wins %>
+          </p>
+          <p class="text-[10px] uppercase tracking-[0.18em] text-mute text-center w-40"><%= label %></p>
+          <p class="chrono text-lg <%= b_wins ? "font-black text-white" : "text-mute" %>">
+            <%= "▶" if b_wins %> <%= b ? fmt.call(b) : "—" %>
+          </p>
+        </div>
+      <% end %>
+    </div>
   </div>
-</div>
+
+  <div class="glass p-6">
+    <h2 class="font-bold text-sm uppercase tracking-widest text-mute mb-4">Evolução comparada</h2>
+    <div class="h-72"
+         data-controller="lap-chart"
+         data-lap-chart-points-value="<%= (@stats_a.evolution + @stats_b.evolution).sort_by { |p| p[:date] || "" }.to_json %>"
+         data-lap-chart-split-value="true">
+      <canvas data-lap-chart-target="canvas"></canvas>
+    </div>
+  </div>
+<% end %>

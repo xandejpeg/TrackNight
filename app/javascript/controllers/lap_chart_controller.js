@@ -234,22 +234,20 @@ export default class extends Controller {
 
   splitDatasets() {
     const wet = this.pointColors()
-    return [
-      {
-        label: "ACF",
-        data: this.pointsValue.map((p) => (p.profile === "ACF" ? p.best_ms : null)),
-        borderColor: "#e10600", backgroundColor: "#e10600",
-        pointBackgroundColor: wet, pointBorderColor: wet,
-        pointRadius: 5, borderWidth: 2.5, tension: 0.3, spanGaps: true
-      },
-      {
-        label: "AC (smurf)",
-        data: this.pointsValue.map((p) => (p.profile === "AC" ? p.best_ms : null)),
-        borderColor: "#00a8e8", backgroundColor: "#00a8e8",
-        pointBackgroundColor: wet, pointBorderColor: wet,
-        pointRadius: 5, borderWidth: 2.5, tension: 0.3, spanGaps: true
+    // Uma linha por conta presente nos pontos (funciona com qualquer nº de contas).
+    const profiles = []
+    this.pointsValue.forEach((p) => {
+      if (p.profile && !profiles.some((x) => x.code === p.profile)) {
+        profiles.push({ code: p.profile, color: p.profile_color || "#8b8b96" })
       }
-    ]
+    })
+    return profiles.map((prof) => ({
+      label: prof.code,
+      data: this.pointsValue.map((p) => (p.profile === prof.code ? p.best_ms : null)),
+      borderColor: prof.color, backgroundColor: prof.color,
+      pointBackgroundColor: wet, pointBorderColor: wet,
+      pointRadius: 5, borderWidth: 2.5, tension: 0.3, spanGaps: true
+    }))
   }
 
   sectorDatasets() {
