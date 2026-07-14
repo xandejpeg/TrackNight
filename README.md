@@ -1,5 +1,10 @@
 # README
 
+## Deploy / VPS
+
+* Produção hospedada no VPS **KVM 2 da Hostinger** (IP `76.13.169.45`, domínio `xandaopiloto.com`).
+* App em `/var/www/tracknight`, chave SSH `~/.ssh/tracknight_deploy`.
+
 This README would normally document whatever steps are necessary to get the
 application up and running.
 
