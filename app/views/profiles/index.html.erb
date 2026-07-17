@@ -15,6 +15,7 @@
 <div class="grid md:grid-cols-2 gap-4">
   <% @profiles.each do |p| %>
     <% st = @stats_by_code[p] %>
+    <% ranking = @rankings[p] %>
     <%= link_to profile_path(p.code), class: "glass glass-hover p-6 block" do %>
       <div class="flex items-center gap-4 mb-5">
         <span class="w-12 h-12 rounded-full grid place-items-center font-black text-sm text-white shrink-0"
@@ -27,7 +28,7 @@
         </div>
         <span class="ml-auto text-mute text-xl">→</span>
       </div>
-      <div class="grid grid-cols-3 gap-3">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <div>
           <p class="kicker">Corridas</p>
           <p class="stat-value text-2xl mt-1"><%= st.sessions_count %></p>
@@ -39,6 +40,11 @@
         <div>
           <p class="kicker text-gold">Melhor pos.</p>
           <p class="stat-value text-2xl mt-1"><%= st.best_position_entry ? "P#{st.best_position_entry.position}" : "—" %></p>
+        </div>
+        <div>
+          <p class="kicker text-mint">Ranking</p>
+          <p class="font-black text-sm mt-2"><%= RankingCalculator::LEVEL_LABELS.fetch(ranking.ranking_level) %></p>
+          <p class="chrono text-[10px] text-mute"><%= ranking.ranking_points %> pts</p>
         </div>
       </div>
     <% end %>

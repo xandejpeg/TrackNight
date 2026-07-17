@@ -15,6 +15,25 @@
   </div>
 </div>
 
+<div class="grid md:grid-cols-2 gap-4 mb-4">
+  <div class="glass p-6 border-mint/30">
+    <p class="kicker text-mint">Ranking competitivo</p>
+    <div class="flex items-end justify-between gap-4 mt-2">
+      <p class="stat-value text-3xl"><%= RankingCalculator::LEVEL_LABELS.fetch(@ranking.ranking_level) %></p>
+      <p class="chrono text-xl font-black"><%= @ranking.ranking_points %> pts</p>
+    </div>
+    <p class="text-[11px] text-mute mt-2"><%= @ranking.ranking_wins %> vitória(s) competitiva(s) · apenas provas com 10–30 pilotos dentro de 10s</p>
+  </div>
+  <div class="glass p-6 border-smurf/30">
+    <p class="kicker text-smurf">MMR geral</p>
+    <div class="flex items-end justify-between gap-4 mt-2">
+      <p class="stat-value text-3xl"><%= RankingCalculator::LEVEL_LABELS.fetch(@ranking.mmr_level) %></p>
+      <p class="chrono text-xl font-black"><%= @ranking.mmr_points %> pts</p>
+    </div>
+    <p class="text-[11px] text-mute mt-2"><%= @ranking.mmr_wins %> vitória(s) · todas as provas de 1–30 pilotos</p>
+  </div>
+</div>
+
 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
   <div class="glass p-5">
     <p class="kicker">Corridas</p>
@@ -43,6 +62,36 @@
     <div class="glass p-4">
       <p class="kicker"><%= label %></p>
       <p class="stat-value text-2xl mt-1"><%= lap(ms) %></p>
+    </div>
+  <% end %>
+</div>
+
+<%= render "ranking_guide" %>
+
+<div class="glass p-6 mb-4">
+  <h2 class="font-bold text-sm uppercase tracking-widest text-mute mb-4">Histórico do ranking</h2>
+  <% if @ranking.history.empty? %>
+    <p class="text-sm text-mute">Nenhuma prova confirmada nesta conta.</p>
+  <% else %>
+    <div class="overflow-x-auto">
+      <table class="w-full table-race">
+        <thead>
+          <tr><th>#</th><th>Data</th><th>Resultado</th><th>Prova</th><th>Ranking</th><th>MMR</th><th>Nível após a prova</th></tr>
+        </thead>
+        <tbody>
+          <% @ranking.history.reverse_each do |item| %>
+            <tr class="hover:bg-white/[0.03] transition-colors">
+              <td class="chrono font-black"><%= item.race_number %></td>
+              <td class="chrono text-mute"><%= item.date&.strftime("%d/%m/%Y") || "—" %></td>
+              <td class="font-bold <%= item.position == 1 ? 'text-gold' : '' %>"><%= item.position == 1 ? "Vitória" : "P#{item.position || '—'}" %></td>
+              <td><%= link_to item.title, race_session_path(item.race_id), class: "hover:text-race-glow" %></td>
+              <td class="chrono"><%= item.competitive ? "+#{item.ranking_points}" : "Casual" %></td>
+              <td class="chrono">+<%= item.mmr_points %></td>
+              <td><%= RankingCalculator::LEVEL_LABELS.fetch(item.ranking_level) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
     </div>
   <% end %>
 </div>

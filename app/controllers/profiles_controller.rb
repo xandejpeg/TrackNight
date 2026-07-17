@@ -2,12 +2,14 @@ class ProfilesController < ApplicationController
   def index
     @profiles = DriverProfile.order(:kind, :id)
     @stats_by_code = @profiles.index_with { |p| PerformanceStats.new(profile_codes: [ p.code ]) }
+    @rankings = @profiles.index_with { |p| ProfileRanking.new(p).call }
   end
 
   def show
     @profile = DriverProfile.find_by!(code: params[:code])
     @stats = PerformanceStats.new(profile_codes: [ @profile.code ])
     @evolution = @stats.evolution
+    @ranking = ProfileRanking.new(@profile).call
   end
 
   def new

@@ -1,0 +1,74 @@
+<section class="mt-12 mb-4">
+  <div class="mb-5">
+    <p class="kicker text-race-glow mb-1">A estrada completa</p>
+    <h2 class="text-3xl font-black">Da primeira largada ao Diamante</h2>
+    <p class="text-sm text-mute mt-2 max-w-2xl">Bronze, Prata e Ouro possuem três divisões. Cada conta evolui separadamente e precisa cumprir as travas de vitória para avançar no Ouro.</p>
+  </div>
+
+  <div class="grid md:grid-cols-2 xl:grid-cols-4 gap-2 mb-4">
+    <% tiers = [
+      [ "B", "Bronze", "I · II · III", "#c77b43", "A entrada da carreira. A primeira prova começa no Bronze I e cada 10 pontos avança uma divisão." ],
+      [ "P", "Prata", "I · II · III", "#c5cbd1", "A faixa intermediária. Consistência no top 10 mantém a evolução sem depender apenas de pódios." ],
+      [ "O", "Ouro", "I · II · III", "#f2c94c", "A elite entusiasta. Ouro I, II e III exigem uma, duas e três vitórias acumuladas." ],
+      [ "D", "Diamante", "CENÁRIO PRO", "#6ee7f9", "Após Ouro III, são necessários 100 pontos. A evolução seguinte será definida pelos campeonatos." ]
+    ] %>
+    <% tiers.each do |letter, name, divisions, color, description| %>
+      <article class="glass p-5 min-h-60 relative overflow-hidden" style="border-color: <%= color %>66; background: linear-gradient(155deg, <%= color %>18, rgba(14,14,18,.96) 58%);">
+        <span class="w-16 h-16 grid place-items-center font-black text-2xl mb-5"
+              style="color: #08080a; background: <%= color %>; clip-path: polygon(50% 0,90% 23%,90% 70%,50% 100%,10% 70%,10% 23%); box-shadow: 0 0 24px <%= color %>66;"><%= letter %></span>
+        <h3 class="text-xl font-black uppercase" style="color: <%= color %>"><%= name %></h3>
+        <p class="chrono text-[11px] tracking-widest mt-1 mb-4"><%= divisions %></p>
+        <p class="text-xs text-mute leading-relaxed"><%= description %></p>
+      </article>
+    <% end %>
+  </div>
+
+  <div class="grid lg:grid-cols-2 gap-4 mb-4">
+    <article class="glass p-6">
+      <p class="kicker text-gold mb-1">Tabela oficial</p>
+      <h3 class="text-xl font-black mb-5">Pontos por chegada</h3>
+      <div class="grid grid-cols-4 gap-2">
+        <% [ [ "P1", 10 ], [ "P2", 7 ], [ "P3", 6 ], [ "P4–P5", 5 ], [ "P6–P10", 2 ], [ "P11–P20", 1 ], [ "P21–P30", 0 ], [ "Divisão", 10 ] ].each do |position, points| %>
+          <div class="border border-line bg-white/[0.03] p-3 text-center">
+            <p class="chrono text-xl font-black <%= "text-gold" if points >= 6 %>"><%= points %></p>
+            <p class="text-[9px] text-mute uppercase mt-1"><%= position %></p>
+          </div>
+        <% end %>
+      </div>
+      <p class="text-[11px] text-mute mt-4">Uma vitória vale 10 pontos somente para quem já está no Ouro. Antes disso, ela promove diretamente para Ouro I sem lançar os 10 pontos.</p>
+    </article>
+
+    <article class="glass p-6">
+      <p class="kicker text-mint mb-1">Prova válida</p>
+      <h3 class="text-xl font-black mb-5">Corrida competitiva</h3>
+      <div class="space-y-4">
+        <% [
+          [ "10+", "Entre 10 e 30 pilotos", "A prova precisa ter um grid competitivo completo." ],
+          [ "10s", "Todos na mesma janela", "A diferença entre a melhor e a pior melhor volta não pode passar de 10 segundos." ],
+          [ "✓", "Ninguém pode ficar de fora", "Se um piloto romper a janela, a prova vira casual: zero ranking, mas MMR normal." ]
+        ].each do |icon, title, description| %>
+          <div class="grid grid-cols-[42px_1fr] gap-3 items-start">
+            <span class="w-10 h-10 grid place-items-center border border-mint/50 text-mint chrono font-black"><%= icon %></span>
+            <div><p class="text-sm font-bold"><%= title %></p><p class="text-xs text-mute mt-1"><%= description %></p></div>
+          </div>
+        <% end %>
+      </div>
+    </article>
+  </div>
+
+  <div class="grid sm:grid-cols-2 xl:grid-cols-4 border border-line bg-graphite mb-8">
+    <% gates = [
+      [ "Entrada especial", "1ª vitória → Ouro I", "Vencer no Bronze ou Prata promove imediatamente, sem crédito dos 10 pontos.", "#f2c94c" ],
+      [ "Ouro II", "2 vitórias", "Exige 10 pontos na divisão e duas vitórias acumuladas.", "#f2c94c" ],
+      [ "Ouro III", "3 vitórias", "A terceira vitória libera a divisão final entusiasta.", "#f2c94c" ],
+      [ "Diamante", "100 pontos", "Acumulados no Ouro III; depois, a evolução será por campeonatos.", "#6ee7f9" ]
+    ] %>
+    <% gates.each do |label, requirement, description, color| %>
+      <article class="p-5 border-b sm:border-b-0 border-r border-line last:border-r-0">
+        <p class="kicker"><%= label %></p>
+        <p class="font-black mt-2" style="color: <%= color %>"><%= requirement %></p>
+        <p class="text-[11px] text-mute leading-relaxed mt-2"><%= description %></p>
+      </article>
+    <% end %>
+  </div>
+</section>

@@ -7,5 +7,11 @@ class ComparisonController < ApplicationController
     return unless @profile_a && @profile_b
     @stats_a = PerformanceStats.new(profile_codes: [ @profile_a.code ])
     @stats_b = PerformanceStats.new(profile_codes: [ @profile_b.code ])
+    @ranking_a = ProfileRanking.new(@profile_a).call
+    @ranking_b = ProfileRanking.new(@profile_b).call
+    @ranking_history = [
+      *@ranking_a.history.map { |item| [ item, @profile_a ] },
+      *@ranking_b.history.map { |item| [ item, @profile_b ] }
+    ].sort_by { |item, _profile| [ item.date || Time.at(0), item.race_id ] }.reverse
   end
 end
