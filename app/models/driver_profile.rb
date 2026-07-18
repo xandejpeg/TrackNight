@@ -7,4 +7,5 @@ class DriverProfile < ApplicationRecord
 
   validates :code, :display_name, presence: true
   validates :code, uniqueness: true
+  validates :ranking_override, inclusion: { in: RankingCalculator::LEVELS }, allow_blank: true
 end

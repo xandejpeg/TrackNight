@@ -1,0 +1,89 @@
+<% content_for :title, "Ranking — TrackNight" %>
+
+<div class="mb-8 flex items-end justify-between gap-4 flex-wrap">
+  <div>
+    <p class="kicker text-race-glow mb-1">TrackNight Driver Rating</p>
+    <h1 class="text-4xl font-black tracking-tight">Ranking</h1>
+    <p class="text-sm text-mute mt-2 max-w-2xl">Sua carreira por conta e a classificação geral de todos os pilotos encontrados nas provas confirmadas.</p>
+  </div>
+  <%= link_to "↓ Exportar Markdown", export_ranking_path, class: "btn-ghost !text-[12px]" %>
+</div>
+
+<div class="grid md:grid-cols-2 gap-4 mb-4">
+  <% @profiles.each do |profile| %>
+    <% ranking = @rankings.fetch(profile) %>
+    <article class="glass p-6 relative overflow-hidden" style="border-color: <%= profile.color %>55;">
+      <div class="flex items-start gap-4">
+        <span class="w-12 h-12 rounded-full grid place-items-center font-black text-sm text-white shrink-0" style="background:<%= profile.color %>; box-shadow:0 0 20px <%= profile.color %>66"><%= profile.code.first(3) %></span>
+        <div class="min-w-0">
+          <p class="kicker"><%= profile.main? ? "Conta principal" : "Conta smurf" %></p>
+          <h2 class="font-black text-xl truncate"><%= profile.display_name %></h2>
+        </div>
+        <%= link_to "⚙", edit_profile_path(profile.code), class: "ml-auto btn-ghost !w-10 !h-10 !p-0 !text-lg", title: "Configurar #{profile.display_name}", aria: { label: "Configurar #{profile.display_name}" } %>
+      </div>
+      <div class="grid grid-cols-3 gap-3 mt-6">
+        <div><p class="kicker text-mint">Rank</p><p class="font-black mt-1"><%= RankingCalculator::LEVEL_LABELS.fetch(ranking.ranking_level) %></p></div>
+        <div><p class="kicker">Pontos</p><p class="chrono text-xl font-black mt-1"><%= ranking.ranking_points %></p></div>
+        <div><p class="kicker text-gold">Vitórias</p><p class="chrono text-xl font-black mt-1"><%= ranking.ranking_wins %></p></div>
+      </div>
+      <% if profile.ranking_override.present? %><p class="text-[10px] text-gold mt-4">Rank definido manualmente nas configurações.</p><% end %>
+    </article>
+  <% end %>
+</div>
+
+<% if @owned_row %>
+  <section class="glass p-6 mb-8 border-race/40 relative overflow-hidden">
+    <div class="flex items-center gap-5 flex-wrap">
+      <div><p class="kicker text-race-glow">Sua posição no grid histórico</p><p class="stat-value text-6xl mt-1">#<%= @owned_row.rank %></p></div>
+      <div class="sm:border-l border-line sm:pl-5">
+        <p class="text-xl font-black"><%= @owned_row.name %></p>
+        <p class="text-sm text-mute mt-1"><%= @owned_row.appearances %> encontros · nota <span class="chrono text-white"><%= number_with_precision(@owned_row.average_score, precision: 2) %></span> · <%= @owned_row.wins %> vitória(s)</p>
+        <p class="text-[11px] text-mute mt-2">ACF e AC contam como a mesma pessoa somente nesta classificação geral; os ranks das contas continuam separados.</p>
+      </div>
+    </div>
+  </section>
+<% end %>
+
+<%= render "profiles/ranking_guide" %>
+
+<section class="mt-12">
+  <div class="flex items-end justify-between gap-4 flex-wrap mb-5">
+    <div>
+      <p class="kicker text-smurf mb-1">Todos que dividiram a pista</p>
+      <h2 class="text-3xl font-black">Classificação geral</h2>
+      <p class="text-sm text-mute mt-2 max-w-3xl">Ordenada pela posição relativa média em cada grid. Melhor volta é exibida como referência, mas não compara traçados diferentes. Os demais pilotos ainda não recebem Bronze, Prata, Ouro ou Diamante.</p>
+    </div>
+    <%= form_with url: ranking_path, method: :get, local: true, class: "flex gap-2" do %>
+      <%= search_field_tag :q, params[:q], class: "field w-56", placeholder: "Buscar piloto" %>
+      <%= submit_tag "Buscar", class: "btn-race cursor-pointer !px-4" %>
+    <% end %>
+  </div>
+
+  <div class="glass overflow-hidden">
+    <% if @leaderboard.empty? %>
+      <div class="p-10 text-center"><p class="text-sm text-mute"><%= params[:q].present? ? "Nenhum piloto encontrado para esta busca." : "Nenhuma prova confirmada encontrada." %></p></div>
+    <% else %>
+      <div class="overflow-x-auto">
+        <table class="w-full table-race">
+          <thead><tr><th>#</th><th>Piloto</th><th>Nota</th><th>Corridas</th><th>Média pos.</th><th>Melhor</th><th>Vitórias</th><th>Pódios</th><th>Melhor volta</th><th>Encontrado por</th></tr></thead>
+          <tbody>
+            <% @leaderboard.each do |row| %>
+              <tr class="<%= row.owned ? 'row-ale' : '' %> hover:bg-white/[0.03]">
+                <td class="chrono text-xl font-black <%= row.rank <= 3 ? 'text-gold' : '' %>">#<%= row.rank %></td>
+                <td><p class="font-bold <%= 'text-race-glow' if row.owned %>"><%= row.name %><%= " · Você" if row.owned %></p><% if row.aliases.size > 1 %><p class="text-[9px] text-mute mt-1" title="<%= row.aliases.join(' · ') %>"><%= row.aliases.size %> variações de nome agrupadas</p><% end %></td>
+                <td class="chrono font-black"><%= row.average_score ? number_with_precision(row.average_score, precision: 2) : "—" %></td>
+                <td class="chrono"><%= row.appearances %></td>
+                <td class="chrono"><%= row.average_position ? number_with_precision(row.average_position, precision: 2) : "—" %></td>
+                <td class="chrono"><%= row.best_position ? "P#{row.best_position}" : "—" %></td>
+                <td class="chrono"><%= row.wins %></td>
+                <td class="chrono"><%= row.podiums %></td>
+                <td class="chrono"><%= lap(row.best_lap_ms) %></td>
+                <td><%= row.profile_codes.empty? ? "—" : safe_join(row.profile_codes.map { |code| tag.span(code, class: "profile-chip") }) %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
+  </div>
+</section>

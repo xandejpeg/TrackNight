@@ -10,6 +10,7 @@
     <h1 class="text-3xl font-black tracking-tight" style="color: <%= @profile.color %>"><%= @profile.display_name %></h1>
   </div>
   <div class="ml-auto flex items-center gap-2">
+    <%= link_to "⚙", edit_profile_path(@profile.code), class: "btn-ghost !w-10 !h-10 !p-0 !text-lg", title: "Configurar #{@profile.display_name}", aria: { label: "Configurar #{@profile.display_name}" } %>
     <%= link_to "⚔ Comparar", comparison_path(a: @profile.code), class: "btn-ghost !text-[12px]" %>
     <%= link_to "← Contas", profiles_path, class: "btn-ghost !text-[12px]" %>
   </div>
