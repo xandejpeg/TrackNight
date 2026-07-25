@@ -100,6 +100,7 @@ class PerformanceStats
   def records
     {
       best_lap: record_for(:best_lap_ms),
+      speed: record_for(:speed, maximum: true),
       s1: record_for(:s1_ms),
       s2: record_for(:s2_ms),
       s3: record_for(:s3_ms)
@@ -110,26 +111,30 @@ class PerformanceStats
   def kart_stats
     groups = entries.select(&:kart_number).group_by { |e| e.kart_number.to_s.sub(/\A0+(?=\d)/, "") }
     groups.map do |number, list|
-      bests = list.filter_map(&:best_lap_ms)
-      speeds = list.filter_map(&:speed)
+      runs = list.map { |e|
+        {
+          session: e.race_session,
+          best_ms: e.best_lap_ms,
+          speed: e.speed,
+          position: e.position,
+          laps: e.laps
+        }
+      }
+      best_run = runs.select { |run| run[:best_ms] }.min_by { |run| run[:best_ms] }
+      fastest_run = runs.select { |run| run[:speed] }.max_by { |run| run[:speed] }
+      bests = runs.filter_map { |run| run[:best_ms] }
       {
         number: number,
         uses: list.size,
-        best_ms: bests.min,
+        best_ms: best_run&.dig(:best_ms),
         avg_ms: bests.empty? ? nil : bests.sum / bests.size,
         best_position: list.filter_map(&:position).min,
-        max_speed: speeds.max,
+        max_speed: fastest_run&.dig(:speed),
         total_laps: list.filter_map(&:laps).sum,
         sessions: list.map { |e| e.race_session },
-        runs: list.map { |e|
-          {
-            session: e.race_session,
-            best_ms: e.best_lap_ms,
-            speed: e.speed,
-            position: e.position,
-            laps: e.laps
-          }
-        }
+        runs: runs,
+        best_run: best_run,
+        fastest_run: fastest_run
       }
     end.sort_by { |k| k[:best_ms] || 10**9 }
   end
@@ -153,8 +158,9 @@ class PerformanceStats
     entries.select(&field).min_by(&field)
   end
 
-  def record_for(field)
-    entry = min_entry(field)
+  def record_for(field, maximum: false)
+    candidates = entries.select { |entry| entry.public_send(field) }
+    entry = maximum ? candidates.max_by { |candidate| candidate.public_send(field) } : candidates.min_by { |candidate| candidate.public_send(field) }
     return nil unless entry
     { value_ms: entry.public_send(field), entry: entry, session: entry.race_session }
   end

@@ -13,7 +13,7 @@ Rails.application.routes.draw do
 
   resources :race_sessions, only: [ :index, :show, :update ], path: "sessoes"
 
-  resources :imports, only: [ :index, :new, :create ] do
+  resources :imports, only: [ :index, :new, :create, :destroy ] do
     member do
       get   :review
       patch :confirm

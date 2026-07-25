@@ -11,6 +11,10 @@ class SourceDocument < ApplicationRecord
 
   scope :awaiting_review, -> { where(status: "parsed").order(:filename) }
 
+  def discardable?
+    status == "parsed" && !race_session
+  end
+
   def image?
     content_type.to_s.start_with?("image/")
   end

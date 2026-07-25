@@ -1,13 +1,18 @@
 <% content_for :title, "Revisar — TrackNight" %>
 
-<div class="mb-6">
-  <%= link_to "← Importações", imports_path, class: "text-[12px] text-mute hover:text-white" %>
-  <h1 class="text-2xl font-black tracking-tight mt-2">Revisar <span class="chrono text-race-glow"><%= @document.filename %></span></h1>
-  <p class="text-sm text-mute mt-1">
-    Confiança <%= @document.confidence %>% · <%= @rows.size %> linhas ·
-    <%= @parsed[:session_type]&.capitalize %> <%= @parsed[:session_number] %> ·
-    largada <%= @parsed[:start_time_text] || "—" %> · layout <%= @parsed[:column_layout]&.upcase %>
-  </p>
+<div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
+  <div>
+    <%= link_to "← Importações", imports_path, class: "text-[12px] text-mute hover:text-white" %>
+    <h1 class="text-2xl font-black tracking-tight mt-2">Revisar <span class="chrono text-race-glow"><%= @document.filename %></span></h1>
+    <p class="text-sm text-mute mt-1">
+      Confiança <%= @document.confidence %>% · <%= @rows.size %> linhas ·
+      <%= @parsed[:session_type]&.capitalize %> <%= @parsed[:session_number] %> ·
+      largada <%= @parsed[:start_time_text] || "—" %> · layout <%= @parsed[:column_layout]&.upcase %>
+    </p>
+  </div>
+  <%= button_to "Apagar sessão pendente", import_path(@document), method: :delete,
+        class: "btn-ghost !text-race-glow !border-race/30 hover:!border-race/60 cursor-pointer shrink-0",
+        form: { data: { turbo_confirm: "Apagar a sessão pendente #{@document.filename}? Esta ação não pode ser desfeita." } } %>
 </div>
 
 <%= form_with url: confirm_import_path(@document), method: :patch, local: true do %>

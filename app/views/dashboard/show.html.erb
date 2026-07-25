@@ -28,40 +28,65 @@
 
   <!-- Recordes -->
   <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-    <div class="glass glass-hover p-5">
-      <p class="kicker">Melhor volta</p>
-      <p class="stat-value text-4xl mt-2"><%= lap(@stats.best_lap_entry&.best_lap_ms) %></p>
-      <% if (r = @stats.records[:best_lap]) %>
+    <% if (r = @stats.records[:best_lap]) %>
+      <%= link_to race_session_path(r[:session]), class: "glass glass-hover p-5 block group", aria: { label: "Abrir corrida da melhor volta" } do %>
+        <p class="kicker">Melhor volta</p>
+        <p class="stat-value text-4xl mt-2"><%= lap(r[:value_ms]) %></p>
         <p class="text-[11px] text-mute mt-2 flex items-center gap-2">
           <%= profile_badge(r[:session].driver_profile) %>
           <%= session_date_label(r[:session]) %>
+          <span class="ml-auto text-race-glow group-hover:translate-x-0.5 transition-transform">→</span>
         </p>
       <% end %>
-    </div>
-    <div class="glass glass-hover p-5">
+    <% else %>
+      <div class="glass p-5">
+        <p class="kicker">Melhor volta</p>
+        <p class="stat-value text-4xl mt-2">—</p>
+      </div>
+    <% end %>
+    <div class="glass p-5">
       <p class="kicker text-smurf">Volta ideal</p>
       <p class="stat-value text-4xl mt-2"><%= lap(@stats.ideal_lap_ms) %></p>
       <p class="text-[11px] text-mute mt-2">S1 + S2 + S3 dos melhores setores</p>
     </div>
-    <div class="glass glass-hover p-5">
+    <div class="glass p-5">
       <p class="kicker text-gold">Margem p/ ideal</p>
       <p class="stat-value text-4xl mt-2"><%= @stats.gap_to_ideal_ms ? lap_delta(@stats.gap_to_ideal_ms) : "—" %></p>
       <p class="text-[11px] text-mute mt-2">Quanto ainda dá pra ganhar</p>
     </div>
-    <div class="glass glass-hover p-5">
-      <p class="kicker text-mint">Vel. máxima</p>
-      <p class="stat-value text-4xl mt-2"><%= @stats.best_speed_entry&.speed ? "#{@stats.best_speed_entry.speed} km/h" : "—" %></p>
-      <p class="text-[11px] text-mute mt-2">Speed trap na reta</p>
-    </div>
+    <% if (r = @stats.records[:speed]) %>
+      <%= link_to race_session_path(r[:session]), class: "glass glass-hover p-5 block group", aria: { label: "Abrir corrida da velocidade máxima" } do %>
+        <p class="kicker text-mint">Vel. máxima</p>
+        <p class="stat-value text-4xl mt-2"><%= r[:entry].speed %> km/h</p>
+        <p class="text-[11px] text-mute mt-2 flex items-center gap-2">
+          <%= session_date_label(r[:session]) %>
+          <span class="ml-auto text-race-glow group-hover:translate-x-0.5 transition-transform">→</span>
+        </p>
+      <% end %>
+    <% else %>
+      <div class="glass p-5">
+        <p class="kicker text-mint">Vel. máxima</p>
+        <p class="stat-value text-4xl mt-2">—</p>
+        <p class="text-[11px] text-mute mt-2">Speed trap na reta</p>
+      </div>
+    <% end %>
   </div>
 
   <!-- Setores -->
   <div class="grid grid-cols-3 gap-4 mb-4">
-    <% { "S1" => @stats.best_s1_entry&.s1_ms, "S2" => @stats.best_s2_entry&.s2_ms, "S3" => @stats.best_s3_entry&.s3_ms }.each do |label, ms| %>
-      <div class="glass glass-hover p-4 text-center">
-        <p class="kicker text-[#c084fc]">Melhor <%= label %></p>
-        <p class="stat-value text-2xl mt-1"><%= lap(ms) %></p>
-      </div>
+    <% { "S1" => @stats.records[:s1], "S2" => @stats.records[:s2], "S3" => @stats.records[:s3] }.each do |label, record| %>
+      <% if record %>
+        <%= link_to race_session_path(record[:session]), class: "glass glass-hover p-4 text-center block group", aria: { label: "Abrir corrida do melhor #{label}" } do %>
+          <p class="kicker text-[#c084fc]">Melhor <%= label %></p>
+          <p class="stat-value text-2xl mt-1"><%= lap(record[:value_ms]) %></p>
+          <p class="text-[10px] text-race-glow mt-2 group-hover:translate-x-0.5 transition-transform">Ver corrida →</p>
+        <% end %>
+      <% else %>
+        <div class="glass p-4 text-center">
+          <p class="kicker text-[#c084fc]">Melhor <%= label %></p>
+          <p class="stat-value text-2xl mt-1">—</p>
+        </div>
+      <% end %>
     <% end %>
   </div>
 

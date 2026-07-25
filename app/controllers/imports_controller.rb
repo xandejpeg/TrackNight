@@ -68,6 +68,23 @@ class ImportsController < ApplicationController
     redirect_to review_import_path(document), alert: "Erro ao confirmar: #{e.message}"
   end
 
+  def destroy
+    document = SourceDocument.find(params[:id])
+    filename = document.filename
+    deleted = document.with_lock do
+      next false unless document.discardable?
+
+      document.destroy!
+      true
+    end
+
+    if deleted
+      redirect_to imports_path, notice: "Sessão pendente #{filename} apagada."
+    else
+      redirect_to imports_path, alert: "Somente sessões pendentes podem ser apagadas."
+    end
+  end
+
   private
 
   def suggest_profile(document)
