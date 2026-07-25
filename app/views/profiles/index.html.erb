@@ -16,17 +16,17 @@
   <% @profiles.each do |p| %>
     <% st = @stats_by_code[p] %>
     <% ranking = @rankings[p] %>
-    <%= link_to profile_path(p.code), class: "glass glass-hover p-6 block" do %>
+    <article class="glass glass-hover p-6 block">
       <div class="flex items-center gap-4 mb-5">
         <span class="w-12 h-12 rounded-full grid place-items-center font-black text-sm text-white shrink-0"
               style="background: <%= p.color || '#8b8b96' %>; box-shadow: 0 0 18px <%= p.color || '#8b8b96' %>66">
           <%= p.code.first(3) %>
         </span>
         <div class="min-w-0">
-          <p class="font-black text-lg leading-tight"><%= p.display_name %></p>
+          <p class="font-black text-lg leading-tight"><%= link_to p.display_name, profile_path(p.code), class: "hover:text-race-glow" %></p>
           <p class="text-[11px] text-mute uppercase tracking-widest"><%= p.main? ? "Conta principal" : "Conta smurf" %> · <%= p.code %></p>
         </div>
-        <span class="ml-auto text-mute text-xl">→</span>
+        <%= link_to "⚙", edit_profile_path(p.code), class: "ml-auto btn-ghost !w-10 !h-10 !p-0 !text-lg", title: "Configurar #{p.display_name}", aria: { label: "Configurar #{p.display_name}" } %>
       </div>
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <div>
@@ -47,6 +47,6 @@
           <p class="chrono text-[10px] text-mute"><%= ranking.ranking_points %> pts</p>
         </div>
       </div>
-    <% end %>
+    </article>
   <% end %>
 </div>

@@ -4,7 +4,10 @@ class ProfileRanking
   end
 
   def call
-    RankingCalculator.new(races).call
+    result = RankingCalculator.new(races).call
+    return result if profile.ranking_override.blank?
+
+    result.with(ranking_level: profile.ranking_override)
   end
 
   private

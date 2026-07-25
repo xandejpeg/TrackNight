@@ -1,0 +1,36 @@
+<% content_for :title, "Configurar #{@profile.display_name} — TrackNight" %>
+
+<div class="mb-6">
+  <p class="kicker text-race-glow mb-1">Configuração da conta</p>
+  <h1 class="text-3xl font-black tracking-tight"><%= @profile.code %></h1>
+  <p class="text-sm text-mute mt-2">Altere a identidade exibida, a categoria da conta e, se necessário, o rank atual.</p>
+</div>
+
+<div class="glass p-6 max-w-xl">
+  <%= form_with model: @profile, url: profile_path(@profile.code), method: :patch, local: true, class: "space-y-5" do |f| %>
+    <div>
+      <label class="filter-label block mb-1.5">Código da conta</label>
+      <div class="field opacity-60 cursor-not-allowed"><%= @profile.code %></div>
+      <p class="text-[10px] text-mute mt-1.5">O código identifica resultados importados e não pode ser alterado aqui.</p>
+    </div>
+    <div>
+      <label class="filter-label block mb-1.5">Nome da conta</label>
+      <%= f.text_field :display_name, class: "field w-full", required: true %>
+    </div>
+    <div>
+      <label class="filter-label block mb-1.5">Categoria</label>
+      <%= f.select :kind, [ [ "Conta principal", "main" ], [ "Conta smurf", "smurf" ] ], {}, class: "field w-full" %>
+    </div>
+    <div>
+      <label class="filter-label block mb-1.5">Ranking atual</label>
+      <%= f.select :ranking_override,
+            [ [ "Automático — calculado pelas corridas", "" ] ] + RankingCalculator::LEVELS.map { |level| [ RankingCalculator::LEVEL_LABELS.fetch(level), level ] },
+            {}, class: "field w-full" %>
+      <p class="text-[10px] text-mute mt-1.5">O ajuste manual altera o rank atual exibido. Pontos e histórico continuam calculados pelas provas.</p>
+    </div>
+    <div class="flex items-center gap-3 pt-2">
+      <%= f.submit "Salvar configurações", class: "btn-race cursor-pointer" %>
+      <%= link_to "Cancelar", profiles_path, class: "btn-ghost !text-[12px]" %>
+    </div>
+  <% end %>
+</div>

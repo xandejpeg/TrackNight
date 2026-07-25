@@ -23,6 +23,8 @@ Rails.application.routes.draw do
   get "pista"       => "track#show",      as: :track
   get "karts"       => "karts#index",     as: :karts
   get "comparativo" => "comparison#show", as: :comparison
+  get "ranking"     => "ranking#index",    as: :ranking
+  get "ranking/exportar" => "ranking#export", as: :export_ranking
 
-  resources :profiles, param: :code, path: "contas", only: [ :index, :show, :new, :create ]
+  resources :profiles, param: :code, path: "contas", only: [ :index, :show, :new, :create, :edit, :update ]
 end

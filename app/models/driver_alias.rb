@@ -6,9 +6,7 @@ class DriverAlias < ApplicationRecord
 
   before_validation :normalize
 
-  def self.normalize_name(value)
-    value.to_s.unicode_normalize(:nfkd).gsub(/\p{Mn}/, "").upcase.gsub(/[^A-Z ]/, " ").squeeze(" ").strip
-  end
+  def self.normalize_name(value) = ParticipantName.normalize(value)
 
   private
 

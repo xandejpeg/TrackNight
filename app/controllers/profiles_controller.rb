@@ -16,6 +16,10 @@ class ProfilesController < ApplicationController
     @profile = DriverProfile.new(color: "#00a8e8", kind: :smurf)
   end
 
+  def edit
+    @profile = DriverProfile.find_by!(code: params[:code])
+  end
+
   def create
     @profile = DriverProfile.new(profile_params)
     @profile.driver = Driver.first
@@ -28,9 +32,21 @@ class ProfilesController < ApplicationController
     end
   end
 
+  def update
+    @profile = DriverProfile.find_by!(code: params[:code])
+    attributes = profile_params
+    attributes[:ranking_override] = nil if attributes[:ranking_override].blank?
+    if @profile.update(attributes)
+      redirect_to profiles_path, notice: "Configurações da conta #{@profile.code} atualizadas."
+    else
+      flash.now[:alert] = @profile.errors.full_messages.to_sentence
+      render :edit, status: :unprocessable_entity
+    end
+  end
+
   private
 
   def profile_params
-    params.require(:driver_profile).permit(:code, :display_name, :color, :kind)
+    params.require(:driver_profile).permit(:code, :display_name, :color, :kind, :ranking_override)
   end
 end
