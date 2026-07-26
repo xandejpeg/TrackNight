@@ -1,4 +1,9 @@
 <% content_for :title, "Importar — TrackNight" %>
+<% if @processing.any? %>
+  <% content_for :head do %>
+    <meta http-equiv="refresh" content="8">
+  <% end %>
+<% end %>
 
 <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
   <div>
@@ -8,6 +13,26 @@
   </div>
   <%= link_to "+ Nova importação", new_import_path, class: "btn-race" %>
 </div>
+
+<% if @processing.any? %>
+  <h2 class="kicker text-race-glow mb-3">Lendo agora (<%= @processing.size %>)</h2>
+  <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
+    <% @processing.each do |doc| %>
+      <div class="glass p-5">
+        <div class="flex items-start justify-between gap-2">
+          <p class="font-bold text-sm break-all"><%= doc.filename %></p>
+          <span class="chrono text-[11px] px-2 py-0.5 rounded-full bg-race-glow/15 text-race-glow border border-race-glow/30 shrink-0 animate-pulse">OCR</span>
+        </div>
+        <p class="text-[11px] text-mute mt-3">Na fila desde <%= doc.created_at.strftime("%H:%M") %> · a leitura leva alguns minutos. Esta página atualiza sozinha.</p>
+        <div class="flex justify-end mt-4 pt-3 border-t border-line">
+          <%= button_to "Cancelar", import_path(doc), method: :delete,
+                class: "text-[11px] font-semibold text-mute hover:text-race-glow transition-colors cursor-pointer",
+                form: { data: { turbo_confirm: "Cancelar a leitura de #{doc.filename}?" } } %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>
 
 <% if @pending.any? %>
   <h2 class="kicker text-gold mb-3">Aguardando revisão (<%= @pending.size %>)</h2>
@@ -65,9 +90,14 @@
 
 <% if @failed.any? %>
   <h2 class="kicker text-race-glow mb-3">Falhas (<%= @failed.size %>)</h2>
-  <div class="glass p-6">
+  <div class="glass p-6 space-y-3">
     <% @failed.each do |doc| %>
-      <p class="text-sm"><strong><%= doc.filename %></strong> — <span class="text-mute"><%= doc.error_message %></span></p>
+      <div class="flex items-start justify-between gap-4">
+        <p class="text-sm"><strong><%= doc.filename %></strong> — <span class="text-mute"><%= doc.error_message %></span></p>
+        <%= button_to "Apagar", import_path(doc), method: :delete,
+              class: "text-[11px] font-semibold text-mute hover:text-race-glow transition-colors cursor-pointer shrink-0",
+              form: { data: { turbo_confirm: "Apagar #{doc.filename}? Assim você pode reenviar o mesmo arquivo." } } %>
+      </div>
     <% end %>
   </div>
 <% end %>

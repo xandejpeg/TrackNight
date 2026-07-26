@@ -25,8 +25,18 @@ class ImportsControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_redirected_to imports_path
-    assert_equal "Somente sessões pendentes podem ser apagadas.", flash[:alert]
+    assert_equal "Sessões já importadas não podem ser apagadas por aqui.", flash[:alert]
     assert SourceDocument.exists?(document.id)
+  end
+
+  test "deletes a document stuck in the OCR queue" do
+    document = source_document(status: "pending")
+
+    assert_difference("SourceDocument.count", -1) do
+      delete import_path(document)
+    end
+
+    assert_redirected_to imports_path
   end
 
   private

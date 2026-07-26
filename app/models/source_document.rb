@@ -10,9 +10,11 @@ class SourceDocument < ApplicationRecord
   validates :status, inclusion: { in: STATUSES }
 
   scope :awaiting_review, -> { where(status: "parsed").order(:filename) }
+  scope :processing, -> { where(status: "pending") }
 
+  # Pendentes, travados na fila ou com falha podem ser descartados; importados não.
   def discardable?
-    status == "parsed" && !race_session
+    status.in?(%w[pending parsed failed]) && !race_session
   end
 
   def image?

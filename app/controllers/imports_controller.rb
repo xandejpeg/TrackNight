@@ -5,6 +5,7 @@ class ImportsController < ApplicationController
 
   def index
     @pending = SourceDocument.awaiting_review.includes(file_attachment: :blob)
+    @processing = SourceDocument.processing.order(created_at: :desc)
     @imported = SourceDocument.where(status: "imported").order(imported_at: :desc).includes(:race_session)
     @failed = SourceDocument.where(status: "failed").order(updated_at: :desc)
   end
@@ -20,18 +21,18 @@ class ImportsController < ApplicationController
     results = files.map do |file|
       ResultImportService.call(
         io: file, filename: file.original_filename,
-        content_type: file.content_type, batch: batch
+        content_type: file.content_type, batch: batch, async: true
       )
     rescue => e
-      flash[:alert] = "Falha ao processar #{file.original_filename}: #{e.message}"
+      flash[:alert] = "Falha ao enviar #{file.original_filename}: #{e.message}"
       nil
     end.compact
 
-    batch.update!(finished_at: Time.current, status: "finished",
-                  stats: { processados: results.count { |r| !r.duplicate? }, duplicados: results.count(&:duplicate?) })
-
     dups = results.count(&:duplicate?)
-    notice = "#{results.size - dups} arquivo(s) processado(s)."
+    queued = results.size - dups
+    batch.update!(stats: { enfileirados: queued, duplicados: dups })
+
+    notice = "#{queued} arquivo(s) na fila de leitura. O resultado aparece aqui assim que o OCR terminar."
     notice += " #{dups} duplicado(s) ignorado(s)." if dups.positive?
     redirect_to imports_path, notice: notice
   end
@@ -81,7 +82,7 @@ class ImportsController < ApplicationController
     if deleted
       redirect_to imports_path, notice: "Sessão pendente #{filename} apagada."
     else
-      redirect_to imports_path, alert: "Somente sessões pendentes podem ser apagadas."
+      redirect_to imports_path, alert: "Sessões já importadas não podem ser apagadas por aqui."
     end
   end
 
