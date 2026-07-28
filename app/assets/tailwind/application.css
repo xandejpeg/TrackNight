@@ -11,11 +11,14 @@
   --color-line: #26262e;
   --color-race: #e10600;
   --color-race-glow: #ff2d1a;
+  --color-tel: #00a8e8;
   --color-accent: #00a8e8;
   --color-gold: #ffd166;
   --color-mint: #2dd4a7;
   --color-mute: #8b8b96;
-  --font-chrono: "SF Mono", "Cascadia Code", "JetBrains Mono", ui-monospace, monospace;
+  --font-display: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --font-sans: "Barlow", system-ui, sans-serif;
+  --font-chrono: "JetBrains Mono", "SF Mono", "Cascadia Code", ui-monospace, monospace;
 }
 
 @layer base {
@@ -40,6 +43,17 @@
     color: #f4f4f6;
     min-height: 100vh;
     font-feature-settings: "tnum";
+    font-family: "Barlow", system-ui, sans-serif;
+  }
+
+  /* 3 vozes tipográficas — Brand Guidelines v1.0 */
+  h1, h2, h3, .font-display {
+    font-family: "Barlow Condensed", "Arial Narrow", sans-serif;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+  .kicker {
+    font-family: "JetBrains Mono", "SF Mono", ui-monospace, monospace;
   }
 }
 

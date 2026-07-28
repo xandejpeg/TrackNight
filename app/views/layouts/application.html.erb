@@ -16,6 +16,7 @@
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
 
+    <%= render "shared/fonts" %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
@@ -24,11 +25,11 @@
     <header class="fixed top-0 inset-x-0 z-50">
       <div class="glass !rounded-none border-x-0 border-t-0 backdrop-blur-2xl">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 flex items-center gap-3 h-16">
-          <%= link_to root_path, class: "flex items-center gap-2 shrink-0 group" do %>
-            <span class="w-8 h-8 rounded-lg bg-gradient-to-br from-race to-[#7a0a06] grid place-items-center font-black italic text-white shadow-[0_0_18px_rgba(225,6,0,0.5)] group-hover:shadow-[0_0_26px_rgba(225,6,0,0.8)] transition-shadow">TN</span>
+          <%= link_to root_path, class: "flex items-center gap-2.5 shrink-0 group" do %>
+            <%= image_tag "brand/flag-icon.png", alt: "TrackNight", class: "w-9 h-9 object-contain drop-shadow-[0_0_10px_rgba(225,6,0,0.45)] group-hover:drop-shadow-[0_0_16px_rgba(225,6,0,0.75)] transition-all" %>
             <span class="hidden sm:block leading-none">
-              <span class="block font-black tracking-tight text-[15px]">TRACK<span class="text-race">NIGHT</span></span>
-              <span class="block text-[9px] tracking-[0.28em] text-mute uppercase">Track Performance</span>
+              <%= image_tag "brand/wordmark.png", alt: "TRACKNIGHT", class: "h-4 w-auto" %>
+              <span class="block text-[8px] tracking-[0.32em] text-mute uppercase mt-1 font-chrono">Personal Racing Performance</span>
             </span>
           <% end %>
 
