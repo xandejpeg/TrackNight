@@ -4,6 +4,7 @@ class ApplicationController < ActionController::Base
 
   before_action :require_login
   before_action :enforce_password_change
+  before_action :enforce_onboarding
 
   helper_method :current_user, :current_profiles, :profiles_filtered?, :all_profile_codes,
                 :current_period, :current_temp, :current_weather, :active_filters_count
@@ -11,6 +12,13 @@ class ApplicationController < ActionController::Base
   PERIODS = %w[dia noite].freeze
 
   private
+
+  def enforce_onboarding
+    return unless current_user&.member?
+    return if current_user.onboarding_completed?
+    return if controller_name.in?(%w[sessions registrations onboarding password_resets passwords])
+    redirect_to onboarding_step_path("modalidade")
+  end
 
   def all_profile_codes
     @all_profile_codes ||= current_user.driver_profiles.order(:id).pluck(:code)

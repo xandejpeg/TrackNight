@@ -1,5 +1,6 @@
 <%# Barra de filtros compartilhada: perfil, período (dia/noite), temperatura e clima. %>
 <div class="glass px-4 py-3 flex flex-wrap items-center gap-x-5 gap-y-3">
+  <% if all_profile_codes.size > 1 %>
   <div class="flex items-center gap-2">
     <span class="filter-label">Perfil</span>
     <details class="filter-dropdown">
@@ -24,6 +25,7 @@
       </div>
     </details>
   </div>
+  <% end %>
 
   <div class="flex items-center gap-2">
     <span class="filter-label">Período</span>

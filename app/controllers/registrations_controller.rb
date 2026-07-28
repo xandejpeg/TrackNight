@@ -13,7 +13,7 @@ class RegistrationsController < ApplicationController
       @user.setup_default_driver!
       reset_session
       session[:user_id] = @user.id
-      redirect_to dashboard_path, notice: "Conta criada! Bem-vindo ao TrackNight, #{@user.username}. Seu perfil de piloto já está pronto — faça seu primeiro upload."
+      redirect_to onboarding_step_path("modalidade"), notice: "◆ Bandeirada — Conta criada. Vamos configurar seu perfil."
     else
       flash.now[:alert] = @user.errors.full_messages.to_sentence
       render :new, status: :unprocessable_entity

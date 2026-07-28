@@ -1,0 +1,11 @@
+<%# Roteador de steps do wizard %>
+<% case @step %>
+<% when "modalidade" %>
+  <%= render "step_modalidade" %>
+<% when "tipo" %>
+  <%= render "step_tipo" %>
+<% when "pistas" %>
+  <%= render "step_pistas" %>
+<% when "tour" %>
+  <%= render "step_tour" %>
+<% end %>

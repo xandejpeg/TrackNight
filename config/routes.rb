@@ -10,6 +10,9 @@ Rails.application.routes.draw do
   delete "logout" => "sessions#destroy", as: :logout
   get    "cadastro" => "registrations#new",    as: :signup
   post   "cadastro" => "registrations#create"
+  get    "onboarding/:step" => "onboarding#show",   as: :onboarding_step, constraints: { step: /modalidade|tipo|pistas|tour/ }
+  patch  "onboarding/:step" => "onboarding#update", constraints: { step: /modalidade|tipo|pistas|tour/ }
+  post   "onboarding/complete" => "onboarding#complete", as: :onboarding_complete
   get    "recuperar-senha" => "password_resets#new",    as: :new_password_reset
   post   "recuperar-senha" => "password_resets#create", as: :password_reset
   get    "recuperar-senha/editar" => "password_resets#edit",   as: :edit_password_reset

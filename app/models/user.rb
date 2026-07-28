@@ -2,12 +2,16 @@ class User < ApplicationRecord
   has_secure_password
 
   enum :role, { member: 0, admin: 1 }
+  enum :vehicle_preference, { car: 0, kart: 1, moto: 2 }, prefix: :vehicle
+  enum :racing_type, { professional: 0, rental: 1 }, prefix: :racing
 
   has_many :drivers, dependent: :destroy
   has_many :race_sessions, dependent: :destroy
   has_many :source_documents, dependent: :destroy
   has_many :import_batches, dependent: :destroy
   has_many :driver_profiles, through: :drivers
+  has_many :user_track_layouts, dependent: :destroy
+  has_many :track_layouts, through: :user_track_layouts
 
   validates :username, presence: true, uniqueness: { case_sensitive: false }
   validates :full_name, :cpf, presence: true, if: :member?
@@ -39,6 +43,9 @@ class User < ApplicationRecord
   def clear_password_reset_token
     update!(password_reset_token: nil, password_reset_sent_at: nil)
   end
+
+  def onboarding_completed? = onboarding_completed_at.present?
+  def complete_onboarding! = update!(onboarding_completed_at: Time.current)
 
   # Cria o driver e perfil padrão no cadastro: o nome completo vira o alvo do OCR.
   def setup_default_driver!

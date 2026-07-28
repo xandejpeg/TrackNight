@@ -1,0 +1,35 @@
+<div class="text-center mb-8">
+  <p class="font-chrono text-[11px] uppercase tracking-[0.3em] text-race-glow mb-3">Passo 1 de 3</p>
+  <h1 class="font-display italic font-extrabold uppercase text-4xl leading-tight">Você corre de quê?</h1>
+  <p class="text-mute mt-3">Escolha sua modalidade. Isso personaliza sua análise.</p>
+</div>
+
+<%= form_with url: onboarding_step_path("modalidade"), method: :patch, local: true do %>
+  <div class="grid sm:grid-cols-3 gap-4 mb-8">
+    <label class="glass p-6 text-center cursor-not-allowed opacity-40 relative">
+      <span class="absolute top-3 right-3 font-chrono text-[9px] uppercase tracking-widest text-mute">Em breve</span>
+      <p class="text-4xl mb-3">🏎️</p>
+      <p class="font-display font-bold uppercase">Carro</p>
+      <p class="text-[12px] text-mute mt-1">Track day</p>
+    </label>
+
+    <label class="glass glass-hover p-6 text-center cursor-pointer border-race/60 relative" style="box-shadow: 0 0 24px rgba(225,6,0,0.15)">
+      <%= radio_button_tag :vehicle_preference, "kart", true, class: "sr-only" %>
+      <span class="absolute top-3 right-3 font-chrono text-[9px] uppercase tracking-widest text-race-glow">Disponível</span>
+      <p class="text-4xl mb-3">🏁</p>
+      <p class="font-display font-bold uppercase text-race-glow">Kart</p>
+      <p class="text-[12px] text-mute mt-1">Rental & profissional</p>
+    </label>
+
+    <label class="glass p-6 text-center cursor-not-allowed opacity-40 relative">
+      <span class="absolute top-3 right-3 font-chrono text-[9px] uppercase tracking-widest text-mute">Em breve</span>
+      <p class="text-4xl mb-3">🏍️</p>
+      <p class="font-display font-bold uppercase">Moto</p>
+      <p class="text-[12px] text-mute mt-1">Track day</p>
+    </label>
+  </div>
+
+  <div class="text-center">
+    <%= submit_tag "Próximo", class: "btn-race cursor-pointer" %>
+  </div>
+<% end %>

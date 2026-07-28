@@ -1,0 +1,25 @@
+<div class="text-center mb-8">
+  <p class="font-chrono text-[11px] uppercase tracking-[0.3em] text-race-glow mb-3">Passo 2 de 3</p>
+  <h1 class="font-display italic font-extrabold uppercase text-4xl leading-tight">Profissional ou rental?</h1>
+  <p class="text-mute mt-3">Isso vira uma tag na sua conta e ajusta o ranking.</p>
+</div>
+
+<%= form_with url: onboarding_step_path("tipo"), method: :patch, local: true do %>
+  <div class="grid sm:grid-cols-2 gap-4 mb-8 max-w-xl mx-auto">
+    <label class="glass glass-hover p-7 text-center cursor-pointer">
+      <%= radio_button_tag :racing_type, "professional", false, class: "sr-only peer" %>
+      <p class="font-display font-bold uppercase text-xl mb-2">Profissional</p>
+      <p class="text-[13px] text-mute leading-relaxed">Kart próprio, campeonatos, telemetria dedicada.</p>
+    </label>
+
+    <label class="glass glass-hover p-7 text-center cursor-pointer border-tel/50" style="box-shadow: 0 0 24px rgba(0,168,232,0.12)">
+      <%= radio_button_tag :racing_type, "rental", true, class: "sr-only peer" %>
+      <p class="font-display font-bold uppercase text-xl mb-2 text-tel">Rental</p>
+      <p class="text-[13px] text-mute leading-relaxed">Kart de aluguel, chegada e troca rápida, grids abertos.</p>
+    </label>
+  </div>
+
+  <div class="text-center">
+    <%= submit_tag "Próximo", class: "btn-race cursor-pointer" %>
+  </div>
+<% end %>

@@ -2,8 +2,8 @@ require "test_helper"
 
 class MultiUserScopingTest < ActionDispatch::IntegrationTest
   setup do
-    @user_a = User.create!(username: "piloto-a", password: "senha123", full_name: "Piloto A", cpf: "52998224725")
-    @user_b = User.create!(username: "piloto-b", password: "senha123", full_name: "Piloto B", cpf: "11144477735")
+    @user_a = User.create!(username: "piloto-a", password: "senha123", full_name: "Piloto A", cpf: "52998224725", onboarding_completed_at: Time.current)
+    @user_b = User.create!(username: "piloto-b", password: "senha123", full_name: "Piloto B", cpf: "11144477735", onboarding_completed_at: Time.current)
 
     @driver_a = @user_a.drivers.create!(name: "Piloto A", slug: "piloto-a")
     @profile_a = @driver_a.driver_profiles.create!(code: "PA", display_name: "Piloto A")

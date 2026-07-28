@@ -1,0 +1,58 @@
+<div class="text-center mb-8">
+  <p class="font-chrono text-[11px] uppercase tracking-[0.3em] text-race-glow mb-3">Passo 3 de 3</p>
+  <h1 class="font-display italic font-extrabold uppercase text-4xl leading-tight">Onde você corre?</h1>
+  <p class="text-mute mt-3">Selecione as pistas que você quer registrar.</p>
+</div>
+
+<div class="glass border-gold/30 p-5 mb-8 max-w-xl mx-auto">
+  <p class="text-sm text-gold text-center leading-relaxed">
+    ◆ No momento temos apenas o <strong>KGV Circuito 101</strong> disponível.
+    Em breve adicionaremos todas as pistas e traçados. Você já pode usar normalmente.
+  </p>
+</div>
+
+<%= form_with url: onboarding_step_path("pistas"), method: :patch, local: true do %>
+  <div class="space-y-4 mb-8 max-w-xl mx-auto">
+    <%# KGV — disponível %>
+    <div class="glass glass-hover p-6 border-race/50">
+      <div class="flex items-start gap-4">
+        <div class="flex-1">
+          <div class="flex items-center gap-3 mb-1">
+            <p class="font-display font-bold uppercase text-lg">Kartódromo Granja Viana</p>
+            <span class="font-chrono text-[9px] uppercase tracking-widest text-race-glow">Disponível</span>
+          </div>
+          <p class="text-[12px] text-mute mb-4">Cotia/SP · A pista mais tradicional do Brasil</p>
+          <label class="flex items-center gap-3 cursor-pointer glass !bg-white/[0.04] px-4 py-3">
+            <%= check_box_tag "track_layout_ids[]", TrackLayout.find_by(slug: "circuito-101")&.id, true, class: "w-4 h-4 accent-[#e10600]" %>
+            <span>
+              <span class="font-display font-bold uppercase text-sm">Circuito 101</span>
+              <span class="text-[11px] text-mute ml-2">1.015 m · Iniciante</span>
+            </span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <%# Em breve %>
+    <% [
+      [ "Kartódromo Aldeia da Serra", "Barueri/SP" ],
+      [ "Kartódromo Internacional de Interlagos", "São Paulo/SP" ]
+    ].each do |name, city| %>
+      <div class="glass p-6 opacity-40">
+        <div class="flex items-center gap-3">
+          <div class="flex-1">
+            <div class="flex items-center gap-3">
+              <p class="font-display font-bold uppercase text-lg"><%= name %></p>
+              <span class="font-chrono text-[9px] uppercase tracking-widest text-mute">Em breve</span>
+            </div>
+            <p class="text-[12px] text-mute"><%= city %></p>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="text-center">
+    <%= submit_tag "Próximo", class: "btn-race cursor-pointer" %>
+  </div>
+<% end %>

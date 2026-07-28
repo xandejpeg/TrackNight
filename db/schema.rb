@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_28_000003) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_28_000004) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -249,17 +249,30 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_28_000003) do
     t.index ["venue_id"], name: "index_track_sources_on_venue_id"
   end
 
+  create_table "user_track_layouts", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "track_layout_id", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["track_layout_id"], name: "index_user_track_layouts_on_track_layout_id"
+    t.index ["user_id", "track_layout_id"], name: "index_user_track_layouts_on_user_id_and_track_layout_id", unique: true
+    t.index ["user_id"], name: "index_user_track_layouts_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "cpf"
     t.datetime "created_at", null: false
     t.string "full_name"
     t.boolean "must_change_password", default: false, null: false
+    t.datetime "onboarding_completed_at"
     t.string "password_digest", null: false
     t.datetime "password_reset_sent_at"
     t.string "password_reset_token"
+    t.integer "racing_type"
     t.integer "role", default: 0, null: false
     t.datetime "updated_at", null: false
     t.string "username", null: false
+    t.integer "vehicle_preference"
     t.index "lower((username)::text)", name: "index_users_on_lower_username", unique: true
     t.index ["cpf"], name: "index_users_on_cpf", unique: true
     t.index ["password_reset_token"], name: "index_users_on_password_reset_token", unique: true
@@ -327,5 +340,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_28_000003) do
   add_foreign_key "track_sectors", "track_layouts"
   add_foreign_key "track_sources", "track_layouts"
   add_foreign_key "track_sources", "venues"
+  add_foreign_key "user_track_layouts", "track_layouts"
+  add_foreign_key "user_track_layouts", "users"
   add_foreign_key "vehicles", "vehicle_categories"
 end

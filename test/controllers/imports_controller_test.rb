@@ -3,7 +3,8 @@ require "test_helper"
 class ImportsControllerTest < ActionDispatch::IntegrationTest
   setup do
     @user = User.create!(username: "delete-test-user", password: "123321",
-                         full_name: "Usuário de Teste", cpf: "52998224725")
+                         full_name: "Usuário de Teste", cpf: "52998224725",
+                         onboarding_completed_at: Time.current)
     post login_path, params: { username: @user.username, password: "123321" }
   end
 

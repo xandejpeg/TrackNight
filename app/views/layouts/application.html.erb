@@ -25,12 +25,8 @@
     <header class="fixed top-0 inset-x-0 z-50">
       <div class="glass !rounded-none border-x-0 border-t-0 backdrop-blur-2xl">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 flex items-center gap-3 h-16">
-          <%= link_to root_path, class: "flex items-center gap-2.5 shrink-0 group" do %>
-            <%= image_tag "brand/flag-icon.png", alt: "TrackNight", class: "w-9 h-9 object-contain drop-shadow-[0_0_10px_rgba(225,6,0,0.45)] group-hover:drop-shadow-[0_0_16px_rgba(225,6,0,0.75)] transition-all" %>
-            <span class="hidden sm:block leading-none">
-              <%= image_tag "brand/wordmark.png", alt: "TRACKNIGHT", class: "h-4 w-auto" %>
-              <span class="block text-[8px] tracking-[0.32em] text-mute uppercase mt-1 font-chrono">Personal Racing Performance</span>
-            </span>
+          <%= link_to root_path, class: "flex items-center shrink-0 group" do %>
+            <%= image_tag "brand/logo-full.png", alt: "TrackNight", class: "h-9 w-auto object-contain" %>
           <% end %>
 
           <nav class="flex items-center gap-1 overflow-x-auto ml-2 flex-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
