@@ -1,13 +1,16 @@
-# Estatísticas de desempenho do Alessandro em sessões confirmadas,
-# opcionalmente filtradas por perfil (ACF / AC / todos), período (dia/noite),
+# Estatísticas de desempenho do piloto em sessões confirmadas,
+# opcionalmente filtradas por perfil, período (dia/noite),
 # temperatura e condição do clima.
 class PerformanceStats
-  attr_reader :profiles, :period, :temp, :weather
+  attr_reader :user, :profiles, :period, :temp, :weather
 
-  def initialize(profile_code: "todos", profile_codes: nil, period: nil, temp: nil, weather: nil)
+  def initialize(user: nil, profile_code: "todos", profile_codes: nil, period: nil, temp: nil, weather: nil)
+    @user = user
     codes = Array(profile_codes).map(&:to_s).reject(&:blank?)
     codes = [ profile_code ] if codes.empty? && profile_code.present? && profile_code != "todos"
-    @profiles = codes.empty? ? nil : DriverProfile.where(code: codes).to_a
+    profiles_scope = DriverProfile.all
+    profiles_scope = profiles_scope.where(driver: user.drivers) if user
+    @profiles = codes.empty? ? nil : profiles_scope.where(code: codes).to_a
     @period = period.presence
     @temp = temp.presence
     @weather = weather.presence
@@ -16,6 +19,7 @@ class PerformanceStats
   def sessions
     @sessions ||= begin
       scope = RaceSession.confirmed.chronological.includes(:driver_profile, result_entries: :kart)
+      scope = scope.where(user: user) if user
       scope = scope.where(driver_profile: profiles) if profiles
       scope = scope.where(track_temp: temp) if temp
       scope = scope.where(weather_condition: weather) if weather
@@ -25,9 +29,9 @@ class PerformanceStats
     end
   end
 
-  # Entradas do Alessandro, em ordem cronológica de sessão.
+  # Entradas do piloto, em ordem cronológica de sessão.
   def entries
-    @entries ||= sessions.filter_map(&:alessandro_entry)
+    @entries ||= sessions.filter_map(&:tracked_entry)
   end
 
   def sessions_count = sessions.size
@@ -72,7 +76,7 @@ class PerformanceStats
   # Série para gráficos de evolução (uma amostra por sessão, ordem cronológica).
   def evolution
     sessions.filter_map do |s|
-      e = s.alessandro_entry
+      e = s.tracked_entry
       next unless e
       {
         session_id: s.id,

@@ -24,7 +24,7 @@
         </span>
         <div class="min-w-0">
           <p class="font-black text-lg leading-tight"><%= link_to p.display_name, profile_path(p.code), class: "hover:text-race-glow" %></p>
-          <p class="text-[11px] text-mute uppercase tracking-widest"><%= p.main? ? "Conta principal" : "Conta smurf" %> · <%= p.code %></p>
+          <p class="text-[11px] text-mute uppercase tracking-widest"><%= p.code %></p>
         </div>
         <%= link_to "⚙", edit_profile_path(p.code), class: "ml-auto btn-ghost !w-10 !h-10 !p-0 !text-lg", title: "Configurar #{p.display_name}", aria: { label: "Configurar #{p.display_name}" } %>
       </div>
@@ -34,7 +34,7 @@
           <p class="stat-value text-2xl mt-1"><%= st.sessions_count %></p>
         </div>
         <div>
-          <p class="kicker text-smurf">Melhor volta</p>
+          <p class="kicker text-accent">Melhor volta</p>
           <p class="stat-value text-2xl mt-1"><%= lap(st.best_lap_entry&.best_lap_ms) %></p>
         </div>
         <div>

@@ -1,0 +1,33 @@
+<% content_for :title, "Contas — Admin TrackNight" %>
+
+<div class="mb-6">
+  <p class="kicker text-race-glow mb-1">Administração</p>
+  <h1 class="text-3xl font-black tracking-tight">Contas</h1>
+  <p class="text-sm text-mute mt-1">Todos os usuários cadastrados e sua atividade na plataforma.</p>
+</div>
+
+<div class="glass p-6 overflow-x-auto">
+  <table class="w-full table-race">
+    <thead>
+      <tr><th>Usuário</th><th>Nome completo</th><th>Perfis</th><th>Uploads</th><th>Sessões</th><th>Confirmadas</th><th>Melhor volta</th><th>Cadastro</th></tr>
+    </thead>
+    <tbody>
+      <% @users.each do |user| %>
+        <% st = user_stats(user) %>
+        <tr class="hover:bg-white/[0.03] transition-colors">
+          <td class="font-semibold">
+            <%= link_to user.username, admin_user_path(user), class: "hover:text-race-glow" %>
+            <% if user.admin? %><span class="text-[9px] text-race-glow uppercase tracking-widest ml-1">admin</span><% end %>
+          </td>
+          <td class="text-mute"><%= user.full_name %></td>
+          <td><%= st[:profiles].presence&.join(", ") || "—" %></td>
+          <td class="chrono"><%= st[:uploads] %></td>
+          <td class="chrono"><%= st[:sessions] %></td>
+          <td class="chrono"><%= st[:confirmed] %></td>
+          <td class="chrono font-bold"><%= st[:best_lap_ms] ? lap(st[:best_lap_ms]) : "—" %></td>
+          <td class="chrono text-mute"><%= user.created_at.strftime("%d/%m/%y") %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

@@ -11,7 +11,7 @@
   --color-line: #26262e;
   --color-race: #e10600;
   --color-race-glow: #ff2d1a;
-  --color-smurf: #00a8e8;
+  --color-accent: #00a8e8;
   --color-gold: #ffd166;
   --color-mint: #2dd4a7;
   --color-mute: #8b8b96;
@@ -251,7 +251,7 @@
     border-bottom: 1px solid rgba(255,255,255,0.045);
     white-space: nowrap;
   }
-  .row-ale {
+  .row-tracked {
     background: linear-gradient(90deg, rgba(225,6,0,0.16), rgba(225,6,0,0.03)) !important;
     box-shadow: inset 3px 0 0 var(--color-race);
   }

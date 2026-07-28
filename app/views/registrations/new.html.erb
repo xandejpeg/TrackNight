@@ -1,0 +1,40 @@
+<div class="w-full max-w-sm">
+  <div class="text-center mb-8">
+    <span class="inline-grid place-items-center w-16 h-16 rounded-2xl bg-gradient-to-br from-race to-[#7a0a06] font-black italic text-3xl text-white shadow-[0_0_40px_rgba(225,6,0,0.55)]">TN</span>
+    <h1 class="mt-4 text-2xl font-black tracking-tight">TRACK<span class="text-race">NIGHT</span></h1>
+    <p class="text-[10px] tracking-[0.35em] text-mute uppercase mt-1">Criar conta</p>
+  </div>
+
+  <div class="glass p-7">
+    <% if flash[:alert] %>
+      <p class="text-race-glow text-sm mb-4"><%= flash[:alert] %></p>
+    <% end %>
+    <%= form_with model: @user, url: signup_path, local: true, class: "space-y-4" do |f| %>
+      <div>
+        <label class="kicker block mb-1.5">Nome completo</label>
+        <%= f.text_field :full_name, class: "field", autofocus: true, autocomplete: "name", placeholder: "Como aparece na folha de resultados" %>
+      </div>
+      <div>
+        <label class="kicker block mb-1.5">Usuário</label>
+        <%= f.text_field :username, class: "field", autocomplete: "username", placeholder: "Seu login" %>
+      </div>
+      <div>
+        <label class="kicker block mb-1.5">CPF</label>
+        <%= f.text_field :cpf, class: "field", inputmode: "numeric", placeholder: "Somente números" %>
+      </div>
+      <div>
+        <label class="kicker block mb-1.5">Senha</label>
+        <%= f.password_field :password, class: "field", autocomplete: "new-password", placeholder: "••••••" %>
+      </div>
+      <div>
+        <label class="kicker block mb-1.5">Confirmar senha</label>
+        <%= f.password_field :password_confirmation, class: "field", autocomplete: "new-password", placeholder: "••••••" %>
+      </div>
+      <%= f.submit "Criar conta", class: "btn-race w-full cursor-pointer" %>
+    <% end %>
+  </div>
+
+  <p class="text-center text-[11px] text-mute mt-6">
+    Já tem conta? <%= link_to "Entrar", login_path, class: "text-accent font-semibold" %>
+  </p>
+</div>

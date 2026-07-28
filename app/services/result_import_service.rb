@@ -10,8 +10,8 @@ class ResultImportService
     def duplicate? = duplicate
   end
 
-  def self.call(path: nil, io: nil, filename:, content_type:, batch: nil, suggested_profile: nil, async: false)
-    new.call(path:, io:, filename:, content_type:, batch:, suggested_profile:, async:)
+  def self.call(path: nil, io: nil, filename:, content_type:, batch: nil, suggested_profile: nil, async: false, user: nil)
+    new.call(path:, io:, filename:, content_type:, batch:, suggested_profile:, async:, user:)
   end
 
   # Executa a extração/parseamento de um documento já persistido (usado pelo job).
@@ -19,7 +19,7 @@ class ResultImportService
     new.process_document(document, suggested_profile: suggested_profile)
   end
 
-  def call(path:, io:, filename:, content_type:, batch:, suggested_profile:, async: false)
+  def call(path:, io:, filename:, content_type:, batch:, suggested_profile:, async: false, user: nil)
     data = path ? File.binread(path) : io.read
     sha = Digest::SHA256.hexdigest(data)
 
@@ -29,6 +29,7 @@ class ResultImportService
 
     doc = SourceDocument.create!(
       import_batch: batch,
+      user: user || batch&.user,
       filename: filename,
       sha256: sha,
       content_type: content_type,
@@ -61,7 +62,7 @@ class ResultImportService
       parsed = KgvResultParser.call(extraction.text, band_lines: extraction.band_lines || [])
 
       rows = parsed[:rows].map do |row|
-        driver = DriverMatcher.match(row[:name])
+        driver = DriverMatcher.match(row[:name], drivers: doc.user ? doc.user.drivers.to_a : nil)
         row.merge(matched_driver_id: driver&.id)
       end
 

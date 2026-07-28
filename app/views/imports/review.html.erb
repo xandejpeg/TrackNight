@@ -20,7 +20,7 @@
     <div class="glass p-5">
       <label class="kicker block mb-2">Perfil da sessão</label>
       <%= select_tag :profile_code,
-            options_for_select(DriverProfile.order(:kind).map { |p| [ p.display_name, p.code ] }, @suggested_profile),
+            options_for_select(current_user.driver_profiles.order(:id).map { |p| [ p.display_name, p.code ] }, @suggested_profile),
             class: "field" %>
       <p class="text-[11px] text-mute mt-2">Sugerido: <%= @suggested_profile %></p>
     </div>
@@ -62,7 +62,7 @@
     <table class="w-full table-race">
       <thead>
         <tr>
-          <th>ALE?</th>
+          <th>Piloto?</th>
           <% {
             "position" => "Pos", "kart_number" => "Kart", "name" => "Nome",
             "laps" => "Voltas", "best_lap_text" => "Melhor", "total_time_text" => "Total",
@@ -76,12 +76,12 @@
       </thead>
       <tbody>
         <% @rows.each_with_index do |row, idx| %>
-          <% ale = row[:matched_driver_id].present? %>
-          <tr class="<%= "row-ale" if ale %>">
-            <td><%= check_box_tag "rows[#{idx}][alessandro]", "1", ale, class: "w-4 h-4 accent-[#e10600]" %></td>
+          <% tracked = row[:matched_driver_id].present? %>
+          <tr class="<%= "row-tracked" if tracked %>">
+            <td><%= check_box_tag "rows[#{idx}][tracked]", "1", tracked, class: "w-4 h-4 accent-[#e10600]" %></td>
             <td><%= text_field_tag "rows[#{idx}][position]", row[:position], class: "field !py-1 !px-2 w-12 chrono text-center" %></td>
             <td><%= text_field_tag "rows[#{idx}][kart_number]", row[:kart_number], class: "field !py-1 !px-2 w-16 chrono text-center" %></td>
-            <td><%= text_field_tag "rows[#{idx}][name]", row[:name], class: "field !py-1 !px-2 min-w-44 #{'!border-race/50' if ale}" %></td>
+            <td><%= text_field_tag "rows[#{idx}][name]", row[:name], class: "field !py-1 !px-2 min-w-44 #{'!border-race/50' if tracked}" %></td>
             <td><%= text_field_tag "rows[#{idx}][laps]", row[:laps], class: "field !py-1 !px-2 w-14 chrono text-center" %></td>
             <td><%= text_field_tag "rows[#{idx}][best_lap_text]", row[:best_lap_text], class: "field !py-1 !px-2 w-24 chrono" %></td>
             <td><%= text_field_tag "rows[#{idx}][total_time_text]", row[:total_time_text], class: "field !py-1 !px-2 w-24 chrono" %></td>
@@ -93,7 +93,7 @@
         <% end %>
       </tbody>
     </table>
-    <p class="text-[10px] text-mute mt-3">A linha vermelha é o Alessandro reconhecido automaticamente. Marque/desmarque "ALE?" se o OCR errou o piloto.</p>
+    <p class="text-[10px] text-mute mt-3">A linha destacada é o seu piloto reconhecido automaticamente. Marque/desmarque "Piloto?" se o OCR errou a identificação.</p>
   </div>
 
   <% if @document.file.attached? && @document.image? %>

@@ -1,6 +1,6 @@
 class RankingController < ApplicationController
   def index
-    @profiles = DriverProfile.order(:kind, :id).to_a
+    @profiles = current_user.driver_profiles.order(:id).to_a
     @rankings = @profiles.index_with { |profile| ProfileRanking.new(profile).call }
     @leaderboard = filtered_leaderboard
     @owned_row = leaderboard.find(&:owned)

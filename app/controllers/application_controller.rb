@@ -13,7 +13,7 @@ class ApplicationController < ActionController::Base
   private
 
   def all_profile_codes
-    @all_profile_codes ||= DriverProfile.order(:kind, :id).pluck(:code)
+    @all_profile_codes ||= current_user.driver_profiles.order(:id).pluck(:code)
   end
 
   def current_user
@@ -22,6 +22,10 @@ class ApplicationController < ActionController::Base
 
   def require_login
     redirect_to login_path unless current_user
+  end
+
+  def require_admin
+    redirect_to root_path, alert: "Acesso restrito a administradores." unless current_user&.admin?
   end
 
   def enforce_password_change
@@ -65,6 +69,7 @@ class ApplicationController < ActionController::Base
 
   def stats_for_current_profile
     PerformanceStats.new(
+      user: current_user,
       profile_codes: profiles_filtered? ? current_profiles : nil,
       period: current_period,
       temp: current_temp,

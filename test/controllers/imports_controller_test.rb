@@ -2,8 +2,9 @@ require "test_helper"
 
 class ImportsControllerTest < ActionDispatch::IntegrationTest
   setup do
-    user = User.create!(username: "delete-test-user", password: "123321")
-    post login_path, params: { username: user.username, password: "123321" }
+    @user = User.create!(username: "delete-test-user", password: "123321",
+                         full_name: "Usuário de Teste", cpf: "52998224725")
+    post login_path, params: { username: @user.username, password: "123321" }
   end
 
   test "deletes a parsed session awaiting review" do
@@ -46,6 +47,7 @@ class ImportsControllerTest < ActionDispatch::IntegrationTest
       filename: "pending-test.png",
       sha256: SecureRandom.hex(32),
       status: status,
+      user: @user,
       parsed_data: { rows: [] }
     )
   end

@@ -10,7 +10,7 @@ class ResultEntry < ApplicationRecord
 
   scope :of_driver, -> { where.not(driver_id: nil) }
 
-  def alessandro?
+  def tracked?
     driver_id.present?
   end
 

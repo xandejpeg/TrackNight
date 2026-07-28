@@ -8,7 +8,7 @@
         <span class="text-[9px] opacity-70">▾</span>
       </summary>
       <div class="filter-dropdown-panel">
-        <% DriverProfile.order(:kind).each do |p| %>
+        <% current_user.driver_profiles.order(:id).each do |p| %>
           <% on = current_profiles.include?(p.code) %>
           <% new_codes = on ? current_profiles - [ p.code ] : (current_profiles | [ p.code ]) %>
           <% value = (new_codes.empty? || new_codes.sort == all_profile_codes.sort) ? nil : new_codes.join(",") %>

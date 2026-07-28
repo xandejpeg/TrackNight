@@ -1,4 +1,5 @@
 class ImportBatch < ApplicationRecord
+  belongs_to :user, optional: true
   has_many :source_documents, dependent: :nullify
 
   STATUSES = %w[running finished failed].freeze

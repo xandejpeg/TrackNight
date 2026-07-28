@@ -1,5 +1,6 @@
 class RaceSession < ApplicationRecord
   belongs_to :venue
+  belongs_to :user, optional: true
   belongs_to :track_layout
   belongs_to :vehicle_category
   belongs_to :source_document, optional: true
@@ -68,7 +69,7 @@ class RaceSession < ApplicationRecord
   def weather_label = WEATHER_LABELS[weather_condition]
   def weather_icon = WEATHER_ICONS[weather_condition]
 
-  def alessandro_entry
+  def tracked_entry
     result_entries.detect { |e| e.driver_id.present? }
   end
 

@@ -4,10 +4,11 @@ class ImportsController < ApplicationController
                   s1_text s2_text s3_text speed_text].freeze
 
   def index
-    @pending = SourceDocument.awaiting_review.includes(file_attachment: :blob)
-    @processing = SourceDocument.processing.order(created_at: :desc)
-    @imported = SourceDocument.where(status: "imported").order(imported_at: :desc).includes(:race_session)
-    @failed = SourceDocument.where(status: "failed").order(updated_at: :desc)
+    documents = current_user.source_documents
+    @pending = documents.awaiting_review.includes(file_attachment: :blob)
+    @processing = documents.processing.order(created_at: :desc)
+    @imported = documents.where(status: "imported").order(imported_at: :desc).includes(:race_session)
+    @failed = documents.where(status: "failed").order(updated_at: :desc)
   end
 
   def new
@@ -17,11 +18,11 @@ class ImportsController < ApplicationController
     files = Array(params[:files]).reject(&:blank?)
     return redirect_to new_import_path, alert: "Selecione pelo menos um arquivo." if files.empty?
 
-    batch = ImportBatch.create!(source: "upload", started_at: Time.current)
+    batch = current_user.import_batches.create!(source: "upload", started_at: Time.current)
     results = files.map do |file|
       ResultImportService.call(
         io: file, filename: file.original_filename,
-        content_type: file.content_type, batch: batch, async: true
+        content_type: file.content_type, batch: batch, async: true, user: current_user
       )
     rescue => e
       flash[:alert] = "Falha ao enviar #{file.original_filename}: #{e.message}"
@@ -38,7 +39,7 @@ class ImportsController < ApplicationController
   end
 
   def review
-    @document = SourceDocument.find(params[:id])
+    @document = current_user.source_documents.find(params[:id])
     return redirect_to imports_path, alert: "Documento já importado." if @document.status == "imported"
     @parsed = @document.parsed_data.deep_symbolize_keys
     @rows = @parsed[:rows] || []
@@ -46,7 +47,7 @@ class ImportsController < ApplicationController
   end
 
   def confirm
-    document = SourceDocument.find(params[:id])
+    document = current_user.source_documents.find(params[:id])
     return redirect_to imports_path, alert: "Documento já importado." if document.status == "imported"
 
     rows_override = build_rows_override(document)
@@ -70,7 +71,7 @@ class ImportsController < ApplicationController
   end
 
   def destroy
-    document = SourceDocument.find(params[:id])
+    document = current_user.source_documents.find(params[:id])
     filename = document.filename
     deleted = document.with_lock do
       next false unless document.discardable?
@@ -116,7 +117,7 @@ class ImportsController < ApplicationController
         value = value.to_i if value && field.in?(%w[position points laps])
         updated[field.to_sym] = value
       end
-      updated[:matched_driver_id] = edited[:alessandro] == "1" ? Driver.find_by(slug: "alessandro-chiarelli")&.id : nil
+      updated[:matched_driver_id] = edited[:tracked] == "1" ? Driver.joins(:driver_profiles).order(:id).first&.id : nil
       updated
     end
   end

@@ -5,7 +5,7 @@
 <div class="mb-5">
   <p class="kicker mb-1">Máquinas</p>
   <h1 class="text-3xl font-black tracking-tight">Karts pilotados</h1>
-  <p class="text-sm text-mute mt-1">Cada kart rental é uma loteria — estes foram os números que caíram pro Xande.</p>
+  <p class="text-sm text-mute mt-1">Cada kart rental é uma loteria — estes foram os números que você já pilotou.</p>
 </div>
 
 <div class="mb-8 flex flex-col gap-3">
@@ -62,7 +62,7 @@
       <p class="text-[11px] text-mute mt-2 flex items-center gap-2"><%= @kart_stats.sum { |k| k[:uses] } %> corridas · <%= list_view ? "ver cards" : "ver lista" %><span class="ml-auto text-race-glow group-hover:translate-x-0.5 transition-transform">→</span></p>
     <% end %>
     <div class="glass p-5">
-      <p class="kicker text-smurf">Mais usado</p>
+      <p class="kicker text-accent">Mais usado</p>
       <p class="stat-value text-4xl mt-2">#<%= most_used[:number] %></p>
       <p class="text-[11px] text-mute mt-2"><%= most_used[:uses] %> corrida(s)</p>
     </div>

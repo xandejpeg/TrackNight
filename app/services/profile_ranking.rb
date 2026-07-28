@@ -19,7 +19,7 @@ class ProfileRanking
       .where(driver_profile: profile)
       .includes(:result_entries)
       .filter_map do |session|
-        entry = session.alessandro_entry
+        entry = session.tracked_entry
         next unless entry
 
         RankingCalculator::Race.new(

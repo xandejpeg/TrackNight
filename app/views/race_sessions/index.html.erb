@@ -19,7 +19,7 @@
       </thead>
       <tbody>
         <% @sessions.each do |s| %>
-          <% e = s.alessandro_entry %>
+          <% e = s.tracked_entry %>
           <tr class="hover:bg-white/[0.03] transition-colors">
             <td class="chrono text-mute"><%= session_date_label(s) %></td>
             <td class="font-semibold"><%= s.title %></td>

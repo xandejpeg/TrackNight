@@ -1,0 +1,25 @@
+<div class="w-full max-w-sm">
+  <div class="text-center mb-8">
+    <span class="inline-grid place-items-center w-16 h-16 rounded-2xl bg-gradient-to-br from-race to-[#7a0a06] font-black italic text-3xl text-white shadow-[0_0_40px_rgba(225,6,0,0.55)]">TN</span>
+    <h1 class="mt-4 text-2xl font-black tracking-tight">TRACK<span class="text-race">NIGHT</span></h1>
+    <p class="text-[10px] tracking-[0.35em] text-mute uppercase mt-1">Nova senha</p>
+  </div>
+
+  <div class="glass p-7">
+    <% if flash[:alert] %>
+      <p class="text-race-glow text-sm mb-4"><%= flash[:alert] %></p>
+    <% end %>
+    <p class="text-[12px] text-mute mb-5">Defina a nova senha para <strong class="text-white"><%= @user.username %></strong>.</p>
+    <%= form_with url: password_reset_path(token: params[:token]), method: :patch, local: true, class: "space-y-4" do %>
+      <div>
+        <label class="kicker block mb-1.5">Nova senha</label>
+        <%= password_field_tag :password, nil, class: "field", autofocus: true, autocomplete: "new-password", placeholder: "Mínimo 6 caracteres" %>
+      </div>
+      <div>
+        <label class="kicker block mb-1.5">Confirmar senha</label>
+        <%= password_field_tag :password_confirmation, nil, class: "field", autocomplete: "new-password", placeholder: "••••••" %>
+      </div>
+      <%= submit_tag "Redefinir senha", class: "btn-race w-full cursor-pointer" %>
+    <% end %>
+  </div>
+</div>

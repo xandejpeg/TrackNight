@@ -1,8 +1,8 @@
 <div class="w-full max-w-sm">
   <div class="text-center mb-8">
-    <span class="inline-grid place-items-center w-16 h-16 rounded-2xl bg-gradient-to-br from-race to-[#7a0a06] font-black italic text-3xl text-white shadow-[0_0_40px_rgba(225,6,0,0.55)]">X</span>
+    <span class="inline-grid place-items-center w-16 h-16 rounded-2xl bg-gradient-to-br from-race to-[#7a0a06] font-black italic text-3xl text-white shadow-[0_0_40px_rgba(225,6,0,0.55)]">TN</span>
     <h1 class="mt-4 text-2xl font-black tracking-tight">TRACK<span class="text-race">NIGHT</span></h1>
-    <p class="text-[10px] tracking-[0.35em] text-mute uppercase mt-1">Xande Racing Performance</p>
+    <p class="text-[10px] tracking-[0.35em] text-mute uppercase mt-1">Análise de desempenho em pista</p>
   </div>
 
   <div class="glass p-7">
@@ -23,4 +23,9 @@
   </div>
 
   <p class="text-center text-[11px] text-mute mt-6">Kartódromo Granja Viana · Circuito 101</p>
+  <p class="text-center text-[11px] text-mute mt-2">
+    Não tem conta? <%= link_to "Cadastre-se", signup_path, class: "text-accent font-semibold" %>
+    <span class="mx-1.5">·</span>
+    <%= link_to "Esqueci a senha", new_password_reset_path, class: "text-accent font-semibold" %>
+  </p>
 </div>

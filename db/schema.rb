@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_18_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_28_000003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -58,7 +58,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_18_000001) do
     t.datetime "created_at", null: false
     t.string "display_name", null: false
     t.bigint "driver_id", null: false
-    t.integer "kind", default: 0, null: false
     t.string "ranking_override"
     t.datetime "updated_at", null: false
     t.index ["code"], name: "index_driver_profiles_on_code", unique: true
@@ -70,7 +69,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_18_000001) do
     t.string "name", null: false
     t.string "slug", null: false
     t.datetime "updated_at", null: false
+    t.bigint "user_id"
     t.index ["slug"], name: "index_drivers_on_slug", unique: true
+    t.index ["user_id"], name: "index_drivers_on_user_id"
   end
 
   create_table "import_batches", force: :cascade do |t|
@@ -82,6 +83,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_18_000001) do
     t.jsonb "stats", default: {}, null: false
     t.string "status", default: "running", null: false
     t.datetime "updated_at", null: false
+    t.bigint "user_id"
+    t.index ["user_id"], name: "index_import_batches_on_user_id"
   end
 
   create_table "karts", force: :cascade do |t|
@@ -111,12 +114,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_18_000001) do
     t.bigint "track_layout_id", null: false
     t.integer "track_temp"
     t.datetime "updated_at", null: false
+    t.bigint "user_id"
     t.bigint "vehicle_category_id", null: false
     t.bigint "venue_id", null: false
     t.integer "weather_condition"
     t.index ["driver_profile_id"], name: "index_race_sessions_on_driver_profile_id"
     t.index ["source_document_id"], name: "index_race_sessions_on_source_document_id"
     t.index ["track_layout_id"], name: "index_race_sessions_on_track_layout_id"
+    t.index ["user_id"], name: "index_race_sessions_on_user_id"
     t.index ["vehicle_category_id"], name: "index_race_sessions_on_vehicle_category_id"
     t.index ["venue_id"], name: "index_race_sessions_on_venue_id"
   end
@@ -181,8 +186,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_18_000001) do
     t.string "status", default: "pending", null: false
     t.datetime "suggested_session_date"
     t.datetime "updated_at", null: false
+    t.bigint "user_id"
     t.index ["import_batch_id"], name: "index_source_documents_on_import_batch_id"
     t.index ["sha256"], name: "index_source_documents_on_sha256", unique: true
+    t.index ["user_id"], name: "index_source_documents_on_user_id"
   end
 
   create_table "track_assets", force: :cascade do |t|
@@ -243,12 +250,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_18_000001) do
   end
 
   create_table "users", force: :cascade do |t|
+    t.string "cpf"
     t.datetime "created_at", null: false
+    t.string "full_name"
     t.boolean "must_change_password", default: false, null: false
     t.string "password_digest", null: false
+    t.datetime "password_reset_sent_at"
+    t.string "password_reset_token"
+    t.integer "role", default: 0, null: false
     t.datetime "updated_at", null: false
     t.string "username", null: false
     t.index "lower((username)::text)", name: "index_users_on_lower_username", unique: true
+    t.index ["cpf"], name: "index_users_on_cpf", unique: true
+    t.index ["password_reset_token"], name: "index_users_on_password_reset_token", unique: true
   end
 
   create_table "vehicle_categories", force: :cascade do |t|
@@ -293,10 +307,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_18_000001) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "driver_aliases", "drivers"
   add_foreign_key "driver_profiles", "drivers"
+  add_foreign_key "drivers", "users"
+  add_foreign_key "import_batches", "users"
   add_foreign_key "karts", "venues"
   add_foreign_key "race_sessions", "driver_profiles"
   add_foreign_key "race_sessions", "source_documents"
   add_foreign_key "race_sessions", "track_layouts"
+  add_foreign_key "race_sessions", "users"
   add_foreign_key "race_sessions", "vehicle_categories"
   add_foreign_key "race_sessions", "venues"
   add_foreign_key "result_entries", "driver_profiles"
@@ -304,6 +321,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_18_000001) do
   add_foreign_key "result_entries", "karts"
   add_foreign_key "result_entries", "race_sessions"
   add_foreign_key "source_documents", "import_batches"
+  add_foreign_key "source_documents", "users"
   add_foreign_key "track_assets", "track_layouts"
   add_foreign_key "track_layouts", "venues"
   add_foreign_key "track_sectors", "track_layouts"

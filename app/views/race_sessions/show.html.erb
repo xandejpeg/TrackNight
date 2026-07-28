@@ -100,12 +100,12 @@
     </thead>
     <tbody>
       <% @session.result_entries.each do |e| %>
-        <tr class="<%= "row-ale" if e.alessandro? %> hover:bg-white/[0.03] transition-colors">
+        <tr class="<%= "row-tracked" if e.tracked? %> hover:bg-white/[0.03] transition-colors">
           <td class="chrono font-bold"><%= e.position %></td>
           <td class="chrono">#<%= e.kart_number %></td>
-          <td class="font-semibold <%= "text-race-glow" if e.alessandro? %>">
-            <%= e.alessandro? ? "Alessandro Chiarelli" : e.display_name %>
-            <% if e.alessandro? %><span class="text-[10px] text-mute ml-1">(<%= e.display_name %>)</span><% end %>
+          <td class="font-semibold <%= "text-race-glow" if e.tracked? %>">
+            <%= e.driver&.name || e.display_name %>
+            <% if e.tracked? %><span class="text-[10px] text-mute ml-1">(<%= e.display_name %>)</span><% end %>
           </td>
           <td class="chrono"><%= e.laps %></td>
           <td class="chrono font-bold <%= "session-best" if e.best_lap_ms && e.best_lap_ms == @session_bests[:best_lap_ms] %>"><%= lap(e.best_lap_ms) %></td>

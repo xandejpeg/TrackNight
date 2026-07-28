@@ -1,5 +1,6 @@
 class SourceDocument < ApplicationRecord
   belongs_to :import_batch, optional: true
+  belongs_to :user, optional: true
   has_one :race_session, dependent: :nullify
   has_one_attached :file
 

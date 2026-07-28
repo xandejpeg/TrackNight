@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR" class="dark">
   <head>
-    <title><%= content_for(:title) || "TrackNight — Xande Racing Performance" %></title>
+    <title><%= content_for(:title) || "TrackNight — Análise de desempenho em pista" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="application-name" content="TrackNight">
@@ -25,10 +25,10 @@
       <div class="glass !rounded-none border-x-0 border-t-0 backdrop-blur-2xl">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 flex items-center gap-3 h-16">
           <%= link_to root_path, class: "flex items-center gap-2 shrink-0 group" do %>
-            <span class="w-8 h-8 rounded-lg bg-gradient-to-br from-race to-[#7a0a06] grid place-items-center font-black italic text-white shadow-[0_0_18px_rgba(225,6,0,0.5)] group-hover:shadow-[0_0_26px_rgba(225,6,0,0.8)] transition-shadow">X</span>
+            <span class="w-8 h-8 rounded-lg bg-gradient-to-br from-race to-[#7a0a06] grid place-items-center font-black italic text-white shadow-[0_0_18px_rgba(225,6,0,0.5)] group-hover:shadow-[0_0_26px_rgba(225,6,0,0.8)] transition-shadow">TN</span>
             <span class="hidden sm:block leading-none">
               <span class="block font-black tracking-tight text-[15px]">TRACK<span class="text-race">NIGHT</span></span>
-              <span class="block text-[9px] tracking-[0.28em] text-mute uppercase">Xande Racing</span>
+              <span class="block text-[9px] tracking-[0.28em] text-mute uppercase">Track Performance</span>
             </span>
           <% end %>
 
@@ -41,26 +41,29 @@
             <%= nav_link "Pista", track_path, active: controller_name == "track" %>
             <%= nav_link "Karts", karts_path, active: controller_name == "karts" %>
             <%= nav_link "Importar", imports_path, active: controller_name == "imports" %>
+            <% if current_user&.admin? %>
+              <%= nav_link "Admin", admin_root_path, active: controller_path.start_with?("admin/") %>
+            <% end %>
           </nav>
 
           <details class="filter-dropdown shrink-0" id="account-menu">
-            <summary class="!rounded-full !p-0 w-9 h-9 grid place-items-center text-base" title="Contas do piloto">👤</summary>
+            <summary class="!rounded-full !p-0 w-9 h-9 grid place-items-center text-base" title="Meus perfis">👤</summary>
             <div class="filter-dropdown-panel !left-auto right-0 min-w-[16rem]">
-              <p class="text-[10px] uppercase tracking-[0.18em] text-mute font-bold px-2 pt-1 pb-2">Contas do piloto</p>
-              <% DriverProfile.order(:kind, :id).each do |p| %>
+              <p class="text-[10px] uppercase tracking-[0.18em] text-mute font-bold px-2 pt-1 pb-2">Meus perfis</p>
+              <% current_user.driver_profiles.order(:id).each do |p| %>
                 <%= link_to profile_path(p.code), class: "filter-toggle-row" do %>
                   <span class="w-7 h-7 rounded-full grid place-items-center font-black text-[9px] text-white shrink-0"
                         style="background: <%= p.color || '#8b8b96' %>"><%= p.code.first(3) %></span>
                   <span class="min-w-0">
                     <span class="block leading-tight"><%= p.display_name %></span>
-                    <span class="block text-[10px] text-mute uppercase tracking-widest"><%= p.main? ? "Principal" : "Smurf" %></span>
+                    <span class="block text-[10px] text-mute uppercase tracking-widest"><%= p.code %></span>
                   </span>
                   <span class="ml-auto text-mute">→</span>
                 <% end %>
               <% end %>
               <div class="border-t border-line mt-1.5 pt-1.5">
-                <%= link_to "⚔ Comparativo de contas", comparison_path, class: "filter-toggle-row" %>
-                <%= link_to "➕ Adicionar conta", new_profile_path, class: "filter-toggle-row" %>
+                <%= link_to "⚔ Comparativo de perfis", comparison_path, class: "filter-toggle-row" %>
+                <%= link_to "➕ Adicionar perfil", new_profile_path, class: "filter-toggle-row" %>
               </div>
             </div>
           </details>

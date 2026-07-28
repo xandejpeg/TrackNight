@@ -5,9 +5,9 @@ class RaceSessionsController < ApplicationController
   end
 
   def show
-    @session = RaceSession.includes(result_entries: :kart).find(params[:id])
-    @entry = @session.alessandro_entry
-    stats = PerformanceStats.new(profile_code: @session.driver_profile&.code || "todos")
+    @session = current_user.race_sessions.includes(result_entries: :kart).find(params[:id])
+    @entry = @session.tracked_entry
+    stats = PerformanceStats.new(user: current_user, profile_code: @session.driver_profile&.code || "todos")
     @record_fields = @entry ? stats.record_breaking_fields(@entry) : []
     @session_bests = {
       best_lap_ms: @session.session_best(:best_lap_ms),
@@ -20,7 +20,7 @@ class RaceSessionsController < ApplicationController
 
   # Atualiza as condições (temperatura/clima) informadas pelo piloto.
   def update
-    session = RaceSession.find(params[:id])
+    session = current_user.race_sessions.find(params[:id])
     session.update!(
       track_temp: RaceSession.track_temps.key?(params[:track_temp]) ? params[:track_temp] : nil,
       weather_condition: RaceSession.weather_conditions.key?(params[:weather_condition]) ? params[:weather_condition] : nil

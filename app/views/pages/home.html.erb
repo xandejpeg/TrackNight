@@ -1,0 +1,88 @@
+<% content_for :title, "TrackNight — Análise de desempenho em pista" %>
+
+<section class="relative overflow-hidden">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 pt-36 pb-20 text-center">
+    <p class="kicker text-race-glow mb-4">Kart rental · Track day · KGV Circuito 101</p>
+    <h1 class="text-5xl sm:text-6xl font-black tracking-tight leading-none">
+      Cada volta conta.<br>
+      <span class="text-race">Cada milésimo importa.</span>
+    </h1>
+    <p class="text-mute text-lg max-w-2xl mx-auto mt-6">
+      O TrackNight transforma as folhas de resultado da sua sessão em análise de verdade:
+      melhores voltas, setores, evolução ao longo do tempo, comparativo e ranking.
+    </p>
+    <div class="flex items-center justify-center gap-3 mt-10">
+      <%= link_to "Criar conta grátis", signup_path, class: "btn-race !text-sm !px-8 !py-3" %>
+      <%= link_to "Já tenho conta", login_path, class: "btn-ghost !text-sm !px-8 !py-3" %>
+    </div>
+  </div>
+</section>
+
+<section class="border-t border-line">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-20">
+    <p class="kicker text-accent mb-2 text-center">Como funciona</p>
+    <h2 class="text-3xl font-black tracking-tight text-center mb-14">Da folha de papel para o pit wall digital</h2>
+
+    <div class="grid md:grid-cols-3 gap-6">
+      <div class="glass p-7">
+        <p class="text-3xl mb-4">📸</p>
+        <p class="font-black text-lg mb-2">1. Fotografe o resultado</p>
+        <p class="text-sm text-mute leading-relaxed">
+          Ao final da sessão, tire uma foto da folha de tempos do kartódromo.
+          O TrackNight lê a imagem com OCR e extrai posições, voltas, setores e velocidades.
+        </p>
+      </div>
+      <div class="glass p-7">
+        <p class="text-3xl mb-4">✅</p>
+        <p class="font-black text-lg mb-2">2. Revise e confirme</p>
+        <p class="text-sm text-mute leading-relaxed">
+          Confira as linhas extraídas, corrija o que o OCR errou e confirme a importação.
+          O app reconhece automaticamente qual linha é a sua pelo nome cadastrado.
+        </p>
+      </div>
+      <div class="glass p-7">
+        <p class="text-3xl mb-4">📈</p>
+        <p class="font-black text-lg mb-2">3. Analise e evolua</p>
+        <p class="text-sm text-mute leading-relaxed">
+          Dashboard completo: melhor volta, volta ideal, consistência, dia vs. noite,
+          evolução por sessão e ranking competitivo com pontos por vitória.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="border-t border-line">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-20">
+    <p class="kicker text-gold mb-2 text-center">O que você vê</p>
+    <h2 class="text-3xl font-black tracking-tight text-center mb-14">Ferramentas de quem leva a sério</h2>
+
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <% [
+        [ "⏱", "Melhor volta e volta ideal", "Soma dos seus melhores setores, mesmo de sessões diferentes." ],
+        [ "🌙", "Dia vs. noite", "Filtros por período, temperatura da pista e condição do clima." ],
+        [ "🏎", "Histórico de karts", "Cada kart rental é uma loteria — saiba quais números renderam mais." ],
+        [ "🏆", "Ranking TrackNight", "Bronze a Diamante, com pontos por vitórias competitivas." ]
+      ].each do |icon, title, desc| %>
+        <div class="glass p-6">
+          <p class="text-2xl mb-3"><%= icon %></p>
+          <p class="font-black mb-1.5"><%= title %></p>
+          <p class="text-[13px] text-mute leading-relaxed"><%= desc %></p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</section>
+
+<section class="border-t border-line">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 py-20 text-center">
+    <p class="kicker text-mint mb-2">Traçado suportado</p>
+    <h2 class="text-3xl font-black tracking-tight mb-4">Kartódromo Granja Viana — Circuito 101</h2>
+    <p class="text-mute max-w-2xl mx-auto mb-10">
+      No lançamento, o TrackNight analisa sessões do tradicional traçado 101 do KGV (1.015 m, Cotia/SP).
+      Novos kartódromos e traçados entram em breve.
+    </p>
+    <%= link_to "Começar agora", signup_path, class: "btn-race !text-sm !px-10 !py-3.5" %>
+    <p class="text-[11px] text-mute mt-4">Cadastro com nome completo, usuário, CPF e senha. Sem e-mail, sem celular.</p>
+  </div>
+</section>

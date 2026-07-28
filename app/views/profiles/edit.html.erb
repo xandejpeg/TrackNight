@@ -18,10 +18,6 @@
       <%= f.text_field :display_name, class: "field w-full", required: true %>
     </div>
     <div>
-      <label class="filter-label block mb-1.5">Categoria</label>
-      <%= f.select :kind, [ [ "Conta principal", "main" ], [ "Conta smurf", "smurf" ] ], {}, class: "field w-full" %>
-    </div>
-    <div>
       <label class="filter-label block mb-1.5">Ranking atual</label>
       <%= f.select :ranking_override,
             [ [ "Automático — calculado pelas corridas", "" ] ] + RankingCalculator::LEVELS.map { |level| [ RankingCalculator::LEVEL_LABELS.fetch(level), level ] },
