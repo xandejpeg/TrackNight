@@ -1,12 +1,73 @@
 # TrackNight — Roadmap de transformação em produto multiusuário
 
-> **Status:** documento de planejamento. Nada aqui foi implementado ainda.
-> **Objetivo do dia (2026-07-27):** app rodando com o nome TrackNight, sem nenhuma referência pessoal ("Xande", "Xande Racing", "Alessandro Chiarelli" hardcoded), conceito de "smurf" removido do produto, e preparado conceitualmente para receber novos usuários.
-> **Fora de escopo hoje:** troca de URL/domínio, migração de VPS, deploy novo, landing page funcional. Isso entra como fases planejadas.
+> **Status:** app multiusuário NO AR em https://tracknightracing.com.br (fases 0–3 concluídas).
+> **Próxima frente:** repaginação visual completa (Brand Guidelines v1.0) + onboarding guiado.
 
 ---
 
-## 🔥 URGENTE — Onboarding do primeiro usuário (wizard pós-cadastro)
+## 🔥 URGENTE 1 — Repaginação completa (Brand Guidelines v1.0)
+
+**Fonte da verdade:** `TrackNight Brand Guidelines.dc.html` (design system oficial). O app hoje viola várias regras de marca. Esta frente **reescreve o visual inteiro** para o padrão.
+
+### Assets de marca (já em mãos)
+- **Logo estática:** 3 estados em `fotos Logo/` (0 = bandeira+wordmark, 1 = +tagline, 2 = bandeira grande)
+- **Vídeo:** `Animação Bandeira Tracknight.mp4` (1,3 MB) — intro do site
+- **Projeto animado:** `Tracknight flag animation/` (HTML+JSX+sprite) — bandeirada animada em canvas
+- **Tagline:** `PERSONAL RACING PERFORMANCE`
+
+### 1.1 — Intro animada na landing (topo da LP) ⭐ assinatura da marca
+- [ ] **Bandeirada animada** ao entrar no site: canvas com o sprite (`flag-sprite.png` + `flag-cover.png`) OU o vídeo MP4 como fallback.
+- [ ] Sequência: animação da bandeira → wordmark TRACK/NIGHT aparece → tagline "Personal Racing Performance" → CTA.
+- [ ] Roda **uma vez por sessão** (sessionStorage) — não repete a cada navegação.
+- [ ] Pular com clique/tecla (acessibilidade) + `prefers-reduced-motion` respeitado.
+- [ ] Implementação: portar o `tracknight-anim.jsx` para um Stimulus controller (`flag_intro_controller.js`) lendo o sprite; vídeo como `<video>` fallback.
+
+### 1.2 — Tipografia (3 vozes)
+- [ ] **Barlow Condensed 800 Italic** → títulos (H1 56/0.95, H2 36/1.0, H3 22/1.1), sempre uppercase.
+- [ ] **Barlow 400–700** → corpo/UI (14–17px, line-height 1.5–1.65).
+- [ ] **JetBrains Mono** → tempos/deltas/labels técnicos (uppercase 10–11px, letter-spacing 0.2em).
+- [ ] Importar via Google Fonts (ou self-host em `app/assets/fonts`) + mapear no `@theme` do Tailwind: `--font-display`, `--font-sans` (Barlow), `--font-chrono` (JetBrains Mono, já existe).
+- [ ] Substituir usos: hoje títulos usam `font-black` genérico → `font-display italic uppercase`.
+
+### 1.3 — Paleta nas proporções corretas
+- [ ] **Vermelho `#E10600` = máx ~10% da tela, NUNCA fundo.** Auditar: hoje o gradiente do logo TN, vários botões e badges usam vermelho demais. **1 botão primário vermelho por tela, no máximo.**
+- [ ] **Ciano `--color-accent` SAI de botões/navegação** → vira exclusivo de telemetria (séries, barras de setor, gráficos). Renomear para `--color-tel` (telemetria) nos tokens.
+- [ ] Navegação ativa: gradiente vermelho com glow (pills) — hoje está genérico.
+- [ ] **Dourado só para recordes**; **menta `#2DD4A7` só para confirmações/sucesso**.
+- [ ] Carbono 78% / grafite 7% / painel — revisar fundos das telas densas (tabelas longas e forms → grafite sólido, sem blur).
+
+### 1.4 — Componentes no padrão
+- [ ] **Botões:** primário vermelho (uppercase, peso 700, raio 14px, hover levanta 1px + glow); secundário (contorno vermelho); ghost (utilitário). Já temos `btn-race`/`btn-ghost` — ajustar raios, hover e regra de "1 primário por tela".
+- [ ] **Cards vidro:** gradiente branco 5.5%→1.5%, blur 18px, borda branca 8%, raio 14–18px; hover/seleção **acende a borda em vermelho** (nunca preenche fundo). Hoje o `glass` está próximo — ajustar gradiente e hover.
+- [ ] **Nav pills:** uppercase compactas, ativo com gradiente vermelho + glow.
+- [ ] **Chips de contexto:** clima/piloto/recorde (dourado = recorde).
+- [ ] **Tabela de resultados:** linha do piloto em foco = gradiente vermelho 16%→3% + filete interno (já temos `.row-tracked` — ajustar); melhor volta da sessão em **roxo com glow** (já temos `.session-best`).
+- [ ] **Deltas:** verde-menta = mais rápido (negativo), vermelho = mais lento (positivo).
+- [ ] **Estados:** loading com skeleton shimmer; vazio com mensagem técnica curta; erro sem fundo vermelho sólido.
+
+### 1.5 — Logo oficial no sistema
+- [ ] Trocar o bloco "TN" do header pela **logo real** (bandeira + wordmark da `logo estatica 0.png`, versão reduzida sem bandeira abaixo de 120px).
+- [ ] **Favicon + apple-touch-icon** a partir da bandeira.
+- [ ] **og:image** social (logo estado 1 com tagline).
+- [ ] Tela de login/cadastro: logo estado 1 (com tagline "Personal Racing Performance").
+- [ ] Fundo sempre escuro (carbono/grafite) — nunca sobre branco/vermelho.
+
+### 1.6 — Voz e microcopy ("box de pista")
+- [ ] Textos curtos, técnicos, **sem exclamações**. Ex.: erro = "◼ Bandeira vermelha — Falha ao ler o PDF. Verifique o arquivo."; sucesso = "◆ Bandeirada — Sessão importada. 12 voltas, 3 pilotos."
+- [ ] Saudação do dashboard contextual: "Boa noite, piloto" (pelo horário).
+- [ ] Revisar: landing, login, onboarding, estados vazios, flash messages.
+
+### Ordem de ataque (repaginação)
+1. **1.2 Tipografia** (base de tudo — muda a cara do app inteiro)
+2. **1.5 Logo oficial** (header + favicon + login — identidade imediata)
+3. **1.3 Paleta** (ciano→telemetria, vermelho controlado, nav pills)
+4. **1.4 Componentes** (botões, cards, tabela, estados)
+5. **1.1 Intro animada** (o "wow" da LP — depois que o sistema base estiver no padrão)
+6. **1.6 Microcopy** (passada final de voz em todas as telas)
+
+---
+
+## 🔥 URGENTE 2 — Onboarding do primeiro usuário (wizard pós-cadastro)
 
 **Prioridade máxima.** Hoje o usuário cria a conta e cai num dashboard vazio sem orientação. O fluxo correto é um **wizard guiado** que configura o perfil e ensina o primeiro import.
 
