@@ -14,6 +14,13 @@
     <%= javascript_importmap_tags %>
   </head>
   <body class="speed-lines bg-carbon text-white antialiased">
+    <%# Tela zero — bandeirada animada (1x por sessão) %>
+    <div data-controller="splash" class="splash hidden" role="button" tabindex="0" aria-label="Pular introdução">
+      <%= image_tag "brand/flag-sprite.png", alt: "", class: "splash-flag", aria: { hidden: true } %>
+      <%= image_tag "brand/wordmark.png", alt: "TRACKNIGHT", class: "splash-wordmark" %>
+      <p class="splash-tagline">Personal Racing Performance</p>
+    </div>
+
     <header class="fixed top-0 inset-x-0 z-50">
       <div class="glass !rounded-none border-x-0 border-t-0 backdrop-blur-2xl">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 flex items-center h-16">
