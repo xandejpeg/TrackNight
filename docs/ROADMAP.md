@@ -6,6 +6,69 @@
 
 ---
 
+## 🔥 URGENTE — Onboarding do primeiro usuário (wizard pós-cadastro)
+
+**Prioridade máxima.** Hoje o usuário cria a conta e cai num dashboard vazio sem orientação. O fluxo correto é um **wizard guiado** que configura o perfil e ensina o primeiro import.
+
+### Fluxo completo (nesta ordem)
+
+**0. Login automático pós-cadastro**
+- Após criar a conta em `/cadastro`, o usuário entra **direto logado** no app (sem passar pela tela de login de novo). *(Já funciona assim — confirmar.)*
+
+**1. Pergunta: "Você corre de quê?"**
+- Opções: **Carro** / **Kart** / **Moto**
+- **Apenas Kart disponível** no momento (carro e moto aparecem desabilitados/"em breve").
+- Salvo no perfil da conta (campo `vehicle_preference` em `users` ou no `driver_profiles`).
+
+**2. Pergunta: "Você é profissional ou rental?"**
+- Duas opções: **Profissional** / **Rental**
+- Vira uma **tag associada à conta** (campo `racing_type` em `users` ou `driver_profiles`).
+- Usado depois para segmentar rankings e comparativos (rental vs. profissional têm dinâmicas diferentes).
+
+**3. Pergunta: "Selecione as pistas/traçados que você deseja registrar"**
+- Lista de kartódromos (multi-seleção, visual de cards):
+  - **KGV — Kartódromo Granja Viana** ✅ disponível
+  - Kartódromo Aldeia da Serra (em breve)
+  - Kartódromo Internacional de Interlagos (em breve)
+  - ... (lista maior — todas as pistas mapeadas, desabilitadas)
+- Ao selecionar uma pista → mostra os **traçados disponíveis** dela.
+  - Hoje: só **KGV → Circuito 101** disponível.
+- **Popup/modal de aviso:** "No momento temos apenas o KGV Circuito 101 disponível. Em breve adicionaremos todas as pistas e traçados. Você já pode usar normalmente!"
+- Salva a seleção (associação `user` ↔ `track_layouts`, ex.: `user_track_layouts` join table).
+
+**4. Tour guiado — "Seu primeiro import"**
+Após o wizard, o usuário é levado a um **tour passo a passo** (guia parte 1 do usuário):
+
+- **Passo 1:** "A primeira coisa a fazer é importar seus resultados."
+- **Passo 2:** "No site do KGV, acesse sua conta e vá em **Minhas corridas**."
+- **Passo 3:** "Baixe os tempos de cada corrida (foto ou PDF da folha de tempos)."
+- **Passo 4:** "Salve o arquivo nomeando como `DDMMAAAA HHMM.jpeg` (ex.: `15072026 2100.jpeg`) para a data ser detectada automaticamente."
+- **Passo 5:** "Envie aqui na aba **Importar** — o OCR lê e você só confirma."
+- CTA final: "Ir para Importar" → `/imports/new`.
+
+### Modelagem necessária
+
+| Campo/tabela | O quê | Onde |
+|---|---|---|
+| `users.vehicle_preference` | enum: `car` / `kart` / `moto` (default `kart`) | users |
+| `users.racing_type` | enum: `professional` / `rental` | users |
+| `user_track_layouts` | join: `user_id` + `track_layout_id` (pistas/traçados escolhidos) | nova tabela |
+| `users.onboarding_completed_at` | timestamp — wizard feito (pula o tour no próximo login) | users |
+
+### Implementação (ordem sugerida)
+
+1. Migration: campos novos em `users` + tabela `user_track_layouts`.
+2. `OnboardingController` com steps (wizard multi-página ou modal em etapas).
+3. Redirect pós-signup: `/cadastro` → wizard step 1 (em vez de direto pro dashboard).
+4. Seed de venues/traçados "em breve" (Aldeia da Serra, Interlagos — `active: false`).
+5. Tour guiado (página dedicada `/onboarding/tour` ou modal sequencial).
+6. Marcar `onboarding_completed_at` ao final; dashboard verifica e redireciona se pendente.
+7. Contas legadas (Xande, Helo): wizard aparece no próximo login (campos vazios = não fez onboarding).
+
+> **Nota:** "Temos mais coisa para mudar — isso é a parte 1 do guia do usuário." Próximas partes entram aqui como fases subsequentes do onboarding/guia.
+
+---
+
 ## 1. Visão do produto
 
 **TrackNight** é uma plataforma de análise de desempenho em pista — **não exclusiva de kart nem de corrida**: serve para qualquer tipo de "track day" / trekking em pista (kart rental, track day de carro, moto, etc.).
