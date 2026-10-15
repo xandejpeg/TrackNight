@@ -8,7 +8,7 @@
 # O melhor setor NÃO é lido das células destacadas: é calculado depois,
 # comparando todos os participantes da sessão.
 class KgvResultParser
-  VERSION = "1.3.0"
+  VERSION = "1.4.0"
 
   HEADER_RE = /Resultados\s+de\s+(\w+)\s*[-–]\s*(TOMADA|PROVA|TREINO|CLASSIFICA\w*)\s*(\d+)?\s*[-–]\s*(\d{1,2}:\d{2})/i
   TIME_TOKEN = /\A\d*:?\d{1,2}[.,]\d{2,3}\z/
@@ -25,6 +25,7 @@ class KgvResultParser
   def call(text, band_lines: [])
     lines = text.to_s.lines.map(&:strip).reject(&:empty?)
     header = parse_header(lines)
+    @sector_layout = detect_sector_layout(lines)
     layout, rows = best_layout_rows(lines)
     fuse_band!(rows, band_lines, layout) if band_lines.any?
     confidence_penalty = rows.count { |r| r[:suspect] }
@@ -80,7 +81,10 @@ class KgvResultParser
   def best_layout_rows(lines)
     hinted = detect_layout(lines)
     ordered = ([ hinted ] + %i[a b c]).uniq
-    parsed = ordered.map { |l| [ l, lines.filter_map { |line| parse_row(line, l) } ] }
+    parsed = ordered.map do |layout|
+      rows = lines.filter_map { |line| parse_row(line, layout) }
+      [ layout, repair_position_sequence(rows) ]
+    end
     parsed.each_with_index.min_by { |(_, rows), i| [ layout_score(rows), i ] }.first
   end
 
@@ -100,13 +104,19 @@ class KgvResultParser
     diff_idx < melhor_idx ? :a : :b
   end
 
+  def detect_sector_layout(lines)
+    header = lines.find { |line| line =~ /Pos/ && line =~ /Nome/i }
+    header&.match?(/SFSpd.*S1/i) ? :s2_s3_speed_s1 : :s1_s2_s3_speed
+  end
+
   def parse_row(line, layout)
     tokens = merge_split_decimals(clean_tokens(line))
     return nil if tokens.size < 3
-    return nil unless tokens.first =~ /\A\d{1,2}\z/
     return nil if line =~ /Pos/ && line =~ /Nome/i
 
-    position = tokens.shift.to_i
+    position = extract_position(tokens)
+    return nil if position == :invalid
+
     kart_number, transponder = extract_kart(tokens)
     return nil if kart_number.nil?
 
@@ -125,7 +135,44 @@ class KgvResultParser
   end
 
   def clean_tokens(line)
-    line.gsub(/[|]/, " ").split(/\s+/).reject { |t| t =~ /\A[_\-=~.,;:]+\z/ }
+    tokens = line.gsub(/[|]/, " ").split(/\s+/).reject { |t| t =~ /\A[_\-=~.,;:]+\z/ }
+    tokens.shift while tokens.first&.match?(/\A[^A-Za-z0-9]+\z/)
+    tokens
+  end
+
+  def extract_position(tokens)
+    token = tokens.first.to_s
+    cleaned = token.sub(/\A[^\dS]+/i, "").sub(/[^\dS]+\z/i, "")
+    position = if cleaned.casecmp("S").zero?
+      5
+    elsif (match = cleaned.match(/\A(\d{1,2})S?\z/i))
+      match[1].to_i
+    end
+
+    if position
+      tokens.shift
+      position
+    elsif token.match?(/\A\d{3}\z/)
+      nil
+    else
+      :invalid
+    end
+  end
+
+  def repair_position_sequence(rows)
+    rows.each_with_index do |row, index|
+      previous = index.positive? ? rows[index - 1][:position] : nil
+      following = rows[index + 1]&.dig(:position)
+      next unless previous
+
+      candidate = previous + 1
+      if row[:position].nil? || row[:position] <= previous
+        row[:position] = candidate if following.nil? || following > candidate
+      elsif row[:position] > candidate && following == candidate + 1
+        row[:position] = candidate
+      end
+    end
+    rows
   end
 
   # OCR às vezes divide "21.512" em "21.5 12" ou "19:28.689" em "19:28 689" — reagrupa.
@@ -150,10 +197,10 @@ class KgvResultParser
 
   def extract_kart(tokens)
     kart = tokens.shift
-    return [ nil, nil ] unless kart =~ /\A[0O]?\d{1,3}\z/
-    kart = kart.tr("O", "0")
+    return [ nil, nil ] unless kart =~ /\A[0OU]?\d{1,3}\z/
+    kart = kart.tr("OU", "00")
     transponder = nil
-    if tokens.first =~ /\A[\[\(]?\d{3,7}[\]\)]?\z/
+    if tokens.first =~ /\A(?:[\[\(\{]\d{3,7}\D*|\d{3,7})\z/
       transponder = tokens.shift.gsub(/[^\d]/, "")
     end
     [ kart, transponder ]
@@ -191,8 +238,7 @@ class KgvResultParser
     items = group_tail_items(tokens)
     return result.merge(suspect: items.any?) if items.empty?
 
-    # Velocidade: último item no formato "78,1"
-    result[:speed_text] = items.pop[:value] if items.last && items.last[:kind] == :speed
+    extract_speed_and_sectors!(items, result)
 
     # Voltas: primeiro inteiro simples. Um inteiro pequeno antes dele é pitstops.
     laps_idx = items.index { |i| i[:kind] == :int }
@@ -205,13 +251,7 @@ class KgvResultParser
       result[:laps] = items.delete_at(laps_idx)[:value].to_i if laps_idx
     end
 
-    # Setores: os três últimos itens de tempo curto (< 60s)
-    sector_idxs = items.each_index.select { |ix| items[ix][:kind] == :time && short_time?(items[ix][:value]) }
-    if sector_idxs.size >= 3
-      s_idx = sector_idxs.last(3)
-      result[:s1_text], result[:s2_text], result[:s3_text] = s_idx.map { |ix| items[ix][:value] }
-      s_idx.reverse_each { |ix| items.delete_at(ix) }
-    else
+    if result.values_at(:s1_text, :s2_text, :s3_text).any?(&:nil?)
       result[:suspect] = true if items.any? { |i| i[:kind] == :time }
     end
 
@@ -223,11 +263,11 @@ class KgvResultParser
     items = []
     i = 0
     while i < tokens.size
-      t = tokens[i]
+      t = normalize_numeric_token(tokens[i])
       if t =~ /\A\d{1,2}\z/ && tokens[i + 1] =~ VOLTA_WORD
         items << { kind: :volta, value: "#{t} #{tokens[i + 1].capitalize}" }
         i += 2
-      elsif t =~ SPEED_TOKEN
+      elsif speed_token?(t)
         items << { kind: :speed, value: t }
         i += 1
       elsif t =~ TIME_TOKEN
@@ -241,6 +281,38 @@ class KgvResultParser
       end
     end
     items
+  end
+
+  def normalize_numeric_token(token)
+    value = token.to_s.sub(/\A[=_]+(?=\d)/, "")
+                    .gsub(/(?<=\d),\.(?=\d)/, ".")
+                    .sub(/(?<=\d)[\]\)}!,]+\z/, "")
+    value = value.tr("Iil", "111") if value.match?(/\A[\dIil]+\z/)
+    value = "5" if value.match?(/\A[5S]S?\z/i)
+    if (match = value.match(/\A(\d{2})5\z/)) && value.to_i > 99
+      value = match[1]
+    end
+    value
+  end
+
+  def speed_token?(value)
+    value.match?(SPEED_TOKEN) && value.tr(",", ".").to_f.between?(30, 200)
+  end
+
+  def extract_speed_and_sectors!(items, result)
+    speed_idx = items.rindex { |item| item[:kind] == :speed }
+    result[:speed_text] = items.delete_at(speed_idx)[:value] if speed_idx
+
+    sector_idxs = items.each_index.select do |index|
+      items[index][:kind] == :time && short_time?(items[index][:value])
+    end
+    return if sector_idxs.size < 3
+
+    selected = sector_idxs.last(3)
+    values = selected.map { |index| items[index][:value] }
+    values = [ values[2], values[0], values[1] ] if @sector_layout == :s2_s3_speed_s1
+    result[:s1_text], result[:s2_text], result[:s3_text] = values
+    selected.reverse_each { |index| items.delete_at(index) }
   end
 
   # OCR às vezes perde o dois-pontos: "102.557" → "1:02.557".

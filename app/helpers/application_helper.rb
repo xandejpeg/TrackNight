@@ -1,4 +1,30 @@
 module ApplicationHelper
+  RANKING_BADGE_ASSETS = {
+    "iniciante_1" => "ranks/bronze-i.webp",
+    "iniciante_2" => "ranks/bronze-ii.webp",
+    "iniciante_3" => "ranks/bronze-iii.webp",
+    "intermediario_1" => "ranks/silver-i.webp",
+    "intermediario_2" => "ranks/silver-ii.webp",
+    "intermediario_3" => "ranks/silver-iii.webp",
+    "avancado_1" => "ranks/gold-i.webp",
+    "avancado_2" => "ranks/gold-ii.webp",
+    "avancado_3" => "ranks/gold-iii.webp",
+    "pro" => "ranks/diamond.webp"
+  }.freeze
+
+  def ranking_badge(level, class_name: nil, decorative: false, loading: "lazy")
+    label = RankingCalculator::LEVEL_LABELS.fetch(level)
+    image_tag(
+      RANKING_BADGE_ASSETS.fetch(level),
+      alt: decorative ? "" : "Emblema #{label}",
+      class: [ "rank-emblem", class_name ].compact.join(" "),
+      width: 384,
+      height: 384,
+      loading: loading,
+      decoding: "async"
+    )
+  end
+
   def lap(ms)
     LapTime.format(ms)
   end

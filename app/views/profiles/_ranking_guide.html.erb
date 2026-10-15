@@ -5,20 +5,44 @@
     <p class="text-sm text-mute mt-2 max-w-2xl">Bronze, Prata e Ouro possuem três divisões. Cada conta evolui separadamente e precisa cumprir as travas de vitória para avançar no Ouro.</p>
   </div>
 
-  <div class="grid md:grid-cols-2 xl:grid-cols-4 gap-2 mb-4">
+  <% levels = [
+    [ "iniciante_1", "#c87942", "Largada" ],
+    [ "iniciante_2", "#c87942", "Ritmo" ],
+    [ "iniciante_3", "#c87942", "Elite" ],
+    [ "intermediario_1", "#d4d8e2", "Largada" ],
+    [ "intermediario_2", "#d4d8e2", "Ritmo" ],
+    [ "intermediario_3", "#d4d8e2", "Elite" ],
+    [ "avancado_1", "#ffd34e", "1 vitória" ],
+    [ "avancado_2", "#ffd34e", "2 vitórias" ],
+    [ "avancado_3", "#ffd34e", "3 vitórias" ],
+    [ "pro", "#59e6ff", "Cenário Pro" ]
+  ] %>
+  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 mb-4">
+    <% levels.each_with_index do |(level, color, milestone), index| %>
+      <article class="rank-stage p-4 flex flex-col items-center text-center" style="--rank-color: <%= color %>; --rank-delay: <%= index * 45 %>ms;">
+        <div class="w-full flex items-center justify-between gap-2">
+          <span class="chrono text-[10px] text-mute"><%= format("%02d", index + 1) %></span>
+          <span class="text-[9px] font-bold uppercase text-mute"><%= milestone %></span>
+        </div>
+        <%= ranking_badge(level, class_name: "rank-emblem-current w-28 h-28 sm:w-32 sm:h-32 my-1", decorative: true) %>
+        <h3 class="font-black uppercase" style="color: <%= color %>"><%= RankingCalculator::LEVEL_LABELS.fetch(level) %></h3>
+        <p class="chrono text-[9px] uppercase text-mute mt-1"><%= level == "pro" ? "Campeonatos" : "10 pts por divisão" %></p>
+      </article>
+    <% end %>
+  </div>
+
+  <div class="grid md:grid-cols-4 border border-line bg-graphite mb-4">
     <% tiers = [
-      [ "B", "Bronze", "I · II · III", "#c77b43", "A entrada da carreira. A primeira prova começa no Bronze I e cada 10 pontos avança uma divisão." ],
-      [ "P", "Prata", "I · II · III", "#c5cbd1", "A faixa intermediária. Consistência no top 10 mantém a evolução sem depender apenas de pódios." ],
-      [ "O", "Ouro", "I · II · III", "#f2c94c", "A elite entusiasta. Ouro I, II e III exigem uma, duas e três vitórias acumuladas." ],
-      [ "D", "Diamante", "CENÁRIO PRO", "#6ee7f9", "Após Ouro III, são necessários 100 pontos. A evolução seguinte será definida pelos campeonatos." ]
+      [ "Bronze", "Primeiros quilômetros", "A carreira começa no Bronze I; cada 10 pontos abre a próxima divisão." ],
+      [ "Prata", "Consistência de grid", "Resultados frequentes no top 10 sustentam a progressão até a elite da faixa." ],
+      [ "Ouro", "Vitórias obrigatórias", "Ouro I, II e III exigem uma, duas e três vitórias competitivas acumuladas." ],
+      [ "Diamante", "Topo atual", "Depois do Ouro III, 100 pontos liberam o cenário Pro dos campeonatos." ]
     ] %>
-    <% tiers.each do |letter, name, divisions, color, description| %>
-      <article class="glass p-5 min-h-60 relative overflow-hidden" style="border-color: <%= color %>66; background: linear-gradient(155deg, <%= color %>18, rgba(14,14,18,.96) 58%);">
-        <span class="w-16 h-16 grid place-items-center font-black text-2xl mb-5"
-              style="color: #08080a; background: <%= color %>; clip-path: polygon(50% 0,90% 23%,90% 70%,50% 100%,10% 70%,10% 23%); box-shadow: 0 0 24px <%= color %>66;"><%= letter %></span>
-        <h3 class="text-xl font-black uppercase" style="color: <%= color %>"><%= name %></h3>
-        <p class="chrono text-[11px] tracking-widest mt-1 mb-4"><%= divisions %></p>
-        <p class="text-xs text-mute leading-relaxed"><%= description %></p>
+    <% tiers.each do |name, headline, description| %>
+      <article class="p-5 border-b md:border-b-0 md:border-r border-line last:border-r-0">
+        <p class="kicker"><%= name %></p>
+        <p class="font-black mt-2"><%= headline %></p>
+        <p class="text-[11px] text-mute leading-relaxed mt-2"><%= description %></p>
       </article>
     <% end %>
   </div>

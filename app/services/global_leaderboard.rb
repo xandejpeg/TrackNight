@@ -5,7 +5,7 @@ class GlobalLeaderboard
   )
   Row = Data.define(
     :rank, :name, :normalized_name, :aliases, :appearances, :scored_appearances,
-    :average_score, :average_position, :best_position, :wins, :podiums,
+    :points, :average_position, :best_position, :wins, :podiums,
     :best_lap_ms, :profile_codes, :owned
   )
 
@@ -57,7 +57,6 @@ class GlobalLeaderboard
   def build_row(group)
     scored = group.select { |entry| valid_finish?(entry) }
     positions = scored.map(&:position)
-    scores = scored.map { |entry| relative_score(entry) }
     aliases = group.map(&:name).compact.map(&:strip).reject(&:empty?).uniq
 
     Row.new(
@@ -67,7 +66,7 @@ class GlobalLeaderboard
       aliases: aliases,
       appearances: group.map(&:session_id).uniq.size,
       scored_appearances: scored.size,
-      average_score: scores.empty? ? nil : (scores.sum / scores.size).round(2),
+      points: positions.sum { |position| RankingCalculator.points_for(position) },
       average_position: positions.empty? ? nil : (positions.sum.to_f / positions.size).round(2),
       best_position: positions.min,
       wins: positions.count(1),
@@ -89,19 +88,14 @@ class GlobalLeaderboard
     entry.position.to_i.positive? && entry.field_size.to_i.positive? && entry.position <= entry.field_size
   end
 
-  def relative_score(entry)
-    return 100.0 if entry.field_size == 1
-
-    (1.0 - (entry.position - 1).to_f / (entry.field_size - 1)) * 100
-  end
-
   def sort_key(row)
     [
-      row.average_score ? -row.average_score : Float::INFINITY,
+      -row.points,
       -row.wins,
-      row.best_position || Float::INFINITY,
+      -row.podiums,
+      row.average_position || Float::INFINITY,
       -row.appearances,
-      row.best_lap_ms || Float::INFINITY,
+      row.best_position || Float::INFINITY,
       row.normalized_name
     ]
   end

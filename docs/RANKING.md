@@ -7,13 +7,17 @@ A aba `/ranking` reúne duas classificações diferentes:
 
 ## Classificação geral
 
-A ordem usa a média da posição relativa de cada piloto no grid:
+A classificação soma os pontos de chegada de todas as provas confirmadas das duas contas:
 
-```text
-nota = (1 - (posição - 1) / (tamanho do grid - 1)) × 100
-```
+- P1: 10 pontos
+- P2: 7 pontos
+- P3: 6 pontos
+- P4–P5: 5 pontos
+- P6–P10: 2 pontos
+- P11–P20: 1 ponto
+- P21 em diante: 0 pontos
 
-Os desempates são, nesta ordem: vitórias, melhor posição, número de encontros, melhor volta e nome. A melhor volta não é o critério principal porque sessões de pistas e traçados diferentes não são diretamente comparáveis.
+Os desempates são, nesta ordem: vitórias, pódios, melhor média de posição, número de corridas, melhor posição e nome. A melhor volta é apenas informativa e nunca altera a ordem.
 
 Nomes sem cadastro próprio são agrupados sem considerar acentos, caixa, pontuação ou espaços repetidos. As contas ACF e AC são reunidas como Alessandro somente na classificação geral.
 
@@ -24,3 +28,11 @@ O botão **Exportar Markdown** gera a lista atual diretamente do banco. No servi
 ```powershell
 bundle exec rails ranking:export_markdown
 ```
+
+## Emblemas visuais
+
+Os emblemas de Bronze, Prata, Ouro e Diamante usam o pacote **Ranks Coins and More**, criado por Sinestesia e publicado sob licença CC0 no OpenGameArt:
+
+<https://opengameart.org/content/ranks-coins-and-more>
+
+As imagens foram redimensionadas e convertidas para WebP. A progressão visual do pacote foi mapeada como base (`I`), intermediária (`II`) e elite (`III`).

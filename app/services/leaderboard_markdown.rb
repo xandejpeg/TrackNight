@@ -10,10 +10,10 @@ class LeaderboardMarkdown
       "",
       "Gerado em #{@generated_at.strftime('%d/%m/%Y às %H:%M')}.",
       "",
-      "Critério: média da posição relativa em cada grid, seguida por vitórias, melhor posição e número de encontros. " \
-        "Tempos absolutos são informativos e não ordenam pistas ou traçados diferentes.",
+      "Critério: pontos acumulados pela tabela oficial de chegada, seguidos por vitórias, pódios, " \
+        "média de posição e número de corridas. Tempos absolutos são apenas informativos.",
       "",
-      "| # | Piloto | Nota | Corridas | Média pos. | Melhor | Vitórias | Pódios | Melhor volta | Contas |",
+      "| # | Piloto | Pontos | Corridas | Média pos. | Melhor | Vitórias | Pódios | Melhor volta | Contas |",
       "|---:|---|---:|---:|---:|---:|---:|---:|---:|---|"
     ]
 
@@ -21,7 +21,7 @@ class LeaderboardMarkdown
       lines << [
         "| #{row.rank}",
         escape(row.name),
-        format_number(row.average_score),
+        row.points,
         row.appearances,
         format_number(row.average_position),
         row.best_position ? "P#{row.best_position}" : "—",

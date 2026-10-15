@@ -17,19 +17,25 @@
 </div>
 
 <div class="grid md:grid-cols-2 gap-4 mb-4">
-  <div class="glass p-6 border-mint/30">
-    <p class="kicker text-mint">Ranking competitivo</p>
-    <div class="flex items-end justify-between gap-4 mt-2">
-      <p class="stat-value text-3xl"><%= RankingCalculator::LEVEL_LABELS.fetch(@ranking.ranking_level) %></p>
-      <p class="chrono text-xl font-black"><%= @ranking.ranking_points %> pts</p>
+  <div class="glass p-5 border-mint/30 overflow-hidden">
+    <div class="grid grid-cols-[96px_minmax(0,1fr)] sm:grid-cols-[112px_minmax(0,1fr)] gap-4 items-center">
+      <%= ranking_badge(@ranking.ranking_level, class_name: "rank-emblem-current w-24 h-24 sm:w-28 sm:h-28", loading: "eager") %>
+      <div class="min-w-0">
+        <p class="kicker text-mint">Ranking competitivo</p>
+        <p class="stat-value text-2xl sm:text-3xl mt-2"><%= RankingCalculator::LEVEL_LABELS.fetch(@ranking.ranking_level) %></p>
+        <p class="chrono text-xl font-black mt-2"><%= @ranking.ranking_points %> pts</p>
+      </div>
     </div>
     <p class="text-[11px] text-mute mt-2"><%= @ranking.ranking_wins %> vitória(s) competitiva(s) · apenas provas com 10–30 pilotos dentro de 10s</p>
   </div>
-  <div class="glass p-6 border-smurf/30">
-    <p class="kicker text-smurf">MMR geral</p>
-    <div class="flex items-end justify-between gap-4 mt-2">
-      <p class="stat-value text-3xl"><%= RankingCalculator::LEVEL_LABELS.fetch(@ranking.mmr_level) %></p>
-      <p class="chrono text-xl font-black"><%= @ranking.mmr_points %> pts</p>
+  <div class="glass p-5 border-smurf/30 overflow-hidden">
+    <div class="grid grid-cols-[96px_minmax(0,1fr)] sm:grid-cols-[112px_minmax(0,1fr)] gap-4 items-center">
+      <%= ranking_badge(@ranking.mmr_level, class_name: "rank-emblem-current w-24 h-24 sm:w-28 sm:h-28", loading: "eager") %>
+      <div class="min-w-0">
+        <p class="kicker text-smurf">MMR geral</p>
+        <p class="stat-value text-2xl sm:text-3xl mt-2"><%= RankingCalculator::LEVEL_LABELS.fetch(@ranking.mmr_level) %></p>
+        <p class="chrono text-xl font-black mt-2"><%= @ranking.mmr_points %> pts</p>
+      </div>
     </div>
     <p class="text-[11px] text-mute mt-2"><%= @ranking.mmr_wins %> vitória(s) · todas as provas de 1–30 pilotos</p>
   </div>

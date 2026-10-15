@@ -1,5 +1,6 @@
 require "minitest/autorun"
 require_relative "../../app/services/participant_name"
+require_relative "../../app/services/ranking_calculator"
 require_relative "../../app/services/global_leaderboard"
 
 class GlobalLeaderboardTest < Minitest::Test
@@ -27,15 +28,28 @@ class GlobalLeaderboardTest < Minitest::Test
     assert_equal 2, owner.appearances
   end
 
-  def test_orders_by_average_relative_finish_not_absolute_lap_time
+  def test_accumulates_official_finishing_points
     rows = GlobalLeaderboard.new(entries: [
-      entry(name: "Líder", position: 1, field_size: 20, best_lap_ms: 70_000),
-      entry(name: "Segundo", position: 2, field_size: 20, best_lap_ms: 50_000)
+      entry(name: "Consistente", position: 4, best_lap_ms: 70_000, session_id: 1),
+      entry(name: "Consistente", position: 4, best_lap_ms: 70_000, session_id: 2),
+      entry(name: "Segundo", position: 2, best_lap_ms: 50_000, session_id: 3)
     ]).call
 
-    assert_equal [ "Líder", "Segundo" ], rows.map(&:name)
+    assert_equal [ "Consistente", "Segundo" ], rows.map(&:name)
     assert_equal [ 1, 2 ], rows.map(&:rank)
-    assert_equal 100.0, rows.first.average_score
+    assert_equal 10, rows.first.points
+    assert_equal 7, rows.last.points
+  end
+
+  def test_uses_wins_before_lap_time_to_break_points_tie
+    rows = GlobalLeaderboard.new(entries: [
+      entry(name: "Vitória", position: 1, best_lap_ms: 70_000, session_id: 1),
+      entry(name: "Consistente", position: 4, best_lap_ms: 50_000, session_id: 2),
+      entry(name: "Consistente", position: 4, best_lap_ms: 50_000, session_id: 3)
+    ]).call
+
+    assert_equal [ "Vitória", "Consistente" ], rows.map(&:name)
+    assert_equal [ 10, 10 ], rows.map(&:points)
   end
 
   def test_keeps_unscored_participant_at_the_bottom
@@ -45,7 +59,8 @@ class GlobalLeaderboardTest < Minitest::Test
     ]).call
 
     assert_equal "Com posição", rows.first.name
-    assert_nil rows.last.average_score
+    assert_equal 0, rows.last.points
+    assert_equal 0, rows.last.scored_appearances
   end
 
   private

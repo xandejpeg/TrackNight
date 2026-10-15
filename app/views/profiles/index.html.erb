@@ -26,7 +26,8 @@
           <p class="font-black text-lg leading-tight"><%= link_to p.display_name, profile_path(p.code), class: "hover:text-race-glow" %></p>
           <p class="text-[11px] text-mute uppercase tracking-widest"><%= p.main? ? "Conta principal" : "Conta smurf" %> · <%= p.code %></p>
         </div>
-        <%= link_to "⚙", edit_profile_path(p.code), class: "ml-auto btn-ghost !w-10 !h-10 !p-0 !text-lg", title: "Configurar #{p.display_name}", aria: { label: "Configurar #{p.display_name}" } %>
+        <%= ranking_badge(ranking.ranking_level, class_name: "rank-emblem-current ml-auto w-14 h-14 sm:w-16 sm:h-16 shrink-0", decorative: true, loading: "eager") %>
+        <%= link_to "⚙", edit_profile_path(p.code), class: "btn-ghost !w-10 !h-10 !p-0 !text-lg shrink-0", title: "Configurar #{p.display_name}", aria: { label: "Configurar #{p.display_name}" } %>
       </div>
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <div>
