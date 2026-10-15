@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+  <head>
+    <title>TrackNight — Configuração inicial</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#060608">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <link rel="icon" href="/icon.png" type="image/png">
+    <%= render "shared/fonts" %>
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+  <body class="speed-lines">
+    <main class="min-h-screen flex flex-col items-center justify-center px-4 py-16">
+      <div class="w-full max-w-2xl">
+        <div class="text-center mb-10">
+          <%= image_tag "brand/logo-full.png", alt: "TrackNight", class: "h-10 mx-auto" %>
+        </div>
+        <%= yield %>
+      </div>
+    </main>
+  </body>
+</html>

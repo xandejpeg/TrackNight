@@ -4,6 +4,7 @@ class ApplicationController < ActionController::Base
 
   before_action :require_login
   before_action :enforce_password_change
+  before_action :enforce_onboarding
 
   helper_method :current_user, :current_profiles, :profiles_filtered?, :all_profile_codes,
                 :current_period, :current_temp, :current_weather, :active_filters_count
@@ -12,8 +13,15 @@ class ApplicationController < ActionController::Base
 
   private
 
+  def enforce_onboarding
+    return unless current_user&.member?
+    return if current_user.onboarding_completed?
+    return if controller_name.in?(%w[sessions registrations onboarding password_resets passwords])
+    redirect_to onboarding_step_path("modalidade")
+  end
+
   def all_profile_codes
-    @all_profile_codes ||= DriverProfile.order(:kind, :id).pluck(:code)
+    @all_profile_codes ||= current_user.driver_profiles.order(:id).pluck(:code)
   end
 
   def current_user
@@ -22,6 +30,10 @@ class ApplicationController < ActionController::Base
 
   def require_login
     redirect_to login_path unless current_user
+  end
+
+  def require_admin
+    redirect_to root_path, alert: "Acesso restrito a administradores." unless current_user&.admin?
   end
 
   def enforce_password_change
@@ -65,6 +77,7 @@ class ApplicationController < ActionController::Base
 
   def stats_for_current_profile
     PerformanceStats.new(
+      user: current_user,
       profile_codes: profiles_filtered? ? current_profiles : nil,
       period: current_period,
       temp: current_temp,

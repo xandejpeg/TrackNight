@@ -2,8 +2,8 @@
 
 A aba `/ranking` reúne duas classificações diferentes:
 
-- **Ranking da conta:** Bronze, Prata, Ouro e Diamante, calculado separadamente para ACF e AC.
-- **Classificação geral:** lista numerada de todos os pilotos encontrados nas provas das duas contas, sem atribuir uma faixa a terceiros.
+- **Ranking do perfil:** Bronze, Prata, Ouro e Diamante, calculado separadamente para cada perfil de piloto.
+- **Classificação geral:** lista numerada de todos os pilotos encontrados nas provas, sem atribuir uma faixa a terceiros.
 
 ## Classificação geral
 
@@ -19,7 +19,7 @@ A classificação soma os pontos de chegada de todas as provas confirmadas das d
 
 Os desempates são, nesta ordem: vitórias, pódios, melhor média de posição, número de corridas, melhor posição e nome. A melhor volta é apenas informativa e nunca altera a ordem.
 
-Nomes sem cadastro próprio são agrupados sem considerar acentos, caixa, pontuação ou espaços repetidos. As contas ACF e AC são reunidas como Alessandro somente na classificação geral.
+Nomes sem cadastro próprio são agrupados sem considerar acentos, caixa, pontuação ou espaços repetidos. Todos os perfis de um mesmo piloto são reunidos somente na classificação geral; os ranks de cada perfil continuam separados.
 
 ## Markdown completo
 

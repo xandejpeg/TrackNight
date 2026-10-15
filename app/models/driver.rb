@@ -1,4 +1,5 @@
 class Driver < ApplicationRecord
+  belongs_to :user, optional: true
   has_many :driver_profiles, dependent: :destroy
   has_many :driver_aliases, dependent: :destroy
   has_many :result_entries, dependent: :nullify

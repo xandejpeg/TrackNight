@@ -22,13 +22,14 @@ Rails.application.configure do
   # config.asset_host = "http://assets.example.com"
 
   # Store uploaded files on the local file system (see config/storage.yml for options).
-  config.active_storage.service = :local
+  config.active_storage.service = ENV.fetch("ACTIVE_STORAGE_SERVICE", "local").to_sym
 
   # Assume all access to the app is happening through a SSL-terminating reverse proxy.
   config.assume_ssl = true
 
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
-  config.force_ssl = true
+  # Desative com FORCE_SSL=false até o certificado HTTPS estar emitido.
+  config.force_ssl = ENV.fetch("FORCE_SSL", "true") == "true"
 
   # Skip http-to-https redirect for the default health check endpoint.
   # config.ssl_options = { redirect: { exclude: ->(request) { request.path == "/up" } } }
@@ -64,11 +65,29 @@ Rails.application.configure do
   config.active_record.attributes_for_inspect = [ :id ]
 
   # Enable DNS rebinding protection and other `Host` header attacks.
-  # config.hosts = [
-  #   "example.com",     # Allow requests from example.com
-  #   /.*\.example\.com/ # Allow requests from subdomains like `www.example.com`
-  # ]
-  #
+  # Configure o(s) domínio(s) em ALLOWED_HOSTS (separados por vírgula).
+  config.hosts = ENV.fetch("ALLOWED_HOSTS", "localhost").split(",").map(&:strip)
+
   # Skip DNS rebinding protection for the default health check endpoint.
-  # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
+  config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
+
+  # URL base do app (usada em links gerados fora de request, ex.: mailers, jobs).
+  app_host = ENV.fetch("APP_HOST", "localhost")
+  app_protocol = config.force_ssl ? "https" : "http"
+  Rails.application.routes.default_url_options = { host: app_host, protocol: app_protocol }
+  config.action_controller.default_url_options = { host: app_host, protocol: app_protocol }
+
+  # Mailer transacional (convites/recuperação futura). SMTP via ENV — ver .env.production.example.
+  config.action_mailer.default_url_options = { host: app_host, protocol: app_protocol }
+  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.smtp_settings = {
+    address: ENV.fetch("SMTP_ADDRESS", "localhost"),
+    port: ENV.fetch("SMTP_PORT", 587).to_i,
+    user_name: ENV["SMTP_USERNAME"],
+    password: ENV["SMTP_PASSWORD"],
+    authentication: ENV.fetch("SMTP_AUTHENTICATION", "plain"),
+    enable_starttls_auto: ENV.fetch("SMTP_STARTTLS", "true") == "true"
+  }
+  config.action_mailer.raise_delivery_errors = true
+  config.action_mailer.default from: ENV.fetch("MAILER_FROM", "TrackNight <no-reply@#{app_host}>")
 end

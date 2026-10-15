@@ -1,48 +1,16 @@
 # Dados estruturais do TrackNight (sem resultados — estes vêm do pipeline de importação).
 
-# --- Usuários ----------------------------------------------------------------
-xande = User.find_or_initialize_by(username: "Xande")
-if xande.new_record?
-  password = ENV.fetch("XANDE_INITIAL_PASSWORD") { Rails.env.production? ? raise("Defina XANDE_INITIAL_PASSWORD") : "123321" }
-  xande.password = password
-  xande.must_change_password = Rails.env.production?
-  xande.save!
+# --- Usuário administrador ---------------------------------------------------
+admin_username = ENV.fetch("ADMIN_USERNAME", "admin")
+admin = User.find_or_initialize_by(username: admin_username)
+if admin.new_record?
+  password = ENV.fetch("ADMIN_INITIAL_PASSWORD") { Rails.env.production? ? raise("Defina ADMIN_INITIAL_PASSWORD") : "tracknight123" }
+  admin.password = password
+  admin.must_change_password = Rails.env.production?
 end
-
-helo = User.find_or_initialize_by(username: "Helo")
-if helo.new_record?
-  password = ENV.fetch("HELO_INITIAL_PASSWORD") { Rails.env.production? ? raise("Defina HELO_INITIAL_PASSWORD") : "123321" }
-  helo.password = password
-  helo.must_change_password = Rails.env.production?
-  helo.save!
-end
-
-# --- Piloto e perfis ---------------------------------------------------------
-driver = Driver.find_or_create_by!(slug: "alessandro-chiarelli") { |d| d.name = "Alessandro Chiarelli" }
-
-[
-  "Alessandro Chiarelli",
-  "Alessandro Chiareli",
-  "Alessandro Chiarele",
-  "ALESSANDRO CHIARELE"
-].each do |name|
-  normalized = DriverAlias.normalize_name(name)
-  DriverAlias.find_or_create_by!(normalized_name: normalized) { |a| a.driver = driver; a.name = name }
-end
-
-DriverProfile.find_or_create_by!(code: "ACF") do |p|
-  p.driver = driver
-  p.display_name = "ACF"
-  p.kind = :main
-  p.color = "#e10600"
-end
-
-DriverProfile.find_or_create_by!(code: "AC") do |p|
-  p.driver = driver
-  p.display_name = "AC (smurf)"
-  p.kind = :smurf
-  p.color = "#00a8e8"
-end
+admin.role = :admin
+admin.full_name = "Administrador TrackNight"
+admin.save!(validate: false) # CPF não se aplica a admin
 
 # --- Pista: KGV --------------------------------------------------------------
 kgv = Venue.find_or_create_by!(slug: "kgv") do |v|
@@ -180,4 +148,10 @@ VehicleCategory.find_or_create_by!(slug: "kart-rental") do |c|
   c.vehicle_kind = :kart
 end
 
-puts "Seeds ok: usuários Xande e Helo, piloto Alessandro Chiarelli (ACF + AC), KGV Circuito 101, Kart Rental."
+puts "Seeds ok: usuário admin (#{admin_username}), KGV Circuito 101, Kart Rental."
+
+# Dados de demonstração (piloto/perfis fictícios) — opcionais:
+#   SEED_DEMO=1 bin/rails db:seed
+if ENV["SEED_DEMO"] == "1"
+  require_relative "seeds/demo"
+end

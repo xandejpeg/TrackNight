@@ -4,9 +4,11 @@ class ImportsController < ApplicationController
                   s1_text s2_text s3_text speed_text].freeze
 
   def index
-    @pending = SourceDocument.awaiting_review.includes(file_attachment: :blob)
-    @imported = SourceDocument.where(status: "imported").order(imported_at: :desc).includes(:race_session)
-    @failed = SourceDocument.where(status: "failed").order(updated_at: :desc)
+    documents = current_user.source_documents
+    @pending = documents.awaiting_review.includes(file_attachment: :blob)
+    @processing = documents.processing.order(created_at: :desc)
+    @imported = documents.where(status: "imported").order(imported_at: :desc).includes(:race_session)
+    @failed = documents.where(status: "failed").order(updated_at: :desc)
   end
 
   def new
@@ -16,28 +18,28 @@ class ImportsController < ApplicationController
     files = Array(params[:files]).reject(&:blank?)
     return redirect_to new_import_path, alert: "Selecione pelo menos um arquivo." if files.empty?
 
-    batch = ImportBatch.create!(source: "upload", started_at: Time.current)
+    batch = current_user.import_batches.create!(source: "upload", started_at: Time.current)
     results = files.map do |file|
       ResultImportService.call(
         io: file, filename: file.original_filename,
-        content_type: file.content_type, batch: batch
+        content_type: file.content_type, batch: batch, async: true, user: current_user
       )
     rescue => e
-      flash[:alert] = "Falha ao processar #{file.original_filename}: #{e.message}"
+      flash[:alert] = "Falha ao enviar #{file.original_filename}: #{e.message}"
       nil
     end.compact
 
-    batch.update!(finished_at: Time.current, status: "finished",
-                  stats: { processados: results.count { |r| !r.duplicate? }, duplicados: results.count(&:duplicate?) })
-
     dups = results.count(&:duplicate?)
-    notice = "#{results.size - dups} arquivo(s) processado(s)."
+    queued = results.size - dups
+    batch.update!(stats: { enfileirados: queued, duplicados: dups })
+
+    notice = "#{queued} arquivo(s) na fila de leitura. O resultado aparece aqui assim que o OCR terminar."
     notice += " #{dups} duplicado(s) ignorado(s)." if dups.positive?
     redirect_to imports_path, notice: notice
   end
 
   def review
-    @document = SourceDocument.find(params[:id])
+    @document = current_user.source_documents.find(params[:id])
     return redirect_to imports_path, alert: "Documento já importado." if @document.status == "imported"
     @parsed = @document.parsed_data.deep_symbolize_keys
     @rows = @parsed[:rows] || []
@@ -45,7 +47,7 @@ class ImportsController < ApplicationController
   end
 
   def confirm
-    document = SourceDocument.find(params[:id])
+    document = current_user.source_documents.find(params[:id])
     return redirect_to imports_path, alert: "Documento já importado." if document.status == "imported"
 
     rows_override = build_rows_override(document)
@@ -66,6 +68,23 @@ class ImportsController < ApplicationController
     redirect_to race_session_path(session), notice: "Sessão confirmada e importada."
   rescue => e
     redirect_to review_import_path(document), alert: "Erro ao confirmar: #{e.message}"
+  end
+
+  def destroy
+    document = current_user.source_documents.find(params[:id])
+    filename = document.filename
+    deleted = document.with_lock do
+      next false unless document.discardable?
+
+      document.destroy!
+      true
+    end
+
+    if deleted
+      redirect_to imports_path, notice: "Sessão pendente #{filename} apagada."
+    else
+      redirect_to imports_path, alert: "Sessões já importadas não podem ser apagadas por aqui."
+    end
   end
 
   private
@@ -98,7 +117,7 @@ class ImportsController < ApplicationController
         value = value.to_i if value && field.in?(%w[position points laps])
         updated[field.to_sym] = value
       end
-      updated[:matched_driver_id] = edited[:alessandro] == "1" ? Driver.find_by(slug: "alessandro-chiarelli")&.id : nil
+      updated[:matched_driver_id] = edited[:tracked] == "1" ? Driver.joins(:driver_profiles).order(:id).first&.id : nil
       updated
     end
   end

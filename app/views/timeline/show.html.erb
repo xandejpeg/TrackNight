@@ -19,7 +19,7 @@
   <div class="timeline-h-wrap">
     <div class="timeline-h">
       <% @sessions.each_with_index do |s, i| %>
-        <% e = s.alessandro_entry %>
+        <% e = s.tracked_entry %>
         <% records = @record_fields[s.id] || [] %>
         <article class="timeline-h-item">
           <div class="timeline-h-marker">
@@ -66,7 +66,7 @@
                 </div>
               <% end %>
             <% else %>
-              <p class="text-sm text-mute">Sem linha do Alessandro nesta sessão.</p>
+              <p class="text-sm text-mute">Sem linha sua nesta sessão.</p>
             <% end %>
           <% end %>
         </article>

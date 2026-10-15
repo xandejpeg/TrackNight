@@ -6,14 +6,14 @@ puts "Documentos: #{docs.count} (esperado 7)"
 
 docs.each do |doc|
   rows = doc.parsed_data["rows"] || []
-  ale = rows.select { |r| r["matched_driver_id"].present? }
+  tracked = rows.select { |r| r["matched_driver_id"].present? }
   puts "\n#{doc.filename} [#{doc.status}] conf=#{doc.confidence}% linhas=#{rows.size} tipo=#{doc.parsed_data['session_type']} nº=#{doc.parsed_data['session_number']} hora=#{doc.parsed_data['start_time_text']} layout=#{doc.parsed_data['column_layout']} perfil_sugerido=#{doc.parsed_data['suggested_profile']}"
-  if ale.empty?
-    puts "  !! ALESSANDRO NÃO ENCONTRADO"
+  if tracked.empty?
+    puts "  !! PILOTO CADASTRADO NÃO ENCONTRADO"
     rows.each { |r| puts "    #{r['position']} #{r['name']}" }
   else
-    ale.each do |r|
-      puts "  ALE pos=#{r['position']} kart=#{r['kart_number']} voltas=#{r['laps']} melhor=#{r['best_lap_text']} total=#{r['total_time_text']} diff=#{r['diff_text']} gap=#{r['gap_text']} s1=#{r['s1_text']} s2=#{r['s2_text']} s3=#{r['s3_text']} spd=#{r['speed_text']} suspect=#{r['suspect']}"
+    tracked.each do |r|
+      puts "  PILOTO pos=#{r['position']} kart=#{r['kart_number']} voltas=#{r['laps']} melhor=#{r['best_lap_text']} total=#{r['total_time_text']} diff=#{r['diff_text']} gap=#{r['gap_text']} s1=#{r['s1_text']} s2=#{r['s2_text']} s3=#{r['s3_text']} spd=#{r['speed_text']} suspect=#{r['suspect']}"
     end
   end
 end

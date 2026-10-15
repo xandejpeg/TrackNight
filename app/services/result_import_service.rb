@@ -10,11 +10,16 @@ class ResultImportService
     def duplicate? = duplicate
   end
 
-  def self.call(path: nil, io: nil, filename:, content_type:, batch: nil, suggested_profile: nil)
-    new.call(path:, io:, filename:, content_type:, batch:, suggested_profile:)
+  def self.call(path: nil, io: nil, filename:, content_type:, batch: nil, suggested_profile: nil, async: false, user: nil)
+    new.call(path:, io:, filename:, content_type:, batch:, suggested_profile:, async:, user:)
   end
 
-  def call(path:, io:, filename:, content_type:, batch:, suggested_profile:)
+  # Executa a extração/parseamento de um documento já persistido (usado pelo job).
+  def self.process(document, suggested_profile: nil)
+    new.process_document(document, suggested_profile: suggested_profile)
+  end
+
+  def call(path:, io:, filename:, content_type:, batch:, suggested_profile:, async: false, user: nil)
     data = path ? File.binread(path) : io.read
     sha = Digest::SHA256.hexdigest(data)
 
@@ -24,6 +29,7 @@ class ResultImportService
 
     doc = SourceDocument.create!(
       import_batch: batch,
+      user: user || batch&.user,
       filename: filename,
       sha256: sha,
       content_type: content_type,
@@ -33,8 +39,16 @@ class ResultImportService
     )
     doc.file.attach(io: StringIO.new(data), filename:, content_type:)
 
-    process(doc, data, content_type, suggested_profile)
+    if async
+      DocumentParseJob.perform_later(doc, suggested_profile)
+    else
+      process(doc, data, content_type, suggested_profile)
+    end
     Result.new(document: doc, duplicate: false)
+  end
+
+  def process_document(document, suggested_profile: nil)
+    process(document, document.file.download, document.content_type, suggested_profile)
   end
 
   private
@@ -48,7 +62,7 @@ class ResultImportService
       parsed = KgvResultParser.call(extraction.text, band_lines: extraction.band_lines || [])
 
       rows = parsed[:rows].map do |row|
-        driver = DriverMatcher.match(row[:name])
+        driver = DriverMatcher.match(row[:name], drivers: doc.user ? doc.user.drivers.to_a : nil)
         row.merge(matched_driver_id: driver&.id)
       end
 

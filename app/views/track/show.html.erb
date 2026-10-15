@@ -47,7 +47,7 @@
       <dt class="text-mute">Sentido</dt><dd><%= @layout.direction || "não confirmado" %></dd>
       <dt class="text-mute">Área do complexo</dt><dd class="chrono"><%= number_with_delimiter(@venue.area_m2, delimiter: ".") %> m²</dd>
       <dt class="text-mute">Coordenadas</dt><dd class="chrono text-[12px]"><%= @venue.latitude %>, <%= @venue.longitude %></dd>
-      <dt class="text-mute">Site</dt><dd><%= link_to "kgvracetracks.com", @venue.website, target: "_blank", rel: "noopener", class: "text-smurf" %></dd>
+      <dt class="text-mute">Site</dt><dd><%= link_to "kgvracetracks.com", @venue.website, target: "_blank", rel: "noopener", class: "text-accent" %></dd>
     </dl>
     <p class="text-[12px] text-mute leading-relaxed"><%= @layout.description %></p>
     <p class="text-[12px] text-mute leading-relaxed border-t border-line pt-3"><%= @venue.description %></p>
@@ -94,7 +94,7 @@
   <h2 class="font-bold text-sm uppercase tracking-widest text-mute mb-4">Fontes das informações</h2>
   <div class="grid sm:grid-cols-3 gap-4">
     <% @sources.each do |src| %>
-      <a href="<%= src.url %>" target="_blank" rel="noopener" class="block p-4 rounded-xl bg-white/[0.03] border border-line hover:border-smurf/40 transition-colors">
+      <a href="<%= src.url %>" target="_blank" rel="noopener" class="block p-4 rounded-xl bg-white/[0.03] border border-line hover:border-accent/40 transition-colors">
         <p class="text-sm font-semibold leading-snug"><%= src.title %></p>
         <p class="text-[11px] text-mute mt-1"><%= src.publisher %> · confiabilidade <%= src.reliability %></p>
         <p class="text-[11px] text-mute mt-2 leading-relaxed"><%= src.notes %></p>

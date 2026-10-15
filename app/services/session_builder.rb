@@ -18,6 +18,7 @@ class SessionBuilder
       session = RaceSession.create!(
         venue:, track_layout: layout, vehicle_category: category,
         source_document: document,
+        user: document.user,
         driver_profile: profile,
         session_type: parsed[:session_type] || "prova",
         session_number: parsed[:session_number],

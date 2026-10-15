@@ -1,0 +1,69 @@
+<% content_for :title, "Admin — TrackNight" %>
+
+<div class="mb-6">
+  <p class="kicker text-race-glow mb-1">Administração</p>
+  <h1 class="text-3xl font-black tracking-tight">Visão geral</h1>
+  <p class="text-sm text-mute mt-1">Contas cadastradas, atividade de upload e uso da plataforma.</p>
+</div>
+
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+  <div class="glass p-5">
+    <p class="kicker">Contas</p>
+    <p class="stat-value text-4xl mt-2"><%= @users_count %></p>
+    <p class="text-[11px] text-mute mt-1"><%= @members_count %> piloto(s)</p>
+  </div>
+  <div class="glass p-5">
+    <p class="kicker text-accent">Sessões</p>
+    <p class="stat-value text-4xl mt-2"><%= @sessions_count %></p>
+    <p class="text-[11px] text-mute mt-1"><%= @confirmed_sessions_count %> confirmadas</p>
+  </div>
+  <div class="glass p-5">
+    <p class="kicker text-mint">Uploads</p>
+    <p class="stat-value text-4xl mt-2"><%= @documents_count %></p>
+    <p class="text-[11px] text-mute mt-1">documentos enviados</p>
+  </div>
+  <div class="glass p-5">
+    <p class="kicker text-gold">Fila de revisão</p>
+    <p class="stat-value text-4xl mt-2"><%= @pending_reviews %></p>
+    <p class="text-[11px] text-mute mt-1">aguardando confirmação</p>
+  </div>
+</div>
+
+<div class="grid md:grid-cols-2 gap-4">
+  <div class="glass p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="font-bold text-sm uppercase tracking-widest text-mute">Últimas contas</h2>
+      <%= link_to "Ver todas →", admin_users_path, class: "text-accent text-[12px] font-semibold" %>
+    </div>
+    <div class="space-y-3">
+      <% @recent_users.each do |user| %>
+        <div class="flex items-center gap-3">
+          <span class="w-8 h-8 rounded-full grid place-items-center font-black text-[10px] text-white shrink-0 <%= user.admin? ? 'bg-race' : 'bg-line' %>">
+            <%= user.username.first(2).upcase %>
+          </span>
+          <div class="min-w-0">
+            <p class="font-semibold leading-tight"><%= user.username %> <% if user.admin? %><span class="text-[9px] text-race-glow uppercase tracking-widest">admin</span><% end %></p>
+            <p class="text-[11px] text-mute truncate"><%= user.full_name %></p>
+          </div>
+          <span class="ml-auto text-[11px] text-mute chrono"><%= user.created_at.strftime("%d/%m/%y") %></span>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="glass p-6">
+    <h2 class="font-bold text-sm uppercase tracking-widest text-mute mb-4">Últimos uploads</h2>
+    <div class="space-y-3">
+      <% @recent_imports.each do |doc| %>
+        <div class="flex items-center gap-3">
+          <span class="text-base"><%= { "imported" => "✅", "parsed" => "🟡", "failed" => "❌" }.fetch(doc.status, "⏳") %></span>
+          <div class="min-w-0">
+            <p class="font-semibold leading-tight truncate"><%= doc.filename %></p>
+            <p class="text-[11px] text-mute"><%= doc.user&.username || "—" %> · <%= doc.status %></p>
+          </div>
+          <span class="ml-auto text-[11px] text-mute chrono"><%= doc.created_at.strftime("%d/%m %H:%M") %></span>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

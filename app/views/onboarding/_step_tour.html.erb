@@ -1,0 +1,27 @@
+<div class="text-center mb-8">
+  <p class="font-chrono text-[11px] uppercase tracking-[0.3em] text-tel mb-3">Guia rápido</p>
+  <h1 class="font-display italic font-extrabold uppercase text-4xl leading-tight">Seu primeiro import</h1>
+  <p class="text-mute mt-3">Passo a passo para trazer seus tempos do KGV.</p>
+</div>
+
+<div class="max-w-xl mx-auto space-y-4 mb-10">
+  <% [
+    [ "01", "Acesse sua conta no site do KGV", "Entre em kgvracetracks.com e faça login na área do piloto." ],
+    [ "02", "Vá em Minhas corridas", "Abra o histórico e escolha a sessão que você quer analisar." ],
+    [ "03", "Baixe ou fotografe a folha de tempos", "Salve a imagem ou PDF da folha completa de resultados." ],
+    [ "04", "Nomeie o arquivo com a data", "Use o formato DDMMAAAA HHMM — ex.: 15072026 2100.jpeg. Assim a data é detectada sozinha." ],
+    [ "05", "Envie na aba Importar", "O OCR lê as linhas, você revisa e confirma. Pronto — seu painel acende." ]
+  ].each do |num, title, desc| %>
+    <div class="glass p-5 flex gap-4">
+      <p class="font-chrono text-race-glow text-sm font-bold shrink-0 mt-0.5"><%= num %></p>
+      <div>
+        <p class="font-display font-bold uppercase text-base mb-1"><%= title %></p>
+        <p class="text-[13px] text-mute leading-relaxed"><%= desc %></p>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<div class="text-center">
+  <%= button_to "Ir para Importar", onboarding_complete_path, method: :post, class: "btn-race cursor-pointer" %>
+</div>

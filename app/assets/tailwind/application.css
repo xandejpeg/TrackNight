@@ -1,4 +1,8 @@
-@import "tailwindcss";
+@import "tailwindcss" source(none);
+
+@source "../../views";
+@source "../../helpers";
+@source "../../javascript";
 
 @theme {
   --color-carbon: #060608;
@@ -7,11 +11,14 @@
   --color-line: #26262e;
   --color-race: #e10600;
   --color-race-glow: #ff2d1a;
-  --color-smurf: #00a8e8;
+  --color-tel: #00a8e8;
+  --color-accent: #00a8e8;
   --color-gold: #ffd166;
   --color-mint: #2dd4a7;
   --color-mute: #8b8b96;
-  --font-chrono: "SF Mono", "Cascadia Code", "JetBrains Mono", ui-monospace, monospace;
+  --font-display: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --font-sans: "Barlow", system-ui, sans-serif;
+  --font-chrono: "JetBrains Mono", "SF Mono", "Cascadia Code", ui-monospace, monospace;
 }
 
 @layer base {
@@ -36,6 +43,61 @@
     color: #f4f4f6;
     min-height: 100vh;
     font-feature-settings: "tnum";
+    font-family: "Barlow", system-ui, sans-serif;
+  }
+
+  /* 3 vozes tipográficas — Brand Guidelines v1.0 */
+  h1, h2, h3, .font-display {
+    font-family: "Barlow Condensed", "Arial Narrow", sans-serif;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+  .kicker {
+    font-family: "JetBrains Mono", "SF Mono", ui-monospace, monospace;
+  }
+
+  /* ── Tela zero (splash) — bandeirada animada ───────────────────── */
+  .splash {
+    position: fixed; inset: 0; z-index: 100; background: #070405;
+    display: flex; align-items: center; justify-content: center; flex-direction: column;
+    overflow: hidden; cursor: pointer;
+  }
+  .splash::before {
+    content: ""; position: absolute; inset: 0;
+    background:
+      radial-gradient(900px 500px at 50% 30%, rgba(225,6,0,0.18), transparent 60%),
+      linear-gradient(180deg, #0a0507 0%, #070405 100%);
+  }
+  .splash-flag {
+    position: relative; width: min(560px, 82vw);
+    opacity: 0; transform: scale(1.08) translateY(12px);
+    transition: opacity .6s cubic-bezier(.2,.7,.3,1), transform .6s cubic-bezier(.2,.7,.3,1);
+  }
+  .splash-wordmark {
+    position: relative; width: min(460px, 70vw); margin-top: -4%;
+    opacity: 0; transform: translateY(10px);
+    transition: opacity .55s ease .15s, transform .55s ease .15s;
+  }
+  .splash-tagline {
+    position: relative; margin-top: 14px;
+    font-family: "JetBrains Mono", monospace; font-size: 10px;
+    letter-spacing: 0.34em; text-transform: uppercase; color: #b9b9c4;
+    opacity: 0; transition: opacity .6s ease .5s;
+  }
+  .splash-running .splash-flag     { opacity: 1; transform: scale(1) translateY(0); animation: splash-swing 1.7s ease-in-out .55s 1; transform-origin: 48% 96%; }
+  .splash-running .splash-wordmark { opacity: 1; transform: translateY(0); }
+  .splash-running .splash-tagline  { opacity: 1; }
+  .splash-done   { opacity: 0; transition: opacity .65s ease; pointer-events: none; }
+  @keyframes splash-swing {
+    0%   { transform: rotate(0deg); }
+    25%  { transform: rotate(-7deg); }
+    55%  { transform: rotate(4.5deg); }
+    80%  { transform: rotate(-1.8deg); }
+    100% { transform: rotate(0deg); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .splash-running .splash-flag { animation: none; }
+    .splash { display: none; }
   }
 }
 
@@ -247,7 +309,7 @@
     border-bottom: 1px solid rgba(255,255,255,0.045);
     white-space: nowrap;
   }
-  .row-ale {
+  .row-tracked {
     background: linear-gradient(90deg, rgba(225,6,0,0.16), rgba(225,6,0,0.03)) !important;
     box-shadow: inset 3px 0 0 var(--color-race);
   }

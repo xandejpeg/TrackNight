@@ -1,0 +1,79 @@
+<% content_for :title, "#{@user.username} — Admin TrackNight" %>
+
+<div class="mb-6 flex items-center gap-4 flex-wrap">
+  <span class="w-14 h-14 rounded-full grid place-items-center font-black text-base text-white shrink-0 <%= @user.admin? ? 'bg-race' : 'bg-line' %>">
+    <%= @user.username.first(2).upcase %>
+  </span>
+  <div>
+    <p class="kicker mb-0.5"><%= @user.admin? ? "Administrador" : "Piloto" %></p>
+    <h1 class="text-3xl font-black tracking-tight"><%= @user.username %></h1>
+    <p class="text-sm text-mute mt-1"><%= @user.full_name %> · CPF <%= @user.cpf.presence || "—" %> · desde <%= @user.created_at.strftime("%d/%m/%Y") %></p>
+  </div>
+  <div class="ml-auto">
+    <%= link_to "← Contas", admin_users_path, class: "btn-ghost !text-[12px]" %>
+  </div>
+</div>
+
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+  <div class="glass p-5">
+    <p class="kicker">Perfis</p>
+    <p class="stat-value text-4xl mt-2"><%= @profiles.size %></p>
+    <p class="text-[11px] text-mute mt-1"><%= @profiles.map(&:code).join(", ").presence || "nenhum" %></p>
+  </div>
+  <div class="glass p-5">
+    <p class="kicker text-mint">Uploads</p>
+    <p class="stat-value text-4xl mt-2"><%= @user.source_documents.count %></p>
+    <p class="text-[11px] text-mute mt-1">documentos enviados</p>
+  </div>
+  <div class="glass p-5">
+    <p class="kicker text-accent">Corridas</p>
+    <p class="stat-value text-4xl mt-2"><%= @sessions.size %></p>
+    <p class="text-[11px] text-mute mt-1"><%= @sessions.count(&:review_confirmada?) %> confirmadas</p>
+  </div>
+  <div class="glass p-5">
+    <p class="kicker text-gold">Melhor volta</p>
+    <p class="stat-value text-4xl mt-2"><%= @best_lap_ms ? lap(@best_lap_ms) : "—" %></p>
+    <p class="text-[11px] text-mute mt-1">em todas as sessões</p>
+  </div>
+</div>
+
+<div class="grid md:grid-cols-2 gap-4">
+  <div class="glass p-6">
+    <h2 class="font-bold text-sm uppercase tracking-widest text-mute mb-4">Últimas sessões</h2>
+    <% if @sessions.any? %>
+      <div class="space-y-3">
+        <% @sessions.last(8).reverse.each do |s| %>
+          <div class="flex items-center gap-3">
+            <span class="text-base"><%= s.review_confirmada? ? "✅" : "🟡" %></span>
+            <div class="min-w-0">
+              <p class="font-semibold leading-tight"><%= s.title %></p>
+              <p class="text-[11px] text-mute"><%= s.driver_profile&.code || "sem perfil" %> · <%= s.started_at&.strftime("%d/%m/%y %H:%M") || "data pendente" %></p>
+            </div>
+            <span class="ml-auto chrono text-[12px]"><%= lap(s.tracked_entry&.best_lap_ms) %></span>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="text-sm text-mute">Nenhuma sessão ainda.</p>
+    <% end %>
+  </div>
+
+  <div class="glass p-6">
+    <h2 class="font-bold text-sm uppercase tracking-widest text-mute mb-4">Últimos uploads</h2>
+    <% if @uploads.any? %>
+      <div class="space-y-3">
+        <% @uploads.each do |doc| %>
+          <div class="flex items-center gap-3">
+            <span class="text-base"><%= { "imported" => "✅", "parsed" => "🟡", "failed" => "❌" }.fetch(doc.status, "⏳") %></span>
+            <div class="min-w-0">
+              <p class="font-semibold leading-tight truncate"><%= doc.filename %></p>
+              <p class="text-[11px] text-mute"><%= doc.status %> · <%= doc.created_at.strftime("%d/%m %H:%M") %></p>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="text-sm text-mute">Nenhum upload ainda.</p>
+    <% end %>
+  </div>
+</div>

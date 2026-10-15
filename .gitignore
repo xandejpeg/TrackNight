@@ -30,6 +30,10 @@
 
 /public/assets
 
+# Production installs gems inside the app; keep dependencies out of Git and
+# Tailwind's automatic source scan.
+/vendor/bundle
+
 # Ignore key files for decrypting credentials and more.
 /config/*.key
 
